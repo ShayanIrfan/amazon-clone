@@ -1,0 +1,11 @@
+# Capture hook scratch state (the logs themselves, .agent-logs/, are committed)
+.claude/capture-state/
+.claude/settings.local.json
+
+node_modules/
+.env
+.env.*
+!.env.example
+.vercel/
+.next/
+dist/
