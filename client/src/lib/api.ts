@@ -1,13 +1,24 @@
-import type { Category, ProductListResponse, Product, ReviewListResponse, ReviewSort } from "./types";
+import type { Category, ProductListResponse, Product, ReviewListResponse, ReviewSort, AuthUser } from "./types";
+import type { CartItem } from "./cartStorage";
 
-async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`/api${path}`, { credentials: "include" });
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`/api${path}`, {
+    credentials: "include",
+    headers: init?.body ? { "Content-Type": "application/json" } : undefined,
+    ...init,
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? `Request failed: ${res.status}`);
   }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
+
+const get = <T>(path: string) => request<T>(path);
+const post = <T>(path: string, body?: unknown) =>
+  request<T>(path, { method: "POST", body: body !== undefined ? JSON.stringify(body) : undefined });
+const put = <T>(path: string, body: unknown) => request<T>(path, { method: "PUT", body: JSON.stringify(body) });
 
 export interface ProductQuery {
   q?: string;
@@ -51,5 +62,29 @@ export const api = {
     if (opts.page) params.set("page", String(opts.page));
     const qs = params.toString();
     return get<ReviewListResponse>(`/products/${id}/reviews${qs ? `?${qs}` : ""}`);
+  },
+
+  auth: {
+    checkEmail: (email: string) => post<{ exists: boolean }>("/auth/check-email", { email }),
+    signup: (data: { name: string; email: string; password: string; guestCart: CartItem[] }) =>
+      post<{ user: AuthUser }>("/auth/signup", data),
+    login: (data: { email: string; password: string; guestCart: CartItem[] }) =>
+      post<{ user: AuthUser }>("/auth/login", data),
+    demo: (data: { guestCart: CartItem[] }) => post<{ user: AuthUser }>("/auth/demo", data),
+    logout: () => post<void>("/auth/logout"),
+    // 401 (not signed in) is a normal state here, not an error to throw.
+    me: async () => {
+      try {
+        const { user } = await get<{ user: AuthUser }>("/auth/me");
+        return user;
+      } catch {
+        return null;
+      }
+    },
+  },
+
+  cart: {
+    get: () => get<{ items: CartItem[] }>("/cart"),
+    put: (items: CartItem[]) => put<{ items: CartItem[] }>("/cart", { items }),
   },
 };

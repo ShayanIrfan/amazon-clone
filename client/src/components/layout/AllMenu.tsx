@@ -1,10 +1,13 @@
 import { X } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useCategories } from "../../hooks/useProducts";
+import { useAuth } from "../../context/AuthContext";
 import ComingSoon from "./ComingSoon";
 
 export default function AllMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { data } = useCategories();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
@@ -40,9 +43,23 @@ export default function AllMenu({ open, onClose }: { open: boolean; onClose: () 
 
         <div className="mt-2 border-t border-neutral-200 py-2">
           <p className="px-4 py-1 text-xs font-bold tracking-wide text-neutral-500 uppercase">Help &amp; Settings</p>
-          <ComingSoon milestone="milestone 4 (sign in)" className="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100">
-            Your Account
-          </ComingSoon>
+          {user ? (
+            <button
+              type="button"
+              onClick={async () => {
+                onClose();
+                await logout();
+                navigate("/");
+              }}
+              className="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100"
+            >
+              Sign Out ({user.name.split(" ")[0]})
+            </button>
+          ) : (
+            <Link to="/login" onClick={onClose} className="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100">
+              Sign In
+            </Link>
+          )}
           <ComingSoon milestone="a later milestone" className="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100">
             Customer Service
           </ComingSoon>

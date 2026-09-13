@@ -4,6 +4,7 @@ import SearchBar from "./SearchBar";
 import ComingSoon from "./ComingSoon";
 import Logo from "./Logo";
 import { useCart } from "../../context/CartContext";
+import AccountMenu from "./AccountMenu";
 
 export default function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
   const { itemCount } = useCart();
@@ -37,13 +38,7 @@ export default function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
         <SearchBar />
       </div>
 
-      <ComingSoon
-        milestone="milestone 4 (sign in)"
-        className="hidden shrink-0 flex-col items-start rounded-sm border border-transparent p-2 text-left leading-tight hover:border-white md:flex"
-      >
-        <span className="text-xs">Hello, sign in</span>
-        <span className="text-sm font-bold">Account &amp; Lists</span>
-      </ComingSoon>
+      <AccountMenu />
 
       <ComingSoon
         milestone="milestone 5 (orders)"

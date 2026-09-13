@@ -1,7 +1,10 @@
-import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import { loadCart, saveCart, type CartItem } from "../lib/cartStorage";
+import { api } from "../lib/api";
+import { useAuth } from "./AuthContext";
 
 type Action =
+  | { type: "REPLACE"; items: CartItem[] }
   | { type: "ADD"; productId: string; quantity: number }
   | { type: "SET_QUANTITY"; productId: string; quantity: number }
   | { type: "REMOVE"; productId: string }
@@ -9,6 +12,8 @@ type Action =
 
 function reducer(items: CartItem[], action: Action): CartItem[] {
   switch (action.type) {
+    case "REPLACE":
+      return action.items;
     case "ADD": {
       const existing = items.find((i) => i.productId === action.productId);
       if (existing) {
@@ -48,9 +53,47 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, dispatch] = useReducer(reducer, undefined, loadCart);
+  const { user, isLoading: authLoading } = useAuth();
+  const [items, dispatch] = useReducer(reducer, []);
+  const mode = useRef<"guest" | "auth">("guest");
+  // Persistence must not run before hydration has set real data — otherwise
+  // the very first render's empty `items` gets written out and wipes
+  // whatever was actually in localStorage (or the server) before it's read.
+  const [hydrated, setHydrated] = useState(false);
 
-  useEffect(() => saveCart(items), [items]);
+  useEffect(() => {
+    if (authLoading) return;
+    let cancelled = false;
+
+    if (user) {
+      mode.current = "auth";
+      api.cart
+        .get()
+        .then(({ items }) => {
+          if (!cancelled) {
+            dispatch({ type: "REPLACE", items });
+            setHydrated(true);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setHydrated(true); // fail open with an empty cart rather than wedge the page
+        });
+    } else {
+      mode.current = "guest";
+      dispatch({ type: "REPLACE", items: loadCart() });
+      setHydrated(true);
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, authLoading]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    if (mode.current === "guest") saveCart(items);
+    else api.cart.put(items).catch(() => {}); // best-effort; a failed sync just retries on the next change
+  }, [items, hydrated]);
 
   const value = useMemo<CartContextValue>(
     () => ({

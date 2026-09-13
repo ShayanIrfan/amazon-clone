@@ -44,6 +44,13 @@ export interface ReviewListResponse {
 
 export type ReviewSort = "recent" | "highest" | "lowest";
 
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  isDemo: boolean;
+}
+
 export interface Category {
   slug: string;
   name: string;

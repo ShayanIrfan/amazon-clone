@@ -8,6 +8,9 @@ import { dbState } from "./db.js";
 import { productsRouter } from "./routes/products.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { homeRouter } from "./routes/home.js";
+import { authRouter } from "./routes/auth.js";
+import { cartRouter } from "./routes/cart.js";
+import { optionalAuth } from "./middleware/auth.js";
 
 export function createApp() {
   const app = express();
@@ -16,6 +19,7 @@ export function createApp() {
   app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
   app.use(express.json());
   app.use(cookieParser());
+  app.use(optionalAuth);
 
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, db: dbState() });
@@ -24,6 +28,8 @@ export function createApp() {
   app.use("/api/products", productsRouter);
   app.use("/api/categories", categoriesRouter);
   app.use("/api/home", homeRouter);
+  app.use("/api/auth", authRouter);
+  app.use("/api/cart", cartRouter);
 
   const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof ZodError) {
