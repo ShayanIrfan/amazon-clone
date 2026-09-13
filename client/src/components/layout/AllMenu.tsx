@@ -60,6 +60,11 @@ export default function AllMenu({ open, onClose }: { open: boolean; onClose: () 
               Sign In
             </Link>
           )}
+          {user && (
+            <Link to="/lists" onClick={onClose} className="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100">
+              Your Lists
+            </Link>
+          )}
           <ComingSoon milestone="a later milestone" className="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100">
             Customer Service
           </ComingSoon>

@@ -21,6 +21,8 @@ export interface Product {
   minimumOrderQuantity?: number;
   images: string[];
   thumbnail: string;
+  /** Only present when the request was authenticated (see GET /products/:id). */
+  canReview?: { eligible: boolean; alreadyReviewed: boolean };
 }
 
 export interface Review {
@@ -128,4 +130,15 @@ export interface Order {
   status: OrderStatus;
   payment: { brand: string; last4: string };
   placedAt: string;
+}
+
+export interface WishList {
+  _id: string;
+  name: string;
+  items: { product: string; addedAt: string; _id: string }[];
+}
+
+export interface RecentlyViewedItem {
+  productId: string;
+  viewedAt: number;
 }

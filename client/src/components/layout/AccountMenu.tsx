@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
-import ComingSoon from "./ComingSoon";
 
 export default function AccountMenu() {
   const { user, logout } = useAuth();
@@ -47,14 +46,24 @@ export default function AccountMenu() {
               </button>
               <ul className="mt-3 space-y-2 text-sm">
                 <li>
+                  <Link to="/account" onClick={() => setOpen(false)} className="hover:underline">
+                    Your Account
+                  </Link>
+                </li>
+                <li>
                   <Link to="/orders" onClick={() => setOpen(false)} className="hover:underline">
                     Your Orders
                   </Link>
                 </li>
                 <li>
-                  <ComingSoon milestone="milestone 6 (lists)" className="text-left hover:underline">
+                  <Link to="/account/addresses" onClick={() => setOpen(false)} className="hover:underline">
+                    Your Addresses
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/lists" onClick={() => setOpen(false)} className="hover:underline">
                     Your Lists
-                  </ComingSoon>
+                  </Link>
                 </li>
               </ul>
             </>

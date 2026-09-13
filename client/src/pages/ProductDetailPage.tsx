@@ -11,6 +11,8 @@ import SpecsTable from "../components/product/SpecsTable";
 import RatingBreakdown from "../components/product/RatingBreakdown";
 import ReviewList from "../components/product/ReviewList";
 import ProductRow from "../components/product/ProductRow";
+import AddToListMenu from "../components/lists/AddToListMenu";
+import WriteReviewForm from "../components/product/WriteReviewForm";
 import { estimatedDelivery } from "../lib/format";
 import type { ReviewSort } from "../lib/types";
 
@@ -30,6 +32,7 @@ export default function ProductDetailPage() {
   const [reviewSort, setReviewSort] = useState<ReviewSort>("recent");
   const [starFilter, setStarFilter] = useState<number | null>(null);
   const [reviewPage, setReviewPage] = useState(1);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   const { data: reviewData } = useReviews(id, { sort: reviewSort, star: starFilter ?? undefined, page: reviewPage });
 
@@ -82,6 +85,9 @@ export default function ProductDetailPage() {
           <p className="mt-1 text-sm text-link hover:underline">Visit the {product.brand} Store</p>
           <div className="mt-1">
             <StarRating rating={product.rating} count={product.ratingCount} />
+          </div>
+          <div className="mt-2">
+            <AddToListMenu productId={product._id} />
           </div>
 
           <div className="mt-3 border-t border-neutral-200 pt-3">
@@ -150,9 +156,8 @@ export default function ProductDetailPage() {
               disabled={product.stock === 0}
               onClick={() => {
                 addItem(product._id, quantity);
-                navigate("/cart");
+                navigate("/checkout");
               }}
-              title="Checkout isn't built yet (milestone 5) — this adds the item and takes you to the cart"
               className="mt-2 w-full rounded-full bg-amazon-orange px-4 py-2 text-sm font-medium text-white hover:brightness-95 disabled:opacity-50"
             >
               Buy Now
@@ -167,8 +172,29 @@ export default function ProductDetailPage() {
       </div>
 
       <div className="mt-10 border-t border-neutral-200 pt-6">
-        <h2 className="mb-4 text-xl font-bold text-neutral-900">Customer Reviews</h2>
-        <div className="grid gap-8 sm:grid-cols-[240px_1fr]">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-bold text-neutral-900">Customer Reviews</h2>
+          {product.canReview?.eligible && !showReviewForm && (
+            <button
+              type="button"
+              onClick={() => setShowReviewForm(true)}
+              className="rounded-full border border-neutral-300 px-4 py-1.5 text-sm hover:bg-neutral-50"
+            >
+              Write a customer review
+            </button>
+          )}
+          {product.canReview?.alreadyReviewed && (
+            <p className="text-sm text-neutral-500">You've reviewed this item.</p>
+          )}
+        </div>
+
+        {showReviewForm && (
+          <div className="mt-4">
+            <WriteReviewForm productId={product._id} onDone={() => setShowReviewForm(false)} />
+          </div>
+        )}
+
+        <div className="mt-4 grid gap-8 sm:grid-cols-[240px_1fr]">
           <RatingBreakdown
             average={product.rating}
             total={reviewData?.total ?? product.ratingCount}

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import type { ReviewSort } from "../lib/types";
 
@@ -24,5 +24,17 @@ export function useReviews(id: string | undefined, opts: { sort?: ReviewSort; st
     queryFn: () => api.reviews(id!, opts),
     enabled: !!id,
     placeholderData: (prev) => prev,
+  });
+}
+
+export function useWriteReview(id: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { rating: number; comment: string }) => api.writeReview(id!, data),
+    onSuccess: () => {
+      // The write also recalculates the product's cached rating server-side.
+      queryClient.invalidateQueries({ queryKey: ["product", id] });
+      queryClient.invalidateQueries({ queryKey: ["reviews", id] });
+    },
   });
 }

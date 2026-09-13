@@ -12,6 +12,8 @@ import { authRouter } from "./routes/auth.js";
 import { cartRouter } from "./routes/cart.js";
 import { addressesRouter } from "./routes/addresses.js";
 import { ordersRouter } from "./routes/orders.js";
+import { usersRouter } from "./routes/users.js";
+import { listsRouter } from "./routes/lists.js";
 import { optionalAuth } from "./middleware/auth.js";
 
 export function createApp() {
@@ -34,6 +36,8 @@ export function createApp() {
   app.use("/api/cart", cartRouter);
   app.use("/api/addresses", addressesRouter);
   app.use("/api/orders", ordersRouter);
+  app.use("/api/users", usersRouter);
+  app.use("/api/lists", listsRouter);
 
   const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof ZodError) {

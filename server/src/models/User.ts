@@ -38,7 +38,7 @@ const userSchema = new Schema(
     recentlyViewed: {
       type: [
         {
-          product: { type: Schema.Types.ObjectId, ref: "Product" },
+          product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
           viewedAt: { type: Date, default: Date.now },
         },
       ],

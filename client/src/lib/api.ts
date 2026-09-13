@@ -11,6 +11,9 @@ import type {
   OrderQuote,
   DeliverySpeed,
   CardInput,
+  WishList,
+  RecentlyViewedItem,
+  Review,
 } from "./types";
 import type { CartItem } from "./cartStorage";
 
@@ -76,6 +79,8 @@ export const api = {
     const qs = params.toString();
     return get<ReviewListResponse>(`/products/${id}/reviews${qs ? `?${qs}` : ""}`);
   },
+  writeReview: (id: string, data: { rating: number; comment: string }) =>
+    post<{ review: Review }>(`/products/${id}/reviews`, data),
 
   auth: {
     checkEmail: (email: string) => post<{ exists: boolean }>("/auth/check-email", { email }),
@@ -115,5 +120,20 @@ export const api = {
     list: () => get<{ items: Order[] }>("/orders"),
     get: (id: string) => get<{ order: Order }>(`/orders/${id}`),
     cancel: (id: string) => post<{ order: Order }>(`/orders/${id}/cancel`),
+  },
+
+  lists: {
+    list: () => get<{ items: WishList[] }>("/lists"),
+    create: (name: string) => post<{ items: WishList[] }>("/lists", { name }),
+    remove: (id: string) => request<{ items: WishList[] }>(`/lists/${id}`, { method: "DELETE" }),
+    addItem: (listId: string, productId: string) => post<{ items: WishList[] }>(`/lists/${listId}/items`, { productId }),
+    removeItem: (listId: string, productId: string) =>
+      request<{ items: WishList[] }>(`/lists/${listId}/items/${productId}`, { method: "DELETE" }),
+  },
+
+  users: {
+    recentlyViewed: () => get<{ items: RecentlyViewedItem[] }>("/users/recently-viewed"),
+    removeRecentlyViewed: (productId: string) =>
+      request<{ items: RecentlyViewedItem[] }>(`/users/recently-viewed/${productId}`, { method: "DELETE" }),
   },
 };

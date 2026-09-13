@@ -3,6 +3,7 @@ import type { Product } from "../../lib/types";
 import type { CartItem } from "../../lib/cartStorage";
 import { formatPrice } from "../../lib/format";
 import QuantitySelector from "../product/QuantitySelector";
+import AddToListMenu from "../lists/AddToListMenu";
 
 interface Props {
   item: CartItem;
@@ -56,6 +57,8 @@ export default function CartLineItem({ item, product, onSetQuantity, onRemove, o
               Save for later
             </button>
           )}
+          <span className="text-neutral-300">|</span>
+          <AddToListMenu productId={product._id} variant="link" />
         </div>
       </div>
 

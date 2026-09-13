@@ -8,7 +8,9 @@ import AuthPage from "./pages/AuthPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrdersListPage from "./pages/OrdersListPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
-import PlaceholderPage from "./pages/PlaceholderPage";
+import AccountPage from "./pages/AccountPage";
+import AddressesPage from "./pages/AddressesPage";
+import ListsPage from "./pages/ListsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import RequireAuth from "./components/auth/RequireAuth";
 
@@ -45,7 +47,30 @@ export default function App() {
             </RequireAuth>
           }
         />
-        <Route path="/account" element={<PlaceholderPage title="Your Account" milestone="milestone 6" />} />
+        <Route
+          path="/account"
+          element={
+            <RequireAuth>
+              <AccountPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/account/addresses"
+          element={
+            <RequireAuth>
+              <AddressesPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/lists"
+          element={
+            <RequireAuth>
+              <ListsPage />
+            </RequireAuth>
+          }
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

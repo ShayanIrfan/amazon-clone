@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { z } from "zod";
 import { Types } from "mongoose";
-import { ProductModel, ReviewModel } from "../models/index.js";
+import { ProductModel, ReviewModel, UserModel } from "../models/index.js";
 import { parsePagination } from "../lib/pagination.js";
+import { recordView } from "../lib/recentlyViewed.js";
+import { hasPurchased, recalcProductRating } from "../lib/reviews.js";
 
 export const productsRouter = Router();
 
@@ -231,7 +233,58 @@ productsRouter.get("/:id", async (req, res, next) => {
     if (!Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ error: "Product not found" });
     const product = await ProductModel.findById(req.params.id).lean();
     if (!product) return res.status(404).json({ error: "Product not found" });
-    res.json(product);
+
+    let canReview: { eligible: boolean; alreadyReviewed: boolean } = { eligible: false, alreadyReviewed: false };
+    if (req.userId) {
+      // Never let a slow/failed write here delay or break loading the product.
+      recordView(req.userId, product._id.toString());
+
+      const alreadyReviewed = await ReviewModel.exists({ product: product._id, user: req.userId });
+      canReview = {
+        alreadyReviewed: !!alreadyReviewed,
+        eligible: !alreadyReviewed && (await hasPurchased(req.userId, req.params.id)),
+      };
+    }
+
+    res.json({ ...product, canReview });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const newReviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().min(1, "Enter a review").max(2000),
+});
+
+productsRouter.post("/:id/reviews", async (req, res, next) => {
+  try {
+    // Not composed as `requireAuth` middleware: passing a second handler to
+    // this route makes @types/express stop inferring `:id` from the path
+    // literal (req.params.id types as string | string[] instead of string).
+    if (!req.userId) return res.status(401).json({ error: "Not signed in" });
+    if (!Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ error: "Product not found" });
+    const { rating, comment } = newReviewSchema.parse(req.body);
+
+    if (!(await hasPurchased(req.userId, req.params.id))) {
+      res.status(403).json({ error: "You can review this item once you've purchased it." });
+      return;
+    }
+
+    const user = await UserModel.findById(req.userId).select("name");
+    if (!user) return res.status(401).json({ error: "Not signed in" });
+
+    const productId = new Types.ObjectId(req.params.id);
+    // Resubmitting updates your existing review rather than creating a
+    // second one — one review per shopper per product.
+    const review = await ReviewModel.findOneAndUpdate(
+      { product: productId, user: req.userId },
+      { rating, comment, date: new Date(), reviewerName: user.name, verifiedPurchase: true },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+    );
+
+    await recalcProductRating(productId);
+    res.status(201).json({ review });
   } catch (err) {
     next(err);
   }
