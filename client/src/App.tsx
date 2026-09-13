@@ -5,8 +5,12 @@ import SearchPage from "./pages/SearchPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import CartPage from "./pages/CartPage";
 import AuthPage from "./pages/AuthPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrdersListPage from "./pages/OrdersListPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import RequireAuth from "./components/auth/RequireAuth";
 
 export default function App() {
   return (
@@ -17,8 +21,31 @@ export default function App() {
         <Route path="/product/:id" element={<ProductDetailPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/login" element={<AuthPage />} />
+        <Route
+          path="/checkout"
+          element={
+            <RequireAuth>
+              <CheckoutPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <RequireAuth>
+              <OrdersListPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/orders/:id"
+          element={
+            <RequireAuth>
+              <OrderDetailPage />
+            </RequireAuth>
+          }
+        />
         <Route path="/account" element={<PlaceholderPage title="Your Account" milestone="milestone 6" />} />
-        <Route path="/orders" element={<PlaceholderPage title="Your Orders" milestone="milestone 5" />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

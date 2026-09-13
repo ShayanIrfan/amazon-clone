@@ -40,13 +40,13 @@ export default function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
 
       <AccountMenu />
 
-      <ComingSoon
-        milestone="milestone 5 (orders)"
+      <Link
+        to="/orders"
         className="hidden shrink-0 flex-col items-start rounded-sm border border-transparent p-2 text-left leading-tight hover:border-white md:flex"
       >
         <span className="text-xs">Returns</span>
         <span className="text-sm font-bold">&amp; Orders</span>
-      </ComingSoon>
+      </Link>
 
       <Link
         to="/cart"

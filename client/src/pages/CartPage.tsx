@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { api } from "../lib/api";
@@ -8,6 +8,7 @@ import { formatPrice } from "../lib/format";
 import CartLineItem from "../components/cart/CartLineItem";
 
 export default function CartPage() {
+  const navigate = useNavigate();
   const { items, setQuantity, removeItem, saveForLater, moveToCart } = useCart();
   const productIds = [...items.map((i) => i.productId)].sort();
 
@@ -115,8 +116,7 @@ export default function CartPage() {
           <button
             type="button"
             disabled={cartItems.length === 0}
-            title="Coming in milestone 5 (checkout)"
-            onClick={() => alert("Checkout is coming in milestone 5.")}
+            onClick={() => navigate("/checkout")}
             className="mt-3 w-full rounded-full bg-amazon-yellow px-4 py-2 text-sm font-medium text-neutral-900 hover:brightness-95 disabled:opacity-50"
           >
             Proceed to checkout

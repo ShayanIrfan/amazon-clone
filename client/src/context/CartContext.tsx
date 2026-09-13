@@ -48,6 +48,10 @@ interface CartContextValue {
   removeItem: (productId: string) => void;
   saveForLater: (productId: string) => void;
   moveToCart: (productId: string) => void;
+  /** Re-pulls the cart from the server. Needed after placing an order: the
+   * server clears purchased items from the cart as part of that request,
+   * but this context has no other way to find out its local copy is stale. */
+  refresh: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -104,6 +108,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem: (productId) => dispatch({ type: "REMOVE", productId }),
       saveForLater: (productId) => dispatch({ type: "SET_SAVED", productId, savedForLater: true }),
       moveToCart: (productId) => dispatch({ type: "SET_SAVED", productId, savedForLater: false }),
+      refresh: async () => {
+        if (mode.current !== "auth") return; // guest cart is already this browser's live copy
+        const { items } = await api.cart.get();
+        dispatch({ type: "REPLACE", items });
+      },
     }),
     [items],
   );

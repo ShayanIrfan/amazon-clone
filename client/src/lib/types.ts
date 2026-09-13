@@ -71,3 +71,61 @@ export interface ProductListResponse {
 }
 
 export type SortOption = "featured" | "price_low" | "price_high" | "rating" | "newest" | "bestseller";
+
+export interface Address {
+  _id: string;
+  fullName: string;
+  phone: string;
+  street: string;
+  unit?: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  isDefault: boolean;
+  deliveryInstructions?: string;
+}
+
+export type AddressInput = Omit<Address, "_id" | "isDefault"> & { isDefault?: boolean };
+
+export type DeliverySpeed = "standard" | "expedited";
+
+export interface OrderQuote {
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
+  itemCount: number;
+  shortfalls: { productId: string; title: string; requested: number; available: number }[];
+}
+
+export interface CardInput {
+  number: string;
+  expiry: string;
+  cvv: string;
+  name: string;
+}
+
+export interface OrderItem {
+  product: string;
+  title: string;
+  thumbnail?: string;
+  unitPrice: number;
+  quantity: number;
+}
+
+export type OrderStatus = "pending_payment" | "paid" | "cancelled" | "shipped" | "delivered";
+
+export interface Order {
+  _id: string;
+  items: OrderItem[];
+  address: Omit<Address, "_id" | "isDefault" | "deliveryInstructions">;
+  deliverySpeed: DeliverySpeed;
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
+  status: OrderStatus;
+  payment: { brand: string; last4: string };
+  placedAt: string;
+}

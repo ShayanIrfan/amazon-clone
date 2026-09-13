@@ -1,4 +1,17 @@
-import type { Category, ProductListResponse, Product, ReviewListResponse, ReviewSort, AuthUser } from "./types";
+import type {
+  Category,
+  ProductListResponse,
+  Product,
+  ReviewListResponse,
+  ReviewSort,
+  AuthUser,
+  Address,
+  AddressInput,
+  Order,
+  OrderQuote,
+  DeliverySpeed,
+  CardInput,
+} from "./types";
 import type { CartItem } from "./cartStorage";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -86,5 +99,21 @@ export const api = {
   cart: {
     get: () => get<{ items: CartItem[] }>("/cart"),
     put: (items: CartItem[]) => put<{ items: CartItem[] }>("/cart", { items }),
+  },
+
+  addresses: {
+    list: () => get<{ items: Address[] }>("/addresses"),
+    add: (data: AddressInput) => post<{ items: Address[] }>("/addresses", data),
+    remove: (id: string) => request<{ items: Address[] }>(`/addresses/${id}`, { method: "DELETE" }),
+    setDefault: (id: string) => post<{ items: Address[] }>(`/addresses/${id}/default`),
+  },
+
+  orders: {
+    quote: (deliverySpeed: DeliverySpeed) => get<OrderQuote>(`/orders/quote?deliverySpeed=${deliverySpeed}`),
+    place: (data: { addressId: string; deliverySpeed: DeliverySpeed; card: CardInput }) =>
+      post<{ order: Order }>("/orders", data),
+    list: () => get<{ items: Order[] }>("/orders"),
+    get: (id: string) => get<{ order: Order }>(`/orders/${id}`),
+    cancel: (id: string) => post<{ order: Order }>(`/orders/${id}/cancel`),
   },
 };

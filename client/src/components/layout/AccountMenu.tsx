@@ -47,9 +47,9 @@ export default function AccountMenu() {
               </button>
               <ul className="mt-3 space-y-2 text-sm">
                 <li>
-                  <ComingSoon milestone="milestone 5 (orders)" className="text-left hover:underline">
+                  <Link to="/orders" onClick={() => setOpen(false)} className="hover:underline">
                     Your Orders
-                  </ComingSoon>
+                  </Link>
                 </li>
                 <li>
                   <ComingSoon milestone="milestone 6 (lists)" className="text-left hover:underline">

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,6 +7,10 @@ type Step = "email" | "password" | "create";
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Sent here by RequireAuth (e.g. from /checkout) — go back there on success
+  // instead of always dropping the shopper at the home page.
+  const from = (location.state as { from?: Location })?.from?.pathname ?? "/";
   const { login, signup, loginDemo } = useAuth();
 
   const [step, setStep] = useState<Step>("email");
@@ -48,7 +52,7 @@ export default function AuthPage() {
     setBusy(true);
     try {
       await login(email, password);
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed.");
     } finally {
@@ -66,7 +70,7 @@ export default function AuthPage() {
     setBusy(true);
     try {
       await signup(name.trim(), email, password);
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Account creation failed.");
     } finally {
@@ -79,7 +83,7 @@ export default function AuthPage() {
     setBusy(true);
     try {
       await loginDemo();
-      navigate("/");
+      navigate(from, { replace: true });
     } catch {
       setError("Couldn't start the demo account. Please try again.");
     } finally {
