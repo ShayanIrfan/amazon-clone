@@ -2,12 +2,14 @@ import { X } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useCategories } from "../../hooks/useProducts";
 import { useAuth } from "../../context/AuthContext";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 import ComingSoon from "./ComingSoon";
 
 export default function AllMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { data } = useCategories();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  useEscapeKey(open, onClose);
 
   return (
     <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>

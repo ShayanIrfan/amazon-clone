@@ -37,6 +37,7 @@ export default function WriteReviewForm({ productId, onDone }: { productId: stri
       <textarea
         required
         minLength={1}
+        aria-label="Your review"
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder="What did you like or dislike? What did you use this product for?"

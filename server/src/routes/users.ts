@@ -30,7 +30,7 @@ usersRouter.delete("/recently-viewed/:productId", async (req, res, next) => {
     const user = await UserModel.findByIdAndUpdate(
       req.userId,
       { $pull: { recentlyViewed: { product: req.params.productId } } },
-      { new: true },
+      { returnDocument: "after" },
     ).select("recentlyViewed");
     if (!user) {
       res.status(401).json({ error: "Not signed in" });

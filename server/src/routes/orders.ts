@@ -115,7 +115,7 @@ ordersRouter.post("/", async (req, res, next) => {
           const updated = await ProductModel.findOneAndUpdate(
             { _id: item.product, stock: { $gte: item.quantity } },
             { $inc: { stock: -item.quantity } },
-            { session, new: true },
+            { session, returnDocument: "after" },
           );
           if (!updated) throw new StockRaceError();
         }

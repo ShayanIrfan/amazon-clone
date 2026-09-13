@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export default function AccountMenu() {
   const { user, logout } = useAuth();
@@ -15,6 +16,7 @@ export default function AccountMenu() {
     document.addEventListener("mousedown", onClickAway);
     return () => document.removeEventListener("mousedown", onClickAway);
   }, []);
+  useEscapeKey(open, () => setOpen(false));
 
   return (
     <div ref={ref} className="relative hidden md:block">
@@ -28,7 +30,7 @@ export default function AccountMenu() {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 z-30 w-64 rounded-md border border-neutral-200 bg-white p-4 text-neutral-900 shadow-lg">
+        <div className="absolute top-full right-0 z-30 w-64 max-w-[85vw] rounded-md border border-neutral-200 bg-white p-4 text-neutral-900 shadow-lg">
           {user ? (
             <>
               <p className="border-b border-neutral-100 pb-3 text-sm text-neutral-500">Signed in as</p>

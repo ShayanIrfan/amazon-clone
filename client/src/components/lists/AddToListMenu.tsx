@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Heart } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useLists, useCreateList, useAddToList, useRemoveFromList } from "../../hooks/useLists";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { Link } from "react-router";
 
 export default function AddToListMenu({ productId, variant = "button" }: { productId: string; variant?: "button" | "link" }) {
@@ -22,6 +23,7 @@ export default function AddToListMenu({ productId, variant = "button" }: { produ
     document.addEventListener("mousedown", onClickAway);
     return () => document.removeEventListener("mousedown", onClickAway);
   }, []);
+  useEscapeKey(open, () => setOpen(false));
 
   const lists = data?.items ?? [];
   const inAnyList = lists.some((l) => l.items.some((i) => i.product === productId));
@@ -57,7 +59,7 @@ export default function AddToListMenu({ productId, variant = "button" }: { produ
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 z-30 mt-1 w-64 rounded-md border border-neutral-200 bg-white p-3 shadow-lg">
+        <div className="absolute top-full left-0 z-30 mt-1 w-64 max-w-[85vw] rounded-md border border-neutral-200 bg-white p-3 shadow-lg">
           {lists.length === 0 && <p className="mb-2 text-sm text-neutral-500">You don't have any lists yet.</p>}
           <ul className="max-h-48 space-y-1 overflow-y-auto">
             {lists.map((list) => {

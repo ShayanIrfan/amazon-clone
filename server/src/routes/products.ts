@@ -280,7 +280,7 @@ productsRouter.post("/:id/reviews", async (req, res, next) => {
     const review = await ReviewModel.findOneAndUpdate(
       { product: productId, user: req.userId },
       { rating, comment, date: new Date(), reviewerName: user.name, verifiedPurchase: true },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
     );
 
     await recalcProductRating(productId);

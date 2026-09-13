@@ -61,6 +61,17 @@ async function seed() {
   );
 
   for (const p of products) {
+    // DummyJSON's own `rating` field is an unrelated arbitrary value, not
+    // the average of the sample reviews included on the same product —
+    // e.g. a product can ship with "rating: 4.99" while its own 3 reviews
+    // average 3.0. Computing it here instead keeps the stars shown on a
+    // card/PDP consistent with the reviews a shopper can actually read,
+    // for every product, not just the ones someone reviews through the app
+    // (which is also when lib/reviews.ts's recalcProductRating fixes this).
+    const rating = p.reviews.length
+      ? Math.round((p.reviews.reduce((sum, r) => sum + r.rating, 0) / p.reviews.length) * 10) / 10
+      : 0;
+
     const created = await ProductModel.create({
       sourceId: p.id,
       title: p.title,
@@ -68,7 +79,7 @@ async function seed() {
       category: p.category,
       price: p.price,
       discountPercentage: p.discountPercentage,
-      rating: p.rating,
+      rating,
       ratingCount: p.reviews.length,
       stock: p.stock,
       tags: p.tags,

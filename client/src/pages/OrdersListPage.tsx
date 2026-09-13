@@ -4,10 +4,11 @@ import { useOrders, useCancelOrder } from "../hooks/useOrders";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
 import OrderStatusBadge from "../components/orders/OrderStatusBadge";
+import ErrorState from "../components/common/ErrorState";
 import type { Order } from "../lib/types";
 
 export default function OrdersListPage() {
-  const { data, isLoading } = useOrders();
+  const { data, isLoading, isError } = useOrders();
   const cancelOrder = useCancelOrder();
   const { addItem } = useCart();
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function OrdersListPage() {
   }
 
   if (isLoading) return <div className="p-16 text-center text-neutral-500">Loading…</div>;
+  if (isError) return <ErrorState message="Couldn't load your orders." />;
 
   const orders = data?.items ?? [];
 

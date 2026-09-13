@@ -19,17 +19,17 @@ export default function CartLineItem({ item, product, onSetQuantity, onRemove, o
   const quantityExceedsStock = !outOfStock && item.quantity > product.stock;
 
   return (
-    <li className="flex gap-4 border-b border-neutral-200 py-4">
-      <Link to={`/product/${product._id}`} className="h-28 w-28 shrink-0 bg-white">
+    <li className="flex gap-3 border-b border-neutral-200 py-4 sm:gap-4">
+      <Link to={`/product/${product._id}`} className="h-20 w-20 shrink-0 bg-white sm:h-28 sm:w-28">
         <img src={product.thumbnail} alt={product.title} className="h-full w-full object-contain" />
       </Link>
 
-      <div className="flex flex-1 flex-col justify-between">
+      <div className="flex min-w-0 flex-1 flex-col justify-between">
         <div>
           <Link to={`/product/${product._id}`} className="text-sm text-neutral-800 hover:text-link hover:underline">
             {product.title}
           </Link>
-          <p className="mt-1 text-lg font-medium">{formatPrice(product.price)}</p>
+          <p className="mt-1 text-base font-medium sm:text-lg">{formatPrice(product.price)}</p>
           {outOfStock ? (
             <p className="text-sm font-medium text-amazon-red">No longer in stock</p>
           ) : quantityExceedsStock ? (
@@ -63,7 +63,7 @@ export default function CartLineItem({ item, product, onSetQuantity, onRemove, o
       </div>
 
       {!item.savedForLater && (
-        <p className="w-20 shrink-0 text-right text-lg font-medium">{formatPrice(product.price * item.quantity)}</p>
+        <p className="shrink-0 text-right text-base font-medium sm:text-lg">{formatPrice(product.price * item.quantity)}</p>
       )}
     </li>
   );

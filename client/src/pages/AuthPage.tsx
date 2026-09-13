@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -93,10 +93,6 @@ export default function AuthPage() {
 
   return (
     <div className="flex flex-col items-center px-4 py-8">
-      <Link to="/" className="mb-4">
-        <span className="text-2xl font-bold text-neutral-900 italic">amazon-clone</span>
-      </Link>
-
       <div className="w-full max-w-sm rounded-lg border border-neutral-200 p-6">
         {step === "email" && (
           <form onSubmit={submitEmail}>
