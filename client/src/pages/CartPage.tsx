@@ -6,14 +6,14 @@ import { useCart } from "../context/CartContext";
 import { api } from "../lib/api";
 import { formatPrice } from "../lib/format";
 import CartLineItem from "../components/cart/CartLineItem";
-import ErrorState from "../components/common/ErrorState";
+import ErrorState from "../components/ui/ErrorState";
 
 export default function CartPage() {
   const navigate = useNavigate();
   const { items, setQuantity, removeItem, saveForLater, moveToCart } = useCart();
   const productIds = [...items.map((i) => i.productId)].sort();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["cartProducts", productIds],
     queryFn: () => api.productsByIds(productIds),
     enabled: productIds.length > 0,
@@ -43,7 +43,7 @@ export default function CartPage() {
   }
 
   if (isError) {
-    return <ErrorState message="Couldn't load your cart." />;
+    return <ErrorState message="Couldn't load your cart." onRetry={() => refetch()} />;
   }
 
   if (items.length === 0) {

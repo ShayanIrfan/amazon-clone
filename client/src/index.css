@@ -1,8 +1,25 @@
 @import "tailwindcss";
+@import "@fontsource-variable/figtree";
 
 @theme {
-  /* Amazon-inspired palette, named for role rather than the literal hue so
-     the meaning stays clear wherever it's used (buttons, links, badges). */
+  /* Calm, product-first palette — see docs/design-notes.md for the reasoning.
+     Named for role, not the literal hue, so meaning stays clear at the call site. */
+  --color-harbor: #0f3a40;
+  --color-harbor-dark: #0a262b;
+  --color-paper: #f4f6f5;
+  --color-line: #d7dedc;
+  --color-line-strong: #b7c1be;
+  --color-slate: #56656a;
+  --color-ink: #14201f;
+  --color-clay: #b3261e;
+  --color-clay-dark: #8c1e18;
+  --color-marigold: #f2a900;
+  --color-marigold-dark: #b97e00;
+  --color-moss: #2f6844;
+
+  /* TODO(redesign): kept temporarily so untouched components don't go
+     unstyled mid-branch. Delete once `grep -r amazon- client/src` and
+     `grep -r color-link client/src` are both empty (tracked in step 2). */
   --color-amazon-navy: #131921;
   --color-amazon-navy-light: #232f3e;
   --color-amazon-orange: #f08804;
@@ -10,10 +27,31 @@
   --color-amazon-red: #b12704;
   --color-link: #007185;
   --color-link-hover: #c7511f;
+
+  --font-sans: "Figtree Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* A fixed type scale (12/14/16/20/28/36) instead of Tailwind's default —
+     see the design plan. Named text-* so existing text-sm/base/lg usages
+     keep working but resolve to this scale. */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.4;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.4;
+  --text-xl: 1.75rem;
+  --text-xl--line-height: 1.25;
+  --text-2xl: 2.25rem;
+  --text-2xl--line-height: 1.15;
 }
 
 body {
   color-scheme: light;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .line-clamp-2 {
@@ -21,4 +59,52 @@ body {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Skip link: visually hidden until focused, then jumps above everything. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -3rem;
+  z-index: 100;
+  background: var(--color-harbor);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+/* One consistent keyboard-focus treatment everywhere, replacing the mix of
+   ad-hoc focus:ring-* utilities used throughout the pre-redesign code. */
+:focus-visible {
+  outline: 2px solid var(--color-harbor);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Horizontal product rows: native snap scrolling, scrollbar hidden since
+   ProductRow provides its own prev/next buttons. */
+.scroll-snap-x {
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.scroll-snap-x::-webkit-scrollbar {
+  display: none;
+}
+.scroll-snap-item {
+  scroll-snap-align: start;
 }

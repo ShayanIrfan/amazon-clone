@@ -8,7 +8,7 @@ import DeliveryStep from "../components/checkout/DeliveryStep";
 import PaymentStep from "../components/checkout/PaymentStep";
 import ReviewStep from "../components/checkout/ReviewStep";
 import OrderSummary from "../components/checkout/OrderSummary";
-import ErrorState from "../components/common/ErrorState";
+import ErrorState from "../components/ui/ErrorState";
 import type { CardInput, DeliverySpeed } from "../lib/types";
 
 type Step = "address" | "delivery" | "payment" | "review";
@@ -24,13 +24,13 @@ export default function CheckoutPage() {
   const [card, setCard] = useState<CardInput | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
 
-  const { data: quote, isLoading: quoteLoading, isError: quoteError } = useOrderQuote(deliverySpeed);
+  const { data: quote, isLoading: quoteLoading, isError: quoteError, refetch: refetchQuote } = useOrderQuote(deliverySpeed);
   const placeOrder = usePlaceOrder();
 
   const selectedAddress = addressData?.items.find((a) => a._id === addressId) ?? null;
 
   if (quoteError) {
-    return <ErrorState message="Couldn't load your checkout details." />;
+    return <ErrorState message="Couldn't load your checkout details." onRetry={() => refetchQuote()} />;
   }
 
   if (quote && quote.itemCount === 0) {

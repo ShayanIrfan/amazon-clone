@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useAddresses, useAddAddress, useRemoveAddress, useSetDefaultAddress } from "../hooks/useAddresses";
 import AddressForm from "../components/checkout/AddressForm";
-import ErrorState from "../components/common/ErrorState";
+import ErrorState from "../components/ui/ErrorState";
 
 export default function AddressesPage() {
-  const { data, isLoading, isError } = useAddresses();
+  const { data, isLoading, isError, refetch } = useAddresses();
   const addAddress = useAddAddress();
   const removeAddress = useRemoveAddress();
   const setDefaultAddress = useSetDefaultAddress();
@@ -19,7 +19,7 @@ export default function AddressesPage() {
       {isLoading ? (
         <div className="p-8 text-center text-neutral-500">Loading…</div>
       ) : isError ? (
-        <ErrorState message="Couldn't load your addresses." />
+        <ErrorState message="Couldn't load your addresses." onRetry={() => refetch()} />
       ) : (
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {addresses.map((a) => (

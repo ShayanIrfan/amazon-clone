@@ -6,10 +6,10 @@ import { useLists, useCreateList, useDeleteList, useRemoveFromList } from "../ho
 import { useCart } from "../context/CartContext";
 import { api } from "../lib/api";
 import { formatPrice } from "../lib/format";
-import ErrorState from "../components/common/ErrorState";
+import ErrorState from "../components/ui/ErrorState";
 
 export default function ListsPage() {
-  const { data, isLoading, isError } = useLists();
+  const { data, isLoading, isError, refetch } = useLists();
   const createList = useCreateList();
   const deleteList = useDeleteList();
   const removeFromList = useRemoveFromList();
@@ -28,7 +28,7 @@ export default function ListsPage() {
   const productsById = new Map((productsData?.items ?? []).map((p) => [p._id, p]));
 
   if (isLoading) return <div className="p-16 text-center text-neutral-500">Loading…</div>;
-  if (isError) return <ErrorState message="Couldn't load your lists." />;
+  if (isError) return <ErrorState message="Couldn't load your lists." onRetry={() => refetch()} />;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-4">
