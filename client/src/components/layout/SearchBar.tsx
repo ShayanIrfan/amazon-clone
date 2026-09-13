@@ -63,7 +63,7 @@ export default function SearchBar() {
         type="text"
         placeholder="Search amazon-clone"
         aria-label="Search amazon-clone"
-        className="min-w-0 flex-1 px-3 text-sm text-neutral-900 outline-none sm:rounded-none"
+        className="min-w-0 flex-1 rounded-l-md bg-white px-3 text-sm text-neutral-900 outline-none sm:rounded-none"
       />
       <button
         type="submit"
@@ -74,7 +74,7 @@ export default function SearchBar() {
       </button>
 
       {open && q.trim().length > 1 && !!suggestions?.items.length && (
-        <ul className="absolute top-11 left-0 z-30 w-full rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-lg">
+        <ul className="absolute top-11 left-0 z-30 w-full rounded-md border border-neutral-200 bg-white py-1 text-sm text-neutral-800 shadow-lg">
           {suggestions.items.map((s) => (
             <li key={s}>
               <button
@@ -83,7 +83,7 @@ export default function SearchBar() {
                   setQ(s);
                   search(s);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-neutral-100"
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-neutral-800 hover:bg-neutral-100"
               >
                 <Search size={14} className="text-neutral-400" />
                 {s}
