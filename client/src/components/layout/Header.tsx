@@ -3,8 +3,11 @@ import { MapPin, Menu, ShoppingCart } from "lucide-react";
 import SearchBar from "./SearchBar";
 import ComingSoon from "./ComingSoon";
 import Logo from "./Logo";
+import { useCart } from "../../context/CartContext";
 
 export default function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
+  const { itemCount } = useCart();
+
   return (
     <header className="sticky top-0 z-40 flex flex-wrap items-center gap-2 bg-amazon-navy px-2 py-2 text-white sm:flex-nowrap sm:px-4">
       <button
@@ -57,7 +60,7 @@ export default function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
         <span className="relative">
           <ShoppingCart size={28} />
           <span className="absolute -top-1 -right-2 rounded-full bg-amazon-orange px-1.5 text-xs font-bold text-amazon-navy">
-            0
+            {itemCount}
           </span>
         </span>
         <span className="hidden text-sm font-bold sm:inline">Cart</span>

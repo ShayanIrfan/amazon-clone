@@ -61,6 +61,25 @@ function baseMatch(parsed: z.infer<typeof listQuerySchema>) {
   return match;
 }
 
+// Hydrates a client-held list of product ids (the guest cart, later a list
+// or an order) into full product data in one round trip. Unknown/invalid
+// ids are silently dropped rather than erroring the whole request, since a
+// stale id (deleted product) shouldn't break the cart page.
+productsRouter.get("/bulk", async (req, res, next) => {
+  try {
+    const ids = String(req.query.ids ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => Types.ObjectId.isValid(s));
+    if (!ids.length) return res.json({ items: [] });
+
+    const items = await ProductModel.find({ _id: { $in: ids } }).lean();
+    res.json({ items });
+  } catch (err) {
+    next(err);
+  }
+});
+
 productsRouter.get("/suggestions", async (req, res, next) => {
   try {
     const q = String(req.query.q ?? "").trim();

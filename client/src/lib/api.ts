@@ -42,6 +42,8 @@ export const api = {
   product: (id: string) => get<Product>(`/products/${id}`),
   suggestions: (q: string) => get<{ items: string[] }>(`/products/suggestions?q=${encodeURIComponent(q)}`),
   relatedProducts: (id: string) => get<{ items: Product[] }>(`/products/${id}/related`),
+  productsByIds: (ids: string[]) =>
+    ids.length ? get<{ items: Product[] }>(`/products/bulk?ids=${ids.join(",")}`) : Promise.resolve({ items: [] }),
   reviews: (id: string, opts: { sort?: ReviewSort; star?: number; page?: number } = {}) => {
     const params = new URLSearchParams();
     if (opts.sort) params.set("sort", opts.sort);

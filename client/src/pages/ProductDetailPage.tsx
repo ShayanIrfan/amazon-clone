@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router";
-import { ChevronRight } from "lucide-react";
+import { useParams, Link, useNavigate } from "react-router";
+import { ChevronRight, CircleCheck } from "lucide-react";
+import { useCart } from "../context/CartContext";
 import { useProduct, useRelatedProducts, useReviews } from "../hooks/useProductDetail";
 import ImageGallery from "../components/product/ImageGallery";
 import StarRating from "../components/product/StarRating";
@@ -19,10 +20,13 @@ function categoryLabel(slug: string) {
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: product, isLoading, isError } = useProduct(id);
   const { data: related } = useRelatedProducts(id);
+  const { addItem } = useCart();
 
   const [quantity, setQuantity] = useState(1);
+  const [justAdded, setJustAdded] = useState(false);
   const [reviewSort, setReviewSort] = useState<ReviewSort>("recent");
   const [starFilter, setStarFilter] = useState<number | null>(null);
   const [reviewPage, setReviewPage] = useState(1);
@@ -127,17 +131,28 @@ export default function ProductDetailPage() {
             <button
               type="button"
               disabled={product.stock === 0}
-              title="Coming in milestone 3 (cart)"
-              onClick={() => alert("Cart is coming in milestone 3.")}
+              onClick={() => {
+                addItem(product._id, quantity);
+                setJustAdded(true);
+                setTimeout(() => setJustAdded(false), 2500);
+              }}
               className="mt-4 w-full rounded-full bg-amazon-yellow px-4 py-2 text-sm font-medium text-neutral-900 hover:brightness-95 disabled:opacity-50"
             >
               Add to Cart
             </button>
+            {justAdded && (
+              <p className="mt-2 flex items-center gap-1 text-sm font-medium text-green-700">
+                <CircleCheck size={16} /> Added to Cart
+              </p>
+            )}
             <button
               type="button"
               disabled={product.stock === 0}
-              title="Coming in milestone 5 (checkout)"
-              onClick={() => alert("Buy Now is coming once checkout is built (milestone 5).")}
+              onClick={() => {
+                addItem(product._id, quantity);
+                navigate("/cart");
+              }}
+              title="Checkout isn't built yet (milestone 5) — this adds the item and takes you to the cart"
               className="mt-2 w-full rounded-full bg-amazon-orange px-4 py-2 text-sm font-medium text-white hover:brightness-95 disabled:opacity-50"
             >
               Buy Now
