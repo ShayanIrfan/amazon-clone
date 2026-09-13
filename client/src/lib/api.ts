@@ -1,4 +1,4 @@
-import type { Category, ProductListResponse, Product } from "./types";
+import type { Category, ProductListResponse, Product, ReviewListResponse, ReviewSort } from "./types";
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`/api${path}`, { credentials: "include" });
@@ -41,4 +41,13 @@ export const api = {
   products: (query: ProductQuery) => get<ProductListResponse>(`/products${toSearchParams(query)}`),
   product: (id: string) => get<Product>(`/products/${id}`),
   suggestions: (q: string) => get<{ items: string[] }>(`/products/suggestions?q=${encodeURIComponent(q)}`),
+  relatedProducts: (id: string) => get<{ items: Product[] }>(`/products/${id}/related`),
+  reviews: (id: string, opts: { sort?: ReviewSort; star?: number; page?: number } = {}) => {
+    const params = new URLSearchParams();
+    if (opts.sort) params.set("sort", opts.sort);
+    if (opts.star) params.set("star", String(opts.star));
+    if (opts.page) params.set("page", String(opts.page));
+    const qs = params.toString();
+    return get<ReviewListResponse>(`/products/${id}/reviews${qs ? `?${qs}` : ""}`);
+  },
 };

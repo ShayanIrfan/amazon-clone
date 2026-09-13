@@ -12,13 +12,37 @@ export interface Product {
   tags: string[];
   brand: string;
   sku: string;
+  weight?: number;
+  dimensions?: { width: number; height: number; depth: number };
   warrantyInformation?: string;
   shippingInformation?: string;
   availabilityStatus?: string;
   returnPolicy?: string;
+  minimumOrderQuantity?: number;
   images: string[];
   thumbnail: string;
 }
+
+export interface Review {
+  _id: string;
+  reviewerName: string;
+  rating: number;
+  comment: string;
+  date: string;
+  verifiedPurchase: boolean;
+}
+
+export type RatingBreakdown = Record<1 | 2 | 3 | 4 | 5, number>;
+
+export interface ReviewListResponse {
+  items: Review[];
+  total: number;
+  page: number;
+  limit: number;
+  breakdown: RatingBreakdown;
+}
+
+export type ReviewSort = "recent" | "highest" | "lowest";
 
 export interface Category {
   slug: string;

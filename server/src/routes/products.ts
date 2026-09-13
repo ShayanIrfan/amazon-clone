@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
-import { ProductModel } from "../models/index.js";
+import { Types } from "mongoose";
+import { ProductModel, ReviewModel } from "../models/index.js";
 import { parsePagination } from "../lib/pagination.js";
 
 export const productsRouter = Router();
@@ -138,8 +139,77 @@ productsRouter.get("/", async (req, res, next) => {
   }
 });
 
+productsRouter.get("/:id/related", async (req, res, next) => {
+  try {
+    if (!Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ error: "Product not found" });
+    const product = await ProductModel.findById(req.params.id).select("category").lean();
+    if (!product) return res.status(404).json({ error: "Product not found" });
+
+    const items = await ProductModel.find({ category: product.category, _id: { $ne: product._id } })
+      .sort({ rating: -1, ratingCount: -1 })
+      .limit(10)
+      .lean();
+    res.json({ items });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const REVIEW_SORTS = ["recent", "highest", "lowest"] as const;
+const reviewQuerySchema = z.object({
+  sort: z.enum(REVIEW_SORTS).optional(),
+  star: z.coerce.number().int().min(1).max(5).optional(),
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().optional(),
+});
+
+function reviewSortStage(sort: (typeof REVIEW_SORTS)[number] | undefined): Record<string, 1 | -1> {
+  switch (sort) {
+    case "highest":
+      return { rating: -1, date: -1 };
+    case "lowest":
+      return { rating: 1, date: -1 };
+    case "recent":
+    default:
+      return { date: -1 };
+  }
+}
+
+productsRouter.get("/:id/reviews", async (req, res, next) => {
+  try {
+    if (!Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ error: "Product not found" });
+    const parsed = reviewQuerySchema.parse(req.query);
+    const { page, limit, skip } = parsePagination(parsed);
+    const productId = new Types.ObjectId(req.params.id);
+    // The star filter narrows the review list, but the breakdown aggregate
+    // below always covers the whole product so its bars/percentages don't
+    // change shape when a bar is clicked.
+    const filter = { product: productId, ...(parsed.star ? { rating: parsed.star } : {}) };
+
+    const [items, total, breakdownAgg] = await Promise.all([
+      ReviewModel.find(filter).sort(reviewSortStage(parsed.sort)).skip(skip).limit(limit).lean(),
+      ReviewModel.countDocuments(filter),
+      ReviewModel.aggregate<{ _id: number; count: number }>([
+        { $match: { product: productId } },
+        { $group: { _id: "$rating", count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const breakdown: Record<1 | 2 | 3 | 4 | 5, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    for (const row of breakdownAgg) {
+      const star = Math.round(row._id) as 1 | 2 | 3 | 4 | 5;
+      if (star >= 1 && star <= 5) breakdown[star] += row.count;
+    }
+
+    res.json({ items, total, page, limit, breakdown });
+  } catch (err) {
+    next(err);
+  }
+});
+
 productsRouter.get("/:id", async (req, res, next) => {
   try {
+    if (!Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ error: "Product not found" });
     const product = await ProductModel.findById(req.params.id).lean();
     if (!product) return res.status(404).json({ error: "Product not found" });
     res.json(product);
