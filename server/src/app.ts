@@ -1,9 +1,13 @@
-import express from "express";
+import express, { type ErrorRequestHandler } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
+import { ZodError } from "zod";
 import { env } from "./config.js";
 import { dbState } from "./db.js";
+import { productsRouter } from "./routes/products.js";
+import { categoriesRouter } from "./routes/categories.js";
+import { homeRouter } from "./routes/home.js";
 
 export function createApp() {
   const app = express();
@@ -16,6 +20,20 @@ export function createApp() {
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, db: dbState() });
   });
+
+  app.use("/api/products", productsRouter);
+  app.use("/api/categories", categoriesRouter);
+  app.use("/api/home", homeRouter);
+
+  const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+    if (err instanceof ZodError) {
+      res.status(400).json({ error: "Invalid request", issues: err.issues });
+      return;
+    }
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  };
+  app.use(errorHandler);
 
   return app;
 }

@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+@theme {
+  /* Amazon-inspired palette, named for role rather than the literal hue so
+     the meaning stays clear wherever it's used (buttons, links, badges). */
+  --color-amazon-navy: #131921;
+  --color-amazon-navy-light: #232f3e;
+  --color-amazon-orange: #f08804;
+  --color-amazon-yellow: #febd69;
+  --color-amazon-red: #b12704;
+  --color-link: #007185;
+  --color-link-hover: #c7511f;
+}
+
+body {
+  color-scheme: light;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

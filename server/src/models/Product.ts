@@ -34,7 +34,5 @@ const productSchema = new Schema(
   { timestamps: true },
 );
 
-productSchema.index({ title: "text", brand: "text", category: "text" });
-
 export type Product = InferSchemaType<typeof productSchema>;
 export const ProductModel = model("Product", productSchema);
