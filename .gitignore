@@ -2,6 +2,9 @@
 .claude/capture-state/
 .claude/settings.local.json
 
+# Recon screenshots show a real Amazon account; kept local only (docs/recon.md is committed)
+docs/screenshots/
+
 node_modules/
 .env
 .env.*
