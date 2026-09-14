@@ -88,7 +88,9 @@ function PaymentForm({ total, onConfirmed }: { total: number; onConfirmed: () =>
 
   return (
     <form onSubmit={submit} className="mt-4 max-w-lg">
-      <PaymentElement onReady={() => setReady(true)} options={{ layout: "tabs" }} />
+      {/* Link is off: its bank and Klarna funding sources would otherwise show
+          as extra tabs even though the PaymentIntent is card-only. */}
+      <PaymentElement onReady={() => setReady(true)} options={{ layout: "tabs", wallets: { link: "never" } }} />
       {error && (
         <p role="alert" className="mt-3 text-sm font-medium text-clay">
           {error}
