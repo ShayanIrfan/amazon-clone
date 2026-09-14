@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import type { AddressInput } from "../../lib/types";
+import { COUNTRIES } from "../../lib/countries";
 
 interface Props {
   onSubmit: (data: AddressInput) => void;
@@ -45,7 +46,7 @@ export default function AddressForm({ onSubmit, onCancel, busy, error }: Props) 
         <Field label="City" value={form.city} onChange={(v) => set("city", v)} required />
         <Field label="State" value={form.state} onChange={(v) => set("state", v)} required />
         <Field label="ZIP code" value={form.zip} onChange={(v) => set("zip", v)} required />
-        <Field label="Country" value={form.country} onChange={(v) => set("country", v)} required />
+        <SelectField label="Country" value={form.country} options={COUNTRIES} onChange={(v) => set("country", v)} required />
       </div>
 
       {error && <p className="mt-3 text-sm text-amazon-red">{error}</p>}
@@ -96,6 +97,45 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         className="mt-1 h-10 w-full rounded-md border border-line-strong px-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
       />
+    </label>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+  required,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+  required?: boolean;
+}) {
+  return (
+    <label className="block text-sm">
+      <span className="font-medium text-neutral-800">
+        {label}
+        {required && (
+          <span aria-hidden="true" className="ml-0.5 text-clay">
+            *
+          </span>
+        )}
+      </span>
+      <select
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 h-10 w-full rounded-md border border-line-strong bg-white px-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }
