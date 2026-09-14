@@ -47,11 +47,13 @@ const orderSchema = new Schema(
     tax: { type: Number, required: true },
     total: { type: Number, required: true },
     status: { type: String, enum: ORDER_STATUSES, default: "pending_payment", index: true },
-    paymentIntentId: String, // Stripe intent id once real Stripe is wired; a "mock_..." reference for now
-    payment: {
-      type: { brand: { type: String, required: true }, last4: { type: String, required: true } },
-      required: true,
-    }, // display only — never the card number itself, see lib/mockPayments.ts
+    paymentIntentId: { type: String, index: true }, // Stripe "pi_..." id, or a "mock_..." reference
+    // Display only — never card numbers. Absent until a Stripe payment succeeds.
+    payment: { brand: String, last4: String },
+    cancellationReason: {
+      type: String,
+      enum: ["cancelled_by_customer", "out_of_stock", "superseded", "payment_setup_failed"],
+    },
     placedAt: { type: Date, default: Date.now },
   },
   { timestamps: true },

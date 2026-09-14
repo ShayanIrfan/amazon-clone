@@ -36,6 +36,12 @@ export default function OrderDetailPage() {
           </div>
         </div>
       )}
+      {order.status === "pending_payment" && (
+        <div role="status" className="mb-5 rounded-md border border-marigold/40 bg-marigold/10 p-4 text-sm text-ink">
+          <p className="font-bold">Confirming your payment</p>
+          <p>This page updates on its own once Stripe confirms the payment.</p>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div><p className="eyebrow">Purchase record</p><h1 className="page-title mt-1 text-ink">Order Details</h1></div>
@@ -106,7 +112,11 @@ export default function OrderDetailPage() {
           <div className="surface rounded-md p-4 text-sm">
             <h2 className="font-bold text-neutral-900">Payment method</h2>
             <p className="mt-1 text-neutral-700">
-              {order.payment.brand} ending in {order.payment.last4}
+              {order.payment?.last4
+                ? `${order.payment.brand ?? "Card"} ending in ${order.payment.last4}`
+                : order.status === "pending_payment"
+                  ? "Awaiting payment confirmation"
+                  : (order.payment?.brand ?? "Card")}
             </p>
           </div>
 

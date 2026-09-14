@@ -266,3 +266,31 @@ describe("authentication hardening", () => {
     await shopper.post("/api/auth/2fa/disable").send({ password: "Secret12345!", recoveryCode }).expect(200);
   });
 });
+
+describe("payments and request origin", () => {
+  it("reports the mock provider when Stripe keys are placeholders", async () => {
+    const res = await request(app).get("/api/payments/config").expect(200);
+    expect(res.body.provider).toBe("mock");
+  });
+
+  it("refuses webhook deliveries while Stripe webhooks aren't configured", async () => {
+    await request(app)
+      .post("/api/payments/webhook")
+      .set("Content-Type", "application/json")
+      .set("Stripe-Signature", "t=1,v1=bogus")
+      .send(JSON.stringify({ type: "payment_intent.succeeded" }))
+      .expect(503);
+  });
+
+  it("rejects state-changing requests from a foreign origin", async () => {
+    await request(app).post("/api/auth/logout").set("Origin", "https://attacker.example").expect(403);
+  });
+
+  it("accepts same-origin requests on hostnames other than CLIENT_ORIGIN (e.g. a Vercel deployment URL)", async () => {
+    await request(app)
+      .post("/api/auth/logout")
+      .set("Host", "amazon-clone-abc123.vercel.app")
+      .set("Origin", "https://amazon-clone-abc123.vercel.app")
+      .expect(204);
+  });
+});

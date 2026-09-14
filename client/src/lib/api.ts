@@ -14,6 +14,7 @@ import type {
   WishList,
   RecentlyViewedItem,
   Review,
+  PaymentProvider,
 } from "./types";
 import type { CartItem } from "./cartStorage";
 
@@ -147,11 +148,17 @@ export const api = {
 
   orders: {
     quote: (deliverySpeed: DeliverySpeed) => get<OrderQuote>(`/orders/quote?deliverySpeed=${deliverySpeed}`),
-    place: (data: { addressId: string; deliverySpeed: DeliverySpeed; card: CardInput }) =>
-      post<{ order: Order }>("/orders", data),
+    // With Stripe, omit `card`: the response carries a clientSecret for Stripe.js instead.
+    place: (data: { addressId: string; deliverySpeed: DeliverySpeed; card?: CardInput }) =>
+      post<{ order: Order; clientSecret?: string; provider: PaymentProvider }>("/orders", data),
+    confirmPayment: (id: string) => post<{ order: Order; paymentStatus?: "processing" }>(`/orders/${id}/confirm-payment`),
     list: () => get<{ items: Order[] }>("/orders"),
     get: (id: string) => get<{ order: Order }>(`/orders/${id}`),
     cancel: (id: string) => post<{ order: Order }>(`/orders/${id}/cancel`),
+  },
+
+  payments: {
+    config: () => get<{ provider: PaymentProvider }>("/payments/config"),
   },
 
   lists: {

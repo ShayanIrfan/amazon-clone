@@ -16,6 +16,23 @@ export function csrfCookie(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+/**
+ * CLIENT_ORIGIN covers local dev (Vite on its own port, proxying /api). In
+ * production the SPA and /api share one host, reachable under several
+ * hostnames (production alias, per-deployment URL), so a same-origin request
+ * is allowed too. A browser can't forge Origin, and the double-submit token
+ * below is still required either way.
+ */
+function isAllowedOrigin(req: Request, origin: string) {
+  if (origin === env.CLIENT_ORIGIN) return true;
+  try {
+    const host = req.get("x-forwarded-host") ?? req.get("host");
+    return !!host && new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
+
 export function csrfProtection(req: Request, res: Response, next: NextFunction) {
   const method = req.method.toUpperCase();
   if (["GET", "HEAD", "OPTIONS"].includes(method)) {
@@ -24,7 +41,7 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
   }
 
   const origin = req.get("origin");
-  if (origin && origin !== env.CLIENT_ORIGIN) {
+  if (origin && !isAllowedOrigin(req, origin)) {
     res.status(403).json({ error: "Request origin is not allowed" });
     return;
   }

@@ -120,6 +120,8 @@ export interface OrderItem {
 
 export type OrderStatus = "pending_payment" | "paid" | "cancelled" | "shipped" | "delivered";
 
+export type PaymentProvider = "stripe" | "mock";
+
 export interface Order {
   _id: string;
   items: OrderItem[];
@@ -130,7 +132,8 @@ export interface Order {
   tax: number;
   total: number;
   status: OrderStatus;
-  payment: { brand: string; last4: string };
+  /** Absent until a Stripe payment succeeds. */
+  payment?: { brand?: string; last4?: string };
   placedAt: string;
 }
 

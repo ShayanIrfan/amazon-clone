@@ -1,5 +1,13 @@
+import dns from "node:dns";
 import mongoose from "mongoose";
 import { env } from "./config.js";
+
+// Opt-in local workaround: some VPN/DNS setups (e.g. Cloudflare WARP on
+// Windows) refuse the SRV lookup that mongodb+srv:// URIs need. Unset in
+// production, where the platform resolver works.
+if (env.DNS_SERVERS) {
+  dns.setServers(env.DNS_SERVERS.split(",").map((s) => s.trim()).filter(Boolean));
+}
 
 let connectPromise: Promise<typeof mongoose> | null = null;
 

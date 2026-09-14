@@ -14,14 +14,24 @@ import { addressesRouter } from "./routes/addresses.js";
 import { ordersRouter } from "./routes/orders.js";
 import { usersRouter } from "./routes/users.js";
 import { listsRouter } from "./routes/lists.js";
+import { paymentsRouter, stripeWebhook } from "./routes/payments.js";
 import { optionalAuth } from "./middleware/auth.js";
 import { csrfCookie, csrfProtection } from "./middleware/csrf.js";
 
 export function createApp() {
   const app = express();
 
+  // Behind Vercel's proxy: lets rate limiting see the real client IP and
+  // req.protocol report https.
+  app.set("trust proxy", 1);
+
   app.use(helmet());
   app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
+
+  // Before express.json() and CSRF: signature checks need the raw body, and
+  // Stripe can't send our CSRF token. The handler verifies the signature itself.
+  app.post("/api/payments/webhook", express.raw({ type: "application/json" }), stripeWebhook);
+
   app.use(express.json());
   app.use(cookieParser());
   app.use(csrfCookie);
@@ -41,6 +51,7 @@ export function createApp() {
   app.use("/api/orders", ordersRouter);
   app.use("/api/users", usersRouter);
   app.use("/api/lists", listsRouter);
+  app.use("/api/payments", paymentsRouter);
 
   const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof ZodError) {

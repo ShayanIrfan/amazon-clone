@@ -10,12 +10,30 @@ export function useOrderQuote(deliverySpeed: DeliverySpeed) {
   });
 }
 
+/** Which payment UI checkout should render: Stripe Payment Element or the offline mock form. */
+export function usePaymentsConfig() {
+  return useQuery({ queryKey: ["paymentsConfig"], queryFn: api.payments.config, staleTime: Infinity });
+}
+
 export function usePlaceOrder() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { addressId: string; deliverySpeed: DeliverySpeed; card: CardInput }) => api.orders.place(data),
+    mutationFn: (data: { addressId: string; deliverySpeed: DeliverySpeed; card?: CardInput }) => api.orders.place(data),
     onSuccess: () => {
-      // The order just emptied the purchased items out of the cart server-side.
+      // The mock provider empties purchased items out of the cart server-side right away.
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["cartProducts"] });
+    },
+  });
+}
+
+/** After Stripe.js confirms a payment: settles the order server-side (stock, cart, status). */
+export function useConfirmPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) => api.orders.confirmPayment(orderId),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["orders", data.order._id], { order: data.order });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["cartProducts"] });
     },
@@ -31,6 +49,9 @@ export function useOrder(id: string | undefined) {
     queryKey: ["orders", id],
     queryFn: () => api.orders.get(id!),
     enabled: !!id,
+    // A payment still settling (e.g. "processing") is finalized by the Stripe
+    // webhook; poll so the page flips to "paid" without a manual refresh.
+    refetchInterval: (query) => (query.state.data?.order.status === "pending_payment" ? 3000 : false),
   });
 }
 
