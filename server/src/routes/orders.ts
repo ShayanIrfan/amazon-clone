@@ -42,7 +42,9 @@ ordersRouter.get("/quote", async (req, res, next) => {
       0,
     );
 
-    res.json({ ...computeTotals(subtotal, deliverySpeed), itemCount: activeItems.length, shortfalls });
+    // Units, not lines — matches the header's cart count ("Items (3)" for 3 of one product).
+    const itemCount = activeItems.reduce((sum, item) => sum + item.quantity, 0);
+    res.json({ ...computeTotals(subtotal, deliverySpeed), itemCount, shortfalls });
   } catch (err) {
     next(err);
   }

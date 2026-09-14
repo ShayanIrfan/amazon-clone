@@ -10,6 +10,8 @@ type Action =
   | { type: "REMOVE"; productId: string }
   | { type: "SET_SAVED"; productId: string; savedForLater: boolean };
 
+type ShopperAction = Exclude<Action, { type: "REPLACE" }>;
+
 function reducer(items: CartItem[], action: Action): CartItem[] {
   switch (action.type) {
     case "REPLACE":
@@ -52,6 +54,14 @@ interface CartContextValue {
    * server clears purchased items from the cart as part of that request,
    * but this context has no other way to find out its local copy is stale. */
   refresh: () => Promise<void>;
+  /** True until the server holds exactly `items` (signed in), or until the
+   * cart has loaded at all. Anything that reads the cart server-side — the
+   * checkout quote, placing an order — must wait for this to turn false. */
+  syncing: boolean;
+  /** Bumps whenever the server-side cart may have changed; key server reads on it. */
+  version: number;
+  /** Resolves once every queued server write has finished. */
+  flush: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -64,28 +74,56 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // the very first render's empty `items` gets written out and wipes
   // whatever was actually in localStorage (or the server) before it's read.
   const [hydrated, setHydrated] = useState(false);
+  const hydratedRef = useRef(false);
+  // Cart changes made before the cart has loaded (e.g. "Buy Now" clicked right
+  // after opening a product link) are replayed on top of the loaded cart
+  // instead of being overwritten by it.
+  const queuedActions = useRef<ShopperAction[]>([]);
+  const [pendingWrites, setPendingWrites] = useState(0);
+  const [version, setVersion] = useState(0);
+  // Serialized form of what the server was last told (or last returned), so
+  // hydration and refresh() don't echo the same cart straight back, and a
+  // render can tell whether local changes still need to reach the server.
+  const lastSynced = useRef<string | null>(null);
+  // Writes are chained, not fired concurrently: the PUT replaces the whole
+  // cart, so two in flight could land out of order and leave the older one.
+  const writeChain = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
     if (authLoading) return;
     let cancelled = false;
+    hydratedRef.current = false;
+    setHydrated(false);
+
+    function finishHydration(loaded: CartItem[]) {
+      dispatch({ type: "REPLACE", items: loaded });
+      for (const action of queuedActions.current) dispatch(action);
+      queuedActions.current = [];
+      hydratedRef.current = true;
+      setHydrated(true);
+      setVersion((v) => v + 1);
+    }
 
     if (user) {
       mode.current = "auth";
       api.cart
         .get()
         .then(({ items }) => {
-          if (!cancelled) {
-            dispatch({ type: "REPLACE", items });
-            setHydrated(true);
-          }
+          if (cancelled) return;
+          lastSynced.current = JSON.stringify(items);
+          finishHydration(items);
         })
         .catch(() => {
-          if (!cancelled) setHydrated(true); // fail open with an empty cart rather than wedge the page
+          if (cancelled) return;
+          // Fail open with an empty cart rather than wedge the page, but don't
+          // treat that empty cart as the server's copy.
+          lastSynced.current = null;
+          finishHydration([]);
         });
     } else {
       mode.current = "guest";
-      dispatch({ type: "REPLACE", items: loadCart() });
-      setHydrated(true);
+      lastSynced.current = null;
+      finishHydration(loadCart());
     }
 
     return () => {
@@ -95,27 +133,60 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (mode.current === "guest") saveCart(items);
-    else api.cart.put(items).catch(() => {}); // best-effort; a failed sync just retries on the next change
+    if (mode.current === "guest") {
+      saveCart(items);
+      return;
+    }
+
+    const serialized = JSON.stringify(items);
+    if (serialized === lastSynced.current) return;
+    lastSynced.current = serialized;
+
+    setPendingWrites((n) => n + 1);
+    writeChain.current = writeChain.current
+      .then(() => api.cart.put(items))
+      .then(
+        () => undefined,
+        () => {
+          // Let the next change (or a later render) retry instead of assuming the server has it.
+          if (lastSynced.current === serialized) lastSynced.current = null;
+        },
+      )
+      .finally(() => {
+        setPendingWrites((n) => n - 1);
+        setVersion((v) => v + 1);
+      });
   }, [items, hydrated]);
 
-  const value = useMemo<CartContextValue>(
-    () => ({
+  const unsyncedChanges = mode.current === "auth" && hydrated && JSON.stringify(items) !== lastSynced.current;
+  const syncing = !hydrated || pendingWrites > 0 || unsyncedChanges;
+
+  const value = useMemo<CartContextValue>(() => {
+    const apply = (action: ShopperAction) => {
+      if (!hydratedRef.current) queuedActions.current.push(action);
+      dispatch(action); // applied right away too, so the header count reacts instantly
+    };
+    return {
       items,
       itemCount: items.filter((i) => !i.savedForLater).reduce((sum, i) => sum + i.quantity, 0),
-      addItem: (productId, quantity = 1) => dispatch({ type: "ADD", productId, quantity }),
-      setQuantity: (productId, quantity) => dispatch({ type: "SET_QUANTITY", productId, quantity }),
-      removeItem: (productId) => dispatch({ type: "REMOVE", productId }),
-      saveForLater: (productId) => dispatch({ type: "SET_SAVED", productId, savedForLater: true }),
-      moveToCart: (productId) => dispatch({ type: "SET_SAVED", productId, savedForLater: false }),
+      addItem: (productId, quantity = 1) => apply({ type: "ADD", productId, quantity }),
+      setQuantity: (productId, quantity) => apply({ type: "SET_QUANTITY", productId, quantity }),
+      removeItem: (productId) => apply({ type: "REMOVE", productId }),
+      saveForLater: (productId) => apply({ type: "SET_SAVED", productId, savedForLater: true }),
+      moveToCart: (productId) => apply({ type: "SET_SAVED", productId, savedForLater: false }),
       refresh: async () => {
         if (mode.current !== "auth") return; // guest cart is already this browser's live copy
+        await writeChain.current;
         const { items } = await api.cart.get();
+        lastSynced.current = JSON.stringify(items);
         dispatch({ type: "REPLACE", items });
+        setVersion((v) => v + 1);
       },
-    }),
-    [items],
-  );
+      syncing,
+      version,
+      flush: () => writeChain.current,
+    };
+  }, [items, syncing, version]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

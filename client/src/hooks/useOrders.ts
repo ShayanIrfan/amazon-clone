@@ -2,11 +2,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import type { CardInput, DeliverySpeed } from "../lib/types";
 
-export function useOrderQuote(deliverySpeed: DeliverySpeed) {
+/**
+ * Server-priced totals for the signed-in cart. `cartVersion` (from CartContext)
+ * is part of the key so any cart change fetches fresh numbers; pass
+ * `enabled: false` while cart writes are still reaching the server, or the
+ * quote would price a cart that's about to change.
+ */
+export function useOrderQuote(deliverySpeed: DeliverySpeed, cartVersion: number, enabled: boolean) {
   return useQuery({
-    queryKey: ["orderQuote", deliverySpeed],
+    queryKey: ["orderQuote", deliverySpeed, cartVersion],
     queryFn: () => api.orders.quote(deliverySpeed),
-    placeholderData: (prev) => prev,
+    enabled,
+    // Never reuse a quote from an earlier checkout visit; prices, stock and the
+    // cart itself may have moved on since.
+    gcTime: 0,
+    // Keep the old numbers on screen only while switching delivery speed for
+    // the same cart. A changed cart shows "Calculating…" instead of stale totals.
+    placeholderData: (prev, prevQuery) => (prevQuery?.queryKey[2] === cartVersion ? prev : undefined),
   });
 }
 

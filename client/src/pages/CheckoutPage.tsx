@@ -25,7 +25,7 @@ interface PaymentSession {
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const { refresh: refreshCart } = useCart();
+  const { refresh: refreshCart, flush: flushCart, syncing: cartSyncing, version: cartVersion } = useCart();
   const { data: addressData } = useAddresses();
   const paymentsConfig = usePaymentsConfig();
   const stripeCheckout = paymentsConfig.data?.provider === "stripe";
@@ -37,7 +37,15 @@ export default function CheckoutPage() {
   const [orderError, setOrderError] = useState<string | null>(null);
   const [paymentSession, setPaymentSession] = useState<PaymentSession | null>(null);
 
-  const { data: quote, isLoading: quoteLoading, isError: quoteError, refetch: refetchQuote } = useOrderQuote(deliverySpeed);
+  // The quote prices the server's copy of the cart, so it waits for any
+  // in-flight cart writes (e.g. "Buy Now" adds the item and navigates here at once).
+  const {
+    data: quote,
+    isLoading: quoteLoading,
+    isPlaceholderData: quoteIsPlaceholder,
+    isError: quoteError,
+    refetch: refetchQuote,
+  } = useOrderQuote(deliverySpeed, cartVersion, !cartSyncing);
   const placeOrder = usePlaceOrder();
   const confirmPayment = useConfirmPayment();
 
@@ -57,7 +65,8 @@ export default function CheckoutPage() {
 
   if (paymentsConfig.isLoading) return <PageLoader label="Loading checkout" />;
 
-  if (quote && quote.itemCount === 0) {
+  // Only trust "empty" from a quote of the fully synced cart, never a placeholder.
+  if (!cartSyncing && quote && !quoteIsPlaceholder && quote.itemCount === 0) {
     return (
       <div className="page-shell flex min-h-[52vh] flex-col items-center justify-center gap-3 py-16 text-center">
         <p className="eyebrow">Checkout</p>
@@ -83,6 +92,7 @@ export default function CheckoutPage() {
     setPaymentSession(null);
     setStep("payment");
     try {
+      await flushCart();
       const { order, clientSecret } = await placeOrder.mutateAsync({ addressId: selectedAddress._id, deliverySpeed });
       if (!clientSecret) throw new Error("Payment couldn't be started. Try again.");
       setPaymentSession({ orderId: order._id, clientSecret, total: order.total });
@@ -102,6 +112,7 @@ export default function CheckoutPage() {
     if (!selectedAddress || !card) return;
     setOrderError(null);
     try {
+      await flushCart();
       const { order } = await placeOrder.mutateAsync({ addressId: selectedAddress._id, deliverySpeed, card });
       await refreshCart();
       navigate(`/orders/${order._id}?confirmed=1`, { replace: true });
@@ -210,7 +221,7 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        <OrderSummary quote={quote} isLoading={quoteLoading} />
+        <OrderSummary quote={quote} isLoading={cartSyncing || quoteLoading} />
       </div>
     </div>
   );
