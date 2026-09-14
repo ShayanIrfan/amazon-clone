@@ -4,7 +4,7 @@ A rebuild of amazon.com's core shopping loop for the 8x assignment — browse, s
 detail, cart, sign-in, checkout, orders, and account features (addresses, lists, recently
 viewed, reviews). Not affiliated with Amazon.com, Inc.
 
-**Live link:** https://amazon-clone-amber-six.vercel.app
+**Live link:** https://harbor-market-demo.vercel.app
 **Repository:** this one, including `.agent-logs/` (see [Agent capture](#agent-capture) below)
 
 ## Stack
@@ -141,7 +141,7 @@ Production environment variables (set with `vercel env add … production`): `NO
 `CLIENT_ORIGIN`, `MONGODB_URI`, `SESSION_SECRET`, `OTP_SECRET`, `STRIPE_SECRET_KEY`,
 `STRIPE_WEBHOOK_SECRET`, `VITE_STRIPE_PUBLISHABLE_KEY`, plus the `EMAIL_DELIVERY_MODE` /
 `RESEND_*` email settings. The Stripe webhook endpoint is
-`https://amazon-clone-amber-six.vercel.app/api/payments/webhook`, subscribed to
+`https://harbor-market-demo.vercel.app/api/payments/webhook`, subscribed to
 `payment_intent.succeeded`.
 
 ```bash
