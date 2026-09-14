@@ -42,8 +42,7 @@ npm run seed                            # loads the 194-product catalog + a demo
 npm run dev                             # API on :4000, client on :5173 (Vite proxies /api)
 ```
 
-Sign in as the seeded demo account (`demo@amazon-clone.test` / `DemoAccount123!`), or use the
-**"Try demo account"** button on the sign-in page to skip typing that.
+Sign in as the seeded demo account (`demo@amazon-clone.test` / `DemoAccount123!`).
 
 ```bash
 npm test          # server integration tests (own MongoDB, doesn't touch dev data)

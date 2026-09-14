@@ -112,8 +112,8 @@ async function seed() {
 
   console.log(`[seed] inserted ${products.length} products, ${categoryCounts.size} categories`);
 
-  // Fixed demo account so the "Try demo account" button (milestone 4) can log
-  // straight in without a real signup. Re-seeding resets its password.
+  // Fixed demo account for reviewers, signed in with the credentials below (no
+  // email verification or 2FA). Re-seeding resets its password.
   const demoEmail = "demo@amazon-clone.test";
   const demoPassword = "DemoAccount123!";
   const passwordHash = await bcrypt.hash(demoPassword, 10);

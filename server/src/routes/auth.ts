@@ -236,26 +236,6 @@ authRouter.post("/resend-login-code", loginCodeLimiter, async (req, res, next) =
   }
 });
 
-const demoSchema = z.object({ guestCart: guestCartSchema, mergeKey: mergeKeySchema });
-const DEMO_EMAIL = "demo@amazon-clone.test";
-authRouter.post("/demo", async (req, res, next) => {
-  try {
-    const { guestCart, mergeKey } = demoSchema.parse(req.body);
-    const user = await UserModel.findOne({ email: DEMO_EMAIL });
-    if (!user) {
-      res.status(500).json({ error: "Demo account isn't seeded â€” run `npm run seed`" });
-      return;
-    }
-    user.emailVerifiedAt ??= new Date();
-    mergeGuestCart(user, guestCart, mergeKey);
-    await user.save();
-    await issueSession(res, user._id.toString(), userAgent(req));
-    res.json({ user: publicUser(user) });
-  } catch (error) {
-    next(error);
-  }
-});
-
 authRouter.post("/forgot-password", resetLimiter, async (req, res, next) => {
   try {
     const email = emailSchema.parse(req.body?.email);

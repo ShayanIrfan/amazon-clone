@@ -12,7 +12,7 @@ const inputClass = "mt-1 h-11 w-full rounded-md border border-line-strong bg-whi
 export default function AuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, signup, verifyEmail, resendVerification, verifyLogin, loginDemo } = useAuth();
+  const { login, signup, verifyEmail, resendVerification, verifyLogin } = useAuth();
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? "/";
   const initialScreen: Screen = location.pathname === "/signup" ? "signup" : "login";
 
@@ -173,19 +173,6 @@ export default function AuthPage() {
     }
   }
 
-  async function tryDemo() {
-    setError(null);
-    setBusy(true);
-    try {
-      await loginDemo();
-      finishAuth();
-    } catch {
-      setError("Couldn't start the demo account. Please try again.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   const isCodeScreen = screen === "verify-email" || screen === "two-factor";
   const title = screen === "login" ? "Sign in" : screen === "signup" ? "Create your account" : screen === "forgot" ? "Reset your password" : screen === "reset" ? "Choose a new password" : screen === "two-factor" ? "Enter your sign-in code" : "Verify your email";
 
@@ -266,13 +253,6 @@ export default function AuthPage() {
           </form>
         )}
       </section>
-
-      {screen === "login" && (
-        <>
-          <div className="mt-6 flex w-full max-w-sm items-center gap-3 text-xs text-neutral-400"><span className="h-px flex-1 bg-neutral-200" />or<span className="h-px flex-1 bg-neutral-200" /></div>
-          <button type="button" onClick={tryDemo} disabled={busy} className="mt-4 w-full max-w-sm rounded-md border border-line-strong bg-white px-4 py-2.5 text-sm font-semibold text-harbor hover:bg-paper disabled:opacity-60">Try demo account</button>
-        </>
-      )}
 
       <p className="mt-6 text-center text-sm text-slate">
         {screen === "signup" ? <>Already have an account? <Link to="/login" state={{ from: location.state && (location.state as { from?: unknown }).from }} className="font-semibold text-harbor hover:underline">Sign in</Link></> : screen === "login" ? <>New to amazon-clone? <Link to="/signup" state={{ from: location.state && (location.state as { from?: unknown }).from }} className="font-semibold text-harbor hover:underline">Create your account</Link></> : <button type="button" onClick={() => go("login")} className="font-semibold text-harbor hover:underline">Back to sign in</button>}

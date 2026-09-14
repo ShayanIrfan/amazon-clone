@@ -12,7 +12,6 @@ interface AuthContextValue {
   verifyEmail: (email: string, code: string) => Promise<void>;
   resendVerification: (email: string) => Promise<void>;
   verifyLogin: (email: string, code: string) => Promise<void>;
-  loginDemo: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -54,7 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     resendVerification: (email) => api.auth.resendVerification(email).then(() => undefined),
     verifyLogin: (email, code) =>
       withGuestCartMerge(async (guestCart, mergeKey) => api.auth.verifyLogin({ email, code, guestCart, mergeKey })).then(() => undefined),
-    loginDemo: () => withGuestCartMerge((guestCart, mergeKey) => api.auth.demo({ guestCart, mergeKey })).then(() => undefined),
     logout: async () => {
       await api.auth.logout();
       setUser(null);

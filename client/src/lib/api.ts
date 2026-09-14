@@ -114,7 +114,6 @@ export const api = {
     verifyLogin: (data: { email: string; code: string; guestCart: CartItem[]; mergeKey: string }) =>
       post<AuthSuccess>("/auth/verify-login", data),
     resendLoginCode: (email: string) => post<{ ok: true }>("/auth/resend-login-code", { email }),
-    demo: (data: { guestCart?: CartItem[]; mergeKey?: string }) => post<AuthSuccess>("/auth/demo", data),
     forgotPassword: (email: string) => post<{ ok: true }>("/auth/forgot-password", { email }),
     resetPassword: (data: { email: string; code: string; password: string }) => post<{ ok: true }>("/auth/reset-password", data),
     logout: () => post<void>("/auth/logout"),
