@@ -4,7 +4,7 @@ A rebuild of amazon.com's core shopping loop for the 8x assignment — browse, s
 detail, cart, sign-in, checkout, orders, and account features (addresses, lists, recently
 viewed, reviews). Not affiliated with Amazon.com, Inc.
 
-**Live link:** _pending deployment_
+**Live link:** https://amazon-clone-amber-six.vercel.app
 **Repository:** this one, including `.agent-logs/` (see [Agent capture](#agent-capture) below)
 
 ## Stack
@@ -13,9 +13,10 @@ viewed, reviews). Not affiliated with Amazon.com, Inc.
 |---|---|
 | Frontend | Vite + React 19 + TypeScript, React Router, TanStack Query, Tailwind CSS v4 |
 | Backend | Express 5 + TypeScript, Mongoose, Zod validation |
-| Database | MongoDB (a single-node replica set, so multi-document transactions work) |
+| Database | MongoDB (a replica set — Atlas in production — so multi-document transactions work) |
 | Auth | Signed JWT in an httpOnly cookie |
-| Payments | A real mock provider — Luhn/expiry/CVV validation, recognizes Stripe's own test numbers to demo an approval and a decline. Real Stripe test keys were never supplied during the build; see [Payments](#payments) below. |
+| Payments | Stripe (test mode) — PaymentIntents, the Payment Element, and a signed webhook; a tested mock provider takes over when no Stripe key is configured. See [Payments](#payments). |
+| Hosting | Vercel — static client plus the Express API as one Vercel Function. See [Deployment](#deployment). |
 | Catalog | 194 products / 24 categories snapshotted from [DummyJSON](https://dummyjson.com) |
 
 ## Running locally
@@ -36,7 +37,7 @@ Then:
 ```bash
 npm install
 cp server/.env.example server/.env      # defaults already point at the container above
-cp client/.env.example client/.env      # placeholder Stripe key is fine — see Payments
+cp client/.env.example client/.env      # add Stripe test keys to both files, or keep the mock — see Payments
 npm run seed                            # loads the 194-product catalog + a demo user
 npm run dev                             # API on :4000, client on :5173 (Vite proxies /api)
 ```
@@ -65,8 +66,8 @@ specifically checked, and what bugs were caught and fixed along the way.
 - **Authentication** — dedicated sign-in and sign-up pages with email verification OTPs,
   password reset, optional email two-factor authentication, recovery codes, revocable
   sessions, and idempotent guest-cart merging.
-- **Checkout & orders** — address book, delivery speed, the mock payment form, a live
-  order-total preview, then order history with cancel (which restocks) and Buy Again.
+- **Checkout & orders** — address book, delivery speed, Stripe card payment, a live
+  order-total preview, then order history with cancel (which refunds and restocks) and Buy Again.
 - **Account** — address management, wish lists (add from the product page or the cart),
   recently viewed, and reviews gated to shoppers who've actually bought the item — writing
   one recalculates the product's real average rating.
@@ -89,8 +90,8 @@ Scope decisions made up front, revisited as each milestone landed:
 
 - **Prime, Video, Music, Alexa/Rufus** — separate products from the shopping loop this
   assignment is about.
-- **Real payments** — the checkout uses the tested mock payment provider until real Stripe
-  credentials are supplied. Authentication email delivery uses Resend configuration.
+- **Live-mode payments** — Stripe runs in test mode; no real cards are charged.
+  Authentication email delivery uses Resend configuration.
 - **Sponsored listings, multi-seller marketplace, gift cards, currency/language switching,
   live customer-service chat** — real Amazon complexity that would cost more build time than
   it would add to a 24-hour demo's core loop.
@@ -102,15 +103,50 @@ Scope decisions made up front, revisited as each milestone landed:
 
 ## Payments
 
-`server/.env` never received real Stripe test keys during this build (`STRIPE_SECRET_KEY`
-is still the `sk_test_REPLACE_ME` placeholder). Rather than write Stripe Elements
-integration code with no way to run it against a real account, `lib/mockPayments.ts` is a
-fully real, fully tested mock: Luhn-validates the card number, checks expiry and CVV, and
-recognizes two of Stripe's own published test numbers (`4242 4242 4242 4242` approves,
-`4000 0000 0000 9995` declines) so the checkout flow can demo both outcomes honestly. No
-card data is ever stored — only a brand guess and the last 4 digits, for display on the
-order. `config.ts`'s `stripeConfigured` flag already exists to swap in a real provider
-behind the same interface once real keys are available.
+With `STRIPE_SECRET_KEY` (server) and `VITE_STRIPE_PUBLISHABLE_KEY` (client) set, checkout
+uses Stripe:
+
+1. After the delivery step, `POST /api/orders` re-prices the cart on the server, creates a
+   `pending_payment` order and a PaymentIntent for its total, and returns the client secret.
+2. The Payment Element collects the card inside Stripe's iframe — card data never touches
+   this server — and `stripe.confirmPayment` charges it.
+3. The order is settled by whichever arrives first: the client calling
+   `POST /api/orders/:id/confirm-payment`, or Stripe's signed `payment_intent.succeeded`
+   webhook at `POST /api/payments/webhook`. Settling is idempotent — a conditional
+   `pending_payment → paid` update, with an atomic stock check in the same transaction. If
+   stock ran out while the card was being charged, the payment is refunded and the order is
+   cancelled.
+4. Cancelling a paid order refunds it in Stripe before restocking.
+
+Test cards: `4242 4242 4242 4242` approves, `4000 0000 0000 9995` declines (any future
+expiry, any CVC).
+
+Without a Stripe key, `lib/mockPayments.ts` takes over. It is a fully tested mock that
+Luhn-validates the card number, checks expiry and CVV, and recognizes the same two test
+numbers, so the integration tests and a key-less local setup still cover both outcomes.
+
+## Deployment
+
+Production runs on Vercel with MongoDB Atlas. `vercel.json` runs `scripts/build-vercel.mjs`,
+which writes a [Build Output API](https://vercel.com/docs/build-output-api/v3) bundle:
+
+- `static/` — the Vite client build, with an SPA fallback to `index.html`
+- `functions/api.func` — `server/src/vercel.ts` (the Express app) bundled with esbuild;
+  every `/api/*` request is routed to it
+
+The build is custom because the repo uses TypeScript 7, which no longer exposes the transpile
+API that Vercel's built-in Node builder calls.
+
+Production environment variables (set with `vercel env add … production`): `NODE_ENV`,
+`CLIENT_ORIGIN`, `MONGODB_URI`, `SESSION_SECRET`, `OTP_SECRET`, `STRIPE_SECRET_KEY`,
+`STRIPE_WEBHOOK_SECRET`, `VITE_STRIPE_PUBLISHABLE_KEY`, plus the `EMAIL_DELIVERY_MODE` /
+`RESEND_*` email settings. The Stripe webhook endpoint is
+`https://amazon-clone-amber-six.vercel.app/api/payments/webhook`, subscribed to
+`payment_intent.succeeded`.
+
+```bash
+npx vercel deploy --prod   # build on Vercel and promote to production
+```
 
 ## Agent capture
 
