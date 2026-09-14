@@ -15,6 +15,7 @@ import { ordersRouter } from "./routes/orders.js";
 import { usersRouter } from "./routes/users.js";
 import { listsRouter } from "./routes/lists.js";
 import { optionalAuth } from "./middleware/auth.js";
+import { csrfCookie, csrfProtection } from "./middleware/csrf.js";
 
 export function createApp() {
   const app = express();
@@ -23,6 +24,8 @@ export function createApp() {
   app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
   app.use(express.json());
   app.use(cookieParser());
+  app.use(csrfCookie);
+  app.use(csrfProtection);
   app.use(optionalAuth);
 
   app.get("/api/health", (_req, res) => {
@@ -41,7 +44,7 @@ export function createApp() {
 
   const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof ZodError) {
-      res.status(400).json({ error: "Invalid request", issues: err.issues });
+      res.status(400).json({ error: err.issues[0]?.message ?? "Invalid request", issues: err.issues });
       return;
     }
     console.error(err);

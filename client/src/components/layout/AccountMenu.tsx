@@ -19,18 +19,18 @@ export default function AccountMenu() {
   useEscapeKey(open, () => setOpen(false));
 
   return (
-    <div ref={ref} className="relative hidden md:block">
+    <div ref={ref} className="relative hidden lg:block">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex shrink-0 flex-col items-start rounded-sm border border-transparent p-2 text-left leading-tight hover:border-white"
+        className="flex shrink-0 flex-col items-start rounded-md border border-transparent p-2 text-left leading-tight hover:border-white"
       >
         <span className="text-xs">{user ? `Hello, ${user.name.split(" ")[0]}` : "Hello, sign in"}</span>
         <span className="text-sm font-bold">Account &amp; Lists</span>
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 z-30 w-64 max-w-[85vw] rounded-md border border-neutral-200 bg-white p-4 text-neutral-900 shadow-lg">
+        <div className="absolute top-full right-0 z-30 w-64 max-w-[85vw] rounded-md border border-line bg-white p-4 text-ink shadow-lg">
           {user ? (
             <>
               <p className="border-b border-neutral-100 pb-3 text-sm text-neutral-500">Signed in as</p>
@@ -42,7 +42,7 @@ export default function AccountMenu() {
                   await logout();
                   navigate("/");
                 }}
-                className="mt-3 w-full rounded-full border border-neutral-300 py-1.5 text-sm hover:bg-neutral-50"
+                className="mt-3 w-full rounded-md border border-line-strong py-2 text-sm font-semibold text-harbor hover:bg-paper"
               >
                 Sign Out
               </button>
@@ -67,6 +67,11 @@ export default function AccountMenu() {
                     Your Lists
                   </Link>
                 </li>
+                <li>
+                  <Link to="/account/security" onClick={() => setOpen(false)} className="hover:underline">
+                    Login &amp; security
+                  </Link>
+                </li>
               </ul>
             </>
           ) : (
@@ -74,13 +79,13 @@ export default function AccountMenu() {
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="block w-full rounded-full bg-amazon-yellow py-1.5 text-center text-sm font-medium text-neutral-900 hover:brightness-95"
+                className="block w-full rounded-md bg-marigold py-2 text-center text-sm font-semibold text-harbor-dark hover:bg-marigold-dark"
               >
                 Sign in
               </Link>
               <p className="mt-3 text-center text-xs">
                 New customer?{" "}
-                <Link to="/login" onClick={() => setOpen(false)} className="text-link hover:underline">
+                <Link to="/signup" onClick={() => setOpen(false)} className="text-link hover:underline">
                   Create your account
                 </Link>
               </p>

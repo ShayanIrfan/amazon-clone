@@ -6,6 +6,7 @@ import { formatPrice } from "../lib/format";
 import OrderStatusBadge from "../components/orders/OrderStatusBadge";
 import ErrorState from "../components/ui/ErrorState";
 import type { Order } from "../lib/types";
+import PageLoader from "../components/ui/PageLoader";
 
 export default function OrdersListPage() {
   const { data, isLoading, isError, refetch } = useOrders();
@@ -18,17 +19,17 @@ export default function OrdersListPage() {
     navigate("/cart");
   }
 
-  if (isLoading) return <div className="p-16 text-center text-neutral-500">Loading…</div>;
+  if (isLoading) return <PageLoader label="Loading your orders" />;
   if (isError) return <ErrorState message="Couldn't load your orders." onRetry={() => refetch()} />;
 
   const orders = data?.items ?? [];
 
   if (orders.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 p-16 text-center">
+      <div className="page-shell flex flex-col items-center gap-3 py-20 text-center">
         <Package size={48} className="text-neutral-300" />
-        <h1 className="text-xl font-bold text-neutral-900">You haven't placed any orders yet</h1>
-        <Link to="/" className="mt-2 rounded-full bg-amazon-yellow px-6 py-2 text-sm font-medium text-neutral-900 hover:brightness-95">
+        <h1 className="page-title text-ink">You haven't placed any orders yet</h1>
+        <Link to="/" className="mt-2 rounded-md bg-marigold px-6 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark">
           Start shopping
         </Link>
       </div>
@@ -36,14 +37,15 @@ export default function OrdersListPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4">
-      <h1 className="text-2xl font-medium text-neutral-900">Your Orders</h1>
-      <ul className="mt-4 space-y-4">
+    <div className="page-shell py-6">
+      <p className="eyebrow">Account activity</p>
+      <h1 className="page-title mt-1 text-ink">Your Orders</h1>
+      <ul className="mt-6 space-y-4">
         {orders.map((order) => (
-          <li key={order._id} className="rounded-lg border border-neutral-200">
-            <div className="flex flex-wrap items-center justify-between gap-2 bg-neutral-50 px-4 py-2 text-sm">
+          <li key={order._id} className="surface overflow-hidden rounded-md">
+            <div className="flex flex-wrap items-center justify-between gap-2 bg-paper px-4 py-3 text-sm">
               <div className="flex flex-wrap gap-6">
-                <span>
+                <span className="amount">
                   <span className="block text-neutral-500">Order placed</span>
                   {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
                 </span>
@@ -62,13 +64,13 @@ export default function OrdersListPage() {
                 ))}
               </div>
               <div className="flex shrink-0 flex-col gap-2 sm:items-end">
-                <Link to={`/orders/${order._id}`} className="rounded-full border border-neutral-300 px-4 py-1.5 text-center text-sm hover:bg-neutral-50">
+                <Link to={`/orders/${order._id}`} className="rounded-md border border-line-strong bg-white px-4 py-2 text-center text-sm font-semibold text-harbor hover:bg-paper">
                   View order details
                 </Link>
                 <button
                   type="button"
                   onClick={() => buyAgain(order)}
-                  className="rounded-full border border-neutral-300 px-4 py-1.5 text-sm hover:bg-neutral-50"
+                  className="rounded-md border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-harbor hover:bg-paper"
                 >
                   Buy it again
                 </button>

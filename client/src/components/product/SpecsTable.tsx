@@ -26,11 +26,11 @@ export default function SpecsTable({ product }: { product: Product }) {
     <table className="w-full text-sm">
       <tbody>
         {rows.map(([label, value]) => (
-          <tr key={label} className="border-b border-neutral-100 odd:bg-neutral-50">
-            <th scope="row" className="w-1/3 px-3 py-2 text-left font-medium text-neutral-600">
+          <tr key={label} className="border-b border-line odd:bg-paper/70">
+            <th scope="row" className="w-1/3 px-3 py-2 text-left font-medium text-slate">
               {label}
             </th>
-            <td className="px-3 py-2 text-neutral-800">{value}</td>
+            <td className="px-3 py-2 text-ink">{value}</td>
           </tr>
         ))}
       </tbody>

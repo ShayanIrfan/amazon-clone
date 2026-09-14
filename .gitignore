@@ -12,3 +12,7 @@ node_modules/
 .vercel/
 .next/
 dist/
+
+# Local agent skill copies from the `npx skills` tool — not app code, kept out of the repo
+.agents/
+skills-lock.json

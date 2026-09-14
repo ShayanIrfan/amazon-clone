@@ -15,8 +15,8 @@ export default function RatingBreakdown({
 }) {
   return (
     <div>
-      <p className="text-lg font-medium text-neutral-900">{average.toFixed(1)} out of 5</p>
-      <p className="text-sm text-neutral-600">{total.toLocaleString()} global ratings</p>
+      <p className="text-lg font-semibold text-ink">{average.toFixed(1)} out of 5</p>
+      <p className="text-sm text-slate">{total.toLocaleString()} global ratings</p>
       <div className="mt-3 space-y-1">
         {[5, 4, 3, 2, 1].map((star) => {
           const count = breakdown[star as 1 | 2 | 3 | 4 | 5] ?? 0;
@@ -26,15 +26,15 @@ export default function RatingBreakdown({
               key={star}
               type="button"
               onClick={() => onSelectStar(selectedStar === star ? null : star)}
-              className={`flex w-full items-center gap-2 rounded px-1 py-0.5 text-sm hover:bg-neutral-100 ${
-                selectedStar === star ? "bg-neutral-100" : ""
+              className={`flex w-full items-center gap-2 rounded-md px-1 py-1 text-sm hover:bg-paper ${
+                selectedStar === star ? "bg-paper" : ""
               }`}
             >
-              <span className="w-12 shrink-0 text-link">{star} star</span>
-              <span className="h-4 flex-1 overflow-hidden rounded-sm bg-neutral-200">
-                <span className="block h-full bg-amazon-orange" style={{ width: `${pct}%` }} />
+              <span className="w-12 shrink-0 text-harbor">{star} star</span>
+              <span className="h-3 flex-1 overflow-hidden rounded-sm bg-line">
+                <span className="block h-full bg-marigold" style={{ width: `${pct}%` }} />
               </span>
-              <span className="w-10 shrink-0 text-right text-neutral-600">{pct}%</span>
+              <span className="w-10 shrink-0 text-right text-slate">{pct}%</span>
             </button>
           );
         })}

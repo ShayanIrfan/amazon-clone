@@ -1,13 +1,17 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
-import { loadCart, saveCart, type CartItem } from "../lib/cartStorage";
+import { clearCartMergeKey, getCartMergeKey, loadCart, saveCart } from "../lib/cartStorage";
 import type { AuthUser } from "../lib/types";
+import type { AuthChallengeResponse } from "../lib/api";
 
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<AuthChallengeResponse>;
+  signup: (name: string, email: string, password: string) => Promise<{ verificationRequired: true; email: string }>;
+  verifyEmail: (email: string, code: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
+  verifyLogin: (email: string, code: string) => Promise<void>;
   loginDemo: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -28,20 +32,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Snapshots the guest cart, sends it along so the server can merge it into
   // the account's own cart, then retires the local copy — CartContext reacts
   // to `user` changing and takes over from the server cart from here.
-  async function withGuestCartMerge(action: (guestCart: CartItem[]) => Promise<{ user: AuthUser }>) {
+  async function withGuestCartMerge<T>(action: (guestCart: ReturnType<typeof loadCart>, mergeKey: string) => Promise<T>) {
     const guestCart = loadCart();
-    const { user: signedInUser } = await action(guestCart);
-    saveCart([]);
-    setUser(signedInUser);
+    const result = await action(guestCart, getCartMergeKey());
+    if (typeof result === "object" && result !== null && "user" in result && result.user) {
+      saveCart([]);
+      clearCartMergeKey();
+      setUser(result.user as AuthUser);
+    }
+    return result;
   }
 
   const value: AuthContextValue = {
     user,
     isLoading,
-    login: (email, password) => withGuestCartMerge((guestCart) => api.auth.login({ email, password, guestCart })),
+    login: (email, password) => withGuestCartMerge((guestCart, mergeKey) => api.auth.login({ email, password, guestCart, mergeKey })),
     signup: (name, email, password) =>
-      withGuestCartMerge((guestCart) => api.auth.signup({ name, email, password, guestCart })),
-    loginDemo: () => withGuestCartMerge((guestCart) => api.auth.demo({ guestCart })),
+      api.auth.signup({ name, email, password, guestCart: loadCart(), mergeKey: getCartMergeKey() }),
+    verifyEmail: (email, code) =>
+      withGuestCartMerge(async (guestCart, mergeKey) => api.auth.verifyEmail({ email, code, guestCart, mergeKey })).then(() => undefined),
+    resendVerification: (email) => api.auth.resendVerification(email).then(() => undefined),
+    verifyLogin: (email, code) =>
+      withGuestCartMerge(async (guestCart, mergeKey) => api.auth.verifyLogin({ email, code, guestCart, mergeKey })).then(() => undefined),
+    loginDemo: () => withGuestCartMerge((guestCart, mergeKey) => api.auth.demo({ guestCart, mergeKey })).then(() => undefined),
     logout: async () => {
       await api.auth.logout();
       setUser(null);

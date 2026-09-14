@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { verifySession, SESSION_COOKIE } from "../lib/auth.js";
+import { getSessionUserId, SESSION_COOKIE } from "../lib/auth.js";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -13,13 +13,17 @@ declare global {
 // Attaches req.userId when a valid session cookie is present, but never
 // blocks the request — most routes (products, categories) want to know who's
 // asking without requiring anyone to be signed in.
-export function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction) {
   const token = req.cookies?.[SESSION_COOKIE];
-  if (typeof token === "string") {
-    const userId = verifySession(token);
-    if (userId) req.userId = userId;
+  try {
+    if (typeof token === "string") {
+      const userId = await getSessionUserId(token);
+      if (userId) req.userId = userId;
+    }
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {

@@ -7,6 +7,7 @@ import request from "supertest";
 import mongoose from "mongoose";
 import { createApp } from "../src/app.js";
 import { ProductModel } from "../src/models/index.js";
+import { testMailOutbox } from "../src/lib/mail.js";
 
 const app = createApp();
 let productId: string;
@@ -54,16 +55,31 @@ describe("core shopping flow", () => {
   it("signs up a new account", async () => {
     const res = await shopper
       .post("/api/auth/signup")
-      .send({ name: "Test Shopper", email: "flow-test@example.com", password: "secret123", guestCart: [] })
-      .expect(201);
-    expect(res.body.user.email).toBe("flow-test@example.com");
+      .send({ name: "Test Shopper", email: "flow-test@example.com", password: "Secret12345!", guestCart: [] })
+      .expect(202);
+    expect(res.body.verificationRequired).toBe(true);
+    const verification = testMailOutbox.at(-1)!;
+    await shopper
+      .post("/api/auth/verify-email")
+      .send({ email: verification.to, code: verification.code, guestCart: [], mergeKey: "test-flow-signup-merge-key" })
+      .expect(200);
+    expect((await shopper.get("/api/auth/me")).body.user.email).toBe("flow-test@example.com");
+  });
+
+  it("rejects passwords that only meet the length requirement", async () => {
+    const res = await request(app)
+      .post("/api/auth/signup")
+      .send({ name: "Weak Password", email: "weak-password@example.com", password: "alllowercase123", guestCart: [] })
+      .expect(400);
+    expect(res.body.error).toBe("Password must include an uppercase letter");
   });
 
   it("rejects a second signup with the same email", async () => {
-    await shopper
+    const res = await shopper
       .post("/api/auth/signup")
-      .send({ name: "Duplicate", email: "flow-test@example.com", password: "secret123" })
+      .send({ name: "Duplicate", email: "flow-test@example.com", password: "Secret12345!" })
       .expect(409);
+    expect(res.body.code).toBe("EMAIL_ALREADY_REGISTERED");
   });
 
   it("adds two of the product to the cart", async () => {
@@ -131,10 +147,16 @@ describe("core shopping flow", () => {
 
   it("hides the order from someone else, without revealing it exists", async () => {
     const other = request.agent(app);
-    await other
+    const otherSignup = await other
       .post("/api/auth/signup")
-      .send({ name: "Other Shopper", email: "flow-test-2@example.com", password: "secret123", guestCart: [] })
-      .expect(201);
+      .send({ name: "Other Shopper", email: "flow-test-2@example.com", password: "Secret12345!", guestCart: [] })
+      .expect(202);
+    expect(otherSignup.body.verificationRequired).toBe(true);
+    const otherVerification = testMailOutbox.at(-1)!;
+    await other
+      .post("/api/auth/verify-email")
+      .send({ email: otherVerification.to, code: otherVerification.code, guestCart: [], mergeKey: "test-other-signup-merge-key" })
+      .expect(200);
     await other.get(`/api/orders/${orderId}`).expect(404);
   });
 
@@ -157,10 +179,16 @@ describe("review eligibility (purchase-gated)", () => {
   });
 
   it("won't let a signed-in shopper who hasn't bought it review it", async () => {
-    await shopper
+    const reviewerSignup = await shopper
       .post("/api/auth/signup")
-      .send({ name: "Reviewer", email: "reviewer@example.com", password: "secret123", guestCart: [] })
-      .expect(201);
+      .send({ name: "Reviewer", email: "reviewer@example.com", password: "Secret12345!", guestCart: [] })
+      .expect(202);
+    expect(reviewerSignup.body.verificationRequired).toBe(true);
+    const reviewerVerification = testMailOutbox.at(-1)!;
+    await shopper
+      .post("/api/auth/verify-email")
+      .send({ email: reviewerVerification.to, code: reviewerVerification.code, guestCart: [], mergeKey: "test-reviewer-signup-merge-key" })
+      .expect(200);
     await shopper.post(`/api/products/${productId}/reviews`).send({ rating: 5, comment: "Great!" }).expect(403);
   });
 
@@ -186,5 +214,55 @@ describe("review eligibility (purchase-gated)", () => {
     const product = await ProductModel.findById(productId);
     expect(product!.rating).toBe(4);
     expect(product!.ratingCount).toBe(1);
+  });
+});
+
+describe("authentication hardening", () => {
+  it("keeps signup unverified until a single-use email code is consumed", async () => {
+    const shopper = request.agent(app);
+    testMailOutbox.length = 0;
+    const email = "otp-flow@example.com";
+    await shopper.post("/api/auth/signup").send({ name: "OTP Shopper", email, password: "Secret12345!", guestCart: [] }).expect(202);
+    await shopper.get("/api/auth/me").expect(401);
+
+    const code = testMailOutbox.at(-1)!.code;
+    await shopper.post("/api/auth/verify-email").send({ email, code: "000000", guestCart: [], mergeKey: "otp-invalid-merge-key" }).expect(400);
+    await shopper.post("/api/auth/verify-email").send({ email, code, guestCart: [], mergeKey: "otp-valid-merge-key" }).expect(200);
+    await shopper.post("/api/auth/verify-email").send({ email, code, guestCart: [], mergeKey: "otp-replay-merge-key" }).expect(400);
+  });
+
+  it("resets a password and revokes the previous session", async () => {
+    const shopper = request.agent(app);
+    testMailOutbox.length = 0;
+    const email = "reset-flow@example.com";
+    await shopper.post("/api/auth/signup").send({ name: "Reset Shopper", email, password: "Secret12345!", guestCart: [] }).expect(202);
+    const signupCode = testMailOutbox.at(-1)!.code;
+    await shopper.post("/api/auth/verify-email").send({ email, code: signupCode, guestCart: [], mergeKey: "reset-signup-merge-key" }).expect(200);
+    await shopper.post("/api/auth/forgot-password").send({ email }).expect(202);
+    const resetCode = testMailOutbox.at(-1)!.code;
+    await shopper.post("/api/auth/reset-password").send({ email, code: resetCode, password: "Newsecret123!" }).expect(200);
+    await shopper.get("/api/auth/me").expect(401);
+    await shopper.post("/api/auth/login").send({ email, password: "Secret12345!", guestCart: [] }).expect(401);
+    await shopper.post("/api/auth/login").send({ email, password: "Newsecret123!", guestCart: [] }).expect(200);
+  });
+
+  it("supports email two-factor login and recovery-code disable", async () => {
+    const shopper = request.agent(app);
+    testMailOutbox.length = 0;
+    const email = "two-factor-flow@example.com";
+    await shopper.post("/api/auth/signup").send({ name: "Two Factor Shopper", email, password: "Secret12345!", guestCart: [] }).expect(202);
+    const signupCode = testMailOutbox.at(-1)!.code;
+    await shopper.post("/api/auth/verify-email").send({ email, code: signupCode, guestCart: [], mergeKey: "2fa-signup-merge-key" }).expect(200);
+    await shopper.post("/api/auth/2fa/enable/request").send({ password: "Secret12345!" }).expect(200);
+    const enableCode = testMailOutbox.at(-1)!.code;
+    const enabled = await shopper.post("/api/auth/2fa/enable/confirm").send({ code: enableCode }).expect(200);
+    expect(enabled.body.recoveryCodes).toHaveLength(8);
+    const recoveryCode = enabled.body.recoveryCodes[0];
+    await shopper.post("/api/auth/logout").expect(204);
+    const login = await shopper.post("/api/auth/login").send({ email, password: "Secret12345!", guestCart: [] }).expect(200);
+    expect(login.body.twoFactorRequired).toBe(true);
+    const loginCode = testMailOutbox.at(-1)!.code;
+    await shopper.post("/api/auth/verify-login").send({ email, code: loginCode, guestCart: [], mergeKey: "2fa-login-merge-key" }).expect(200);
+    await shopper.post("/api/auth/2fa/disable").send({ password: "Secret12345!", recoveryCode }).expect(200);
   });
 });

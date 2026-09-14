@@ -115,13 +115,14 @@ async function seed() {
   // Fixed demo account so the "Try demo account" button (milestone 4) can log
   // straight in without a real signup. Re-seeding resets its password.
   const demoEmail = "demo@amazon-clone.test";
-  const passwordHash = await bcrypt.hash("demo1234", 10);
+  const demoPassword = "DemoAccount123!";
+  const passwordHash = await bcrypt.hash(demoPassword, 10);
   await UserModel.findOneAndUpdate(
     { email: demoEmail },
-    { name: "Demo Shopper", email: demoEmail, passwordHash, isDemo: true },
+    { name: "Demo Shopper", email: demoEmail, passwordHash, isDemo: true, emailVerifiedAt: new Date(), twoFactorEnabled: false },
     { upsert: true, setDefaultsOnInsert: true },
   );
-  console.log(`[seed] demo user ready: ${demoEmail} / demo1234`);
+  console.log(`[seed] demo user ready: ${demoEmail} / ${demoPassword}`);
 
   await import("mongoose").then((m) => m.default.disconnect());
   console.log("[seed] done");

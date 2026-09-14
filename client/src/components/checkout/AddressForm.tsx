@@ -32,8 +32,8 @@ export default function AddressForm({ onSubmit, onCancel, busy, error }: Props) 
   }
 
   return (
-    <form onSubmit={submit} className="rounded-lg border border-neutral-200 p-4">
-      <h3 className="font-bold text-neutral-900">Add a new address</h3>
+    <form onSubmit={submit} className="surface rounded-md p-4 sm:p-5">
+      <h3 className="text-lg font-semibold text-ink">Add a new address</h3>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <Field label="Full name" value={form.fullName} onChange={(v) => set("fullName", v)} required />
         <Field label="Phone number" value={form.phone} onChange={(v) => set("phone", v)} required />
@@ -51,11 +51,11 @@ export default function AddressForm({ onSubmit, onCancel, busy, error }: Props) 
         <button
           type="submit"
           disabled={busy}
-          className="rounded-full bg-amazon-yellow px-4 py-1.5 text-sm font-medium text-neutral-900 hover:brightness-95 disabled:opacity-60"
+          className="rounded-md bg-marigold px-4 py-2 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-60"
         >
           Use this address
         </button>
-        <button type="button" onClick={onCancel} className="rounded-full border border-neutral-300 px-4 py-1.5 text-sm hover:bg-neutral-50">
+        <button type="button" onClick={onCancel} className="rounded-md border border-line-strong px-4 py-2 text-sm font-semibold text-harbor hover:bg-paper">
           Cancel
         </button>
       </div>
@@ -84,7 +84,7 @@ function Field({
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded border border-neutral-300 px-2 py-1.5 focus:border-amazon-orange focus:ring-1 focus:ring-amazon-orange focus:outline-none"
+        className="mt-1 h-10 w-full rounded-md border border-line-strong px-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
       />
     </label>
   );

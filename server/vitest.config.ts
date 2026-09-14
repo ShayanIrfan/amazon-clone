@@ -16,6 +16,11 @@ export default defineConfig({
       SESSION_SECRET: "test-session-secret-not-for-production-use-only",
       STRIPE_SECRET_KEY: "sk_test_REPLACE_ME",
       STRIPE_WEBHOOK_SECRET: "whsec_REPLACE_ME",
+      EMAIL_DELIVERY_MODE: "log",
+      RESEND_API_KEY: "re_TEST_PLACEHOLDER_REPLACE_ME",
+      RESEND_FROM_EMAIL: "no-reply@example.test",
+      RESEND_FROM_NAME: "amazon-clone test",
+      OTP_SECRET: "test-otp-secret-not-for-production-use",
     },
   },
 });

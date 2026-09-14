@@ -25,8 +25,8 @@ export default function ImageGallery({ images, title }: { images: string[]; titl
               onMouseEnter={() => setActive(i)}
               onClick={() => setActive(i)}
               aria-label={`Show image ${i + 1}`}
-              className={`h-14 w-14 shrink-0 overflow-hidden rounded border-2 bg-white ${
-                i === active ? "border-amazon-orange" : "border-neutral-200"
+              className={`h-14 w-14 shrink-0 overflow-hidden rounded-md border-2 bg-white ${
+                i === active ? "border-marigold" : "border-line"
               }`}
             >
               <img src={src} alt="" className="h-full w-full object-contain" />
@@ -39,7 +39,7 @@ export default function ImageGallery({ images, title }: { images: string[]; titl
         ref={frameRef}
         onMouseMove={onMouseMove}
         onMouseLeave={() => setZoom(null)}
-        className="relative flex aspect-square flex-1 items-center justify-center overflow-hidden bg-white"
+        className="relative flex aspect-square flex-1 items-center justify-center overflow-hidden rounded-md border border-line bg-white"
       >
         <img
           src={gallery[active]}

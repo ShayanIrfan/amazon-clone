@@ -11,18 +11,20 @@ import OrderDetailPage from "./pages/OrderDetailPage";
 import AccountPage from "./pages/AccountPage";
 import AddressesPage from "./pages/AddressesPage";
 import ListsPage from "./pages/ListsPage";
+import SecurityPage from "./pages/SecurityPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import RequireAuth from "./components/auth/RequireAuth";
 
 export default function App() {
   return (
     <Routes>
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/signup" element={<AuthPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
         <Route path="/cart" element={<CartPage />} />
-        <Route path="/login" element={<AuthPage />} />
         <Route
           path="/checkout"
           element={
@@ -68,6 +70,14 @@ export default function App() {
           element={
             <RequireAuth>
               <ListsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/account/security"
+          element={
+            <RequireAuth>
+              <SecurityPage />
             </RequireAuth>
           }
         />

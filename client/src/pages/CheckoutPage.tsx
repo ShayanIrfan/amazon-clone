@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { ChevronLeft } from "lucide-react";
 import { useAddresses } from "../hooks/useAddresses";
 import { useOrderQuote, usePlaceOrder } from "../hooks/useOrders";
 import { useCart } from "../context/CartContext";
@@ -35,13 +36,14 @@ export default function CheckoutPage() {
 
   if (quote && quote.itemCount === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 p-16 text-center">
-        <h1 className="text-xl font-bold text-neutral-900">Your cart is empty</h1>
-        <p className="text-neutral-600">Add something to your cart before checking out.</p>
+      <div className="page-shell flex min-h-[52vh] flex-col items-center justify-center gap-3 py-16 text-center">
+        <p className="eyebrow">Checkout</p>
+        <h1 className="page-title text-ink">Your cart is empty</h1>
+        <p className="muted">Add something to your cart before checking out.</p>
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="mt-2 rounded-full bg-amazon-yellow px-6 py-2 text-sm font-medium text-neutral-900 hover:brightness-95"
+          className="mt-2 rounded-md bg-marigold px-6 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark"
         >
           Continue shopping
         </button>
@@ -61,11 +63,44 @@ export default function CheckoutPage() {
     }
   }
 
+  const steps: { key: Step; label: string }[] = [
+    { key: "address", label: "Address" },
+    { key: "delivery", label: "Delivery" },
+    { key: "payment", label: "Payment" },
+    { key: "review", label: "Review" },
+  ];
+  const activeStep = steps.findIndex((item) => item.key === step);
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4">
-      <h1 className="text-2xl font-medium text-neutral-900">Checkout</h1>
-      <div className="mt-4 grid gap-6 sm:grid-cols-[1fr_280px]">
+    <div className="page-shell py-6">
+      <p className="eyebrow">Secure demo checkout</p>
+      <h1 className="page-title mt-1 text-ink">Checkout</h1>
+      <nav className="mt-6" aria-label="Checkout progress">
+        <ol className="grid grid-cols-4 gap-1 sm:flex sm:items-center">
+          {steps.map((item, index) => (
+            <li key={item.key} className="flex min-w-0 flex-col items-center sm:flex-1 sm:flex-row">
+              <div className={`flex min-w-0 flex-col items-center gap-1 text-[0.7rem] sm:flex-row sm:gap-2 sm:text-sm ${index <= activeStep ? "font-semibold text-harbor" : "text-slate"}`}>
+                <span className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs ${index <= activeStep ? "border-harbor bg-harbor text-white" : "border-line-strong bg-white"}`}>
+                  {index + 1}
+                </span>
+                {item.label}
+              </div>
+              {index < steps.length - 1 && <span className={`mx-3 hidden h-px flex-1 sm:block ${index < activeStep ? "bg-harbor" : "bg-line"}`} />}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_300px]">
         <div className="space-y-4">
+          {activeStep > 0 && (
+            <button
+              type="button"
+              onClick={() => setStep(steps[activeStep - 1].key)}
+              className="inline-flex items-center gap-1 text-sm font-semibold text-harbor hover:underline"
+            >
+              <ChevronLeft size={16} aria-hidden /> Back to {steps[activeStep - 1].label.toLowerCase()}
+            </button>
+          )}
           {step === "address" && (
             <AddressStep selectedId={addressId} onSelect={setAddressId} onContinue={() => setStep("delivery")} />
           )}

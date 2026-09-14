@@ -51,6 +51,8 @@ export interface AuthUser {
   name: string;
   email: string;
   isDemo: boolean;
+  emailVerified: boolean;
+  twoFactorEnabled: boolean;
 }
 
 export interface Category {

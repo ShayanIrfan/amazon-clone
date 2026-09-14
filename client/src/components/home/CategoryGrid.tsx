@@ -8,20 +8,22 @@ interface Props {
 
 export default function CategoryGrid({ categories, thumbnails }: Props) {
   return (
-    <section className="grid grid-cols-2 gap-4 bg-neutral-100 p-4 sm:grid-cols-4">
+    <section className="page-shell grid grid-cols-2 gap-3 py-6 sm:grid-cols-4 lg:gap-4">
       {categories.map((c) => (
         <Link
           key={c.slug}
           to={`/search?category=${c.slug}`}
-          className="flex flex-col gap-3 bg-white p-4 shadow-sm hover:shadow-md"
+          className="surface surface-hover flex flex-col gap-3 rounded-md p-3 sm:p-4"
         >
-          <h3 className="font-bold text-neutral-900">{c.name}</h3>
-          <div className="flex aspect-square items-center justify-center overflow-hidden bg-neutral-50">
-            {thumbnails[c.slug] && (
-              <img src={thumbnails[c.slug]} alt={c.name} className="max-h-full max-w-full object-contain" />
+          <h3 className="min-h-10 font-semibold text-ink">{c.name}</h3>
+          <div className="flex aspect-square items-center justify-center overflow-hidden rounded-sm bg-paper">
+            {thumbnails[c.slug] ? (
+              <img src={thumbnails[c.slug]} alt={c.name} className="h-full w-full object-contain mix-blend-multiply" />
+            ) : (
+              <span className="text-xs text-slate">Explore category</span>
             )}
           </div>
-          <span className="text-sm text-link">Shop now</span>
+          <span className="text-sm font-semibold text-harbor">Shop now <span aria-hidden>→</span></span>
         </Link>
       ))}
     </section>

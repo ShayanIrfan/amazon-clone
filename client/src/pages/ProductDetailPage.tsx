@@ -15,6 +15,8 @@ import AddToListMenu from "../components/lists/AddToListMenu";
 import WriteReviewForm from "../components/product/WriteReviewForm";
 import { estimatedDelivery } from "../lib/format";
 import type { ReviewSort } from "../lib/types";
+import PageLoader from "../components/ui/PageLoader";
+import ErrorState from "../components/ui/ErrorState";
 
 function categoryLabel(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -36,16 +38,9 @@ export default function ProductDetailPage() {
 
   const { data: reviewData } = useReviews(id, { sort: reviewSort, star: starFilter ?? undefined, page: reviewPage });
 
-  if (isLoading) return <div className="p-16 text-center text-neutral-500">Loading…</div>;
+  if (isLoading) return <PageLoader label="Loading product details" />;
   if (isError || !product) {
-    return (
-      <div className="flex flex-col items-center gap-2 p-16 text-center">
-        <p className="text-amazon-red">Product not found.</p>
-        <Link to="/search" className="text-link hover:underline">
-          Back to search
-        </Link>
-      </div>
-    );
+    return <ErrorState message="Product not found." detail="This product may have been removed from the catalog." />;
   }
 
   const bullets = product.description
@@ -64,8 +59,8 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-4">
-      <nav className="mb-3 flex items-center gap-1 text-xs text-neutral-500">
+    <div className="page-shell py-6">
+      <nav className="mb-5 flex items-center gap-1 text-xs text-slate">
         <Link to="/" className="hover:text-link hover:underline">
           Home
         </Link>
@@ -75,28 +70,28 @@ export default function ProductDetailPage() {
         </Link>
       </nav>
 
-      <div className="grid gap-8 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_260px]">
-        <div className="sm:col-span-1">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px] lg:gap-8">
+        <div className="md:col-span-1">
           <ImageGallery images={product.images} title={product.title} />
         </div>
 
-        <div className="sm:col-span-1">
-          <h1 className="text-xl font-medium text-neutral-900">{product.title}</h1>
-          <p className="mt-1 text-sm text-link hover:underline">Visit the {product.brand} Store</p>
+        <div className="md:col-span-1">
+          <h1 className="text-2xl font-semibold leading-tight tracking-[-0.035em] text-ink sm:text-3xl">{product.title}</h1>
+          <p className="mt-2 text-sm font-semibold text-harbor hover:underline">Visit the {product.brand} Store</p>
           <div className="mt-1">
             <StarRating rating={product.rating} count={product.ratingCount} />
           </div>
-          <div className="mt-2">
+          <div className="mt-3">
             <AddToListMenu productId={product._id} />
           </div>
 
-          <div className="mt-3 border-t border-neutral-200 pt-3">
+          <div className="mt-4 border-t border-line pt-4">
             <PriceTag price={product.price} discountPercentage={product.discountPercentage} size="lg" />
           </div>
 
           {bullets.length > 0 && (
             <div className="mt-4">
-              <h2 className="font-bold text-neutral-900">About this item</h2>
+              <h2 className="text-lg font-semibold text-ink">About this item</h2>
               <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-neutral-700">
                 {bullets.map((b, i) => (
                   <li key={i}>{b}</li>
@@ -106,20 +101,20 @@ export default function ProductDetailPage() {
           )}
 
           <div className="mt-6">
-            <h2 className="mb-2 font-bold text-neutral-900">Specifications</h2>
+              <h2 className="mb-2 text-lg font-semibold text-ink">Specifications</h2>
             <SpecsTable product={product} />
           </div>
         </div>
 
-        <div className="sm:col-span-1">
-          <div className="rounded-lg border border-neutral-200 p-4">
+        <div className="md:col-span-2 lg:col-span-1">
+          <div className="surface rounded-md p-4 lg:sticky lg:top-28">
             <PriceTag price={product.price} discountPercentage={product.discountPercentage} size="lg" />
             {product.stock > 0 ? (
               <>
                 <p className="mt-2 text-sm text-neutral-700">
                   FREE delivery <span className="font-medium text-neutral-900">{estimatedDelivery(4)}</span>
                 </p>
-                <p className="mt-2 text-lg font-medium text-green-700">In Stock</p>
+                <p className="mt-3 text-sm font-semibold text-moss">In Stock</p>
                 {product.stock <= 10 && (
                   <p className="text-sm text-amazon-red">Only {product.stock} left — order soon.</p>
                 )}
@@ -142,7 +137,7 @@ export default function ProductDetailPage() {
                 setJustAdded(true);
                 setTimeout(() => setJustAdded(false), 2500);
               }}
-              className="mt-4 w-full rounded-full bg-amazon-yellow px-4 py-2 text-sm font-medium text-neutral-900 hover:brightness-95 disabled:opacity-50"
+              className="mt-4 w-full rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-50"
             >
               Add to Cart
             </button>
@@ -158,7 +153,7 @@ export default function ProductDetailPage() {
                 addItem(product._id, quantity);
                 navigate("/checkout");
               }}
-              className="mt-2 w-full rounded-full bg-amazon-orange px-4 py-2 text-sm font-medium text-white hover:brightness-95 disabled:opacity-50"
+              className="mt-2 w-full rounded-md bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-50"
             >
               Buy Now
             </button>
@@ -171,14 +166,14 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      <div className="mt-10 border-t border-neutral-200 pt-6">
+      <div className="mt-12 border-t border-line pt-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-xl font-bold text-neutral-900">Customer Reviews</h2>
+          <h2 className="text-xl font-semibold tracking-[-0.03em] text-ink">Customer Reviews</h2>
           {product.canReview?.eligible && !showReviewForm && (
             <button
               type="button"
               onClick={() => setShowReviewForm(true)}
-              className="rounded-full border border-neutral-300 px-4 py-1.5 text-sm hover:bg-neutral-50"
+              className="rounded-md border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-harbor hover:bg-paper"
             >
               Write a customer review
             </button>

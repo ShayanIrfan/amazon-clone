@@ -17,7 +17,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
         type="button"
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="rounded border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40"
+        className="rounded-md border border-line-strong bg-white px-3 py-1.5 text-sm font-semibold text-harbor disabled:opacity-40"
       >
         Previous
       </button>
@@ -28,7 +28,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
             type="button"
             onClick={() => onPageChange(p)}
             aria-current={p === page ? "page" : undefined}
-            className={`h-8 w-8 rounded text-sm ${p === page ? "bg-amazon-navy text-white" : "hover:bg-neutral-200"}`}
+            className={`h-8 w-8 rounded-md text-sm ${p === page ? "bg-harbor text-white" : "hover:bg-paper"}`}
           >
             {p}
           </button>
@@ -38,7 +38,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
         type="button"
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="rounded border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40"
+        className="rounded-md border border-line-strong bg-white px-3 py-1.5 text-sm font-semibold text-harbor disabled:opacity-40"
       >
         Next
       </button>

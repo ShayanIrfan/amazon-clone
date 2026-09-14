@@ -41,7 +41,7 @@ npm run seed                            # loads the 194-product catalog + a demo
 npm run dev                             # API on :4000, client on :5173 (Vite proxies /api)
 ```
 
-Sign in as the seeded demo account (`demo@amazon-clone.test` / `demo1234`), or use the
+Sign in as the seeded demo account (`demo@amazon-clone.test` / `DemoAccount123!`), or use the
 **"Try demo account"** button on the sign-in page to skip typing that.
 
 ```bash
@@ -62,8 +62,9 @@ specifically checked, and what bugs were caught and fixed along the way.
   star-filtering, related products.
 - **Cart** — works signed out (kept in `localStorage`); quantity, delete, save for later.
   Merges into the account's own cart on sign-in.
-- **Sign-in** — one page, email first, then branches to a password or create-account
-  step, matching the recon'd real-Amazon flow (minus OTP — see below).
+- **Authentication** — dedicated sign-in and sign-up pages with email verification OTPs,
+  password reset, optional email two-factor authentication, recovery codes, revocable
+  sessions, and idempotent guest-cart merging.
 - **Checkout & orders** — address book, delivery speed, the mock payment form, a live
   order-total preview, then order history with cancel (which restocks) and Buy Again.
 - **Account** — address management, wish lists (add from the product page or the cart),
@@ -88,8 +89,8 @@ Scope decisions made up front, revisited as each milestone landed:
 
 - **Prime, Video, Music, Alexa/Rufus** — separate products from the shopping loop this
   assignment is about.
-- **Real payments, OTP, two-factor login** — meaningfully more engineering risk for a demo
-  that gains little from them. See Payments below for the actual reasoning on Stripe.
+- **Real payments** — the checkout uses the tested mock payment provider until real Stripe
+  credentials are supplied. Authentication email delivery uses Resend configuration.
 - **Sponsored listings, multi-seller marketplace, gift cards, currency/language switching,
   live customer-service chat** — real Amazon complexity that would cost more build time than
   it would add to a 24-hour demo's core loop.

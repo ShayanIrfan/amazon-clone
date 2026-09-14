@@ -34,25 +34,25 @@ export default function FilterSidebar({
   const hasFilters = selectedBrands.length > 0 || minRating != null || inStock || minPrice !== "" || maxPrice !== "";
 
   return (
-    <aside className="w-full shrink-0 space-y-6 pr-4 sm:w-56">
+    <aside className="w-full shrink-0 space-y-7 pr-4 sm:w-60">
       {hasFilters && (
-        <button type="button" onClick={onClearAll} className="text-sm text-link hover:underline">
+        <button type="button" onClick={onClearAll} className="text-sm font-semibold text-harbor hover:underline">
           Clear all filters
         </button>
       )}
 
       {facets.brands.length > 0 && (
         <div>
-          <h3 className="mb-2 font-bold text-neutral-900">Brand</h3>
+          <h3 className="mb-3 text-sm font-semibold text-ink">Brand</h3>
           <ul className="space-y-1.5">
             {facets.brands.slice(0, 10).map((b) => (
               <li key={b.name}>
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-700">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-slate">
                   <input
                     type="checkbox"
                     checked={selectedBrands.includes(b.name)}
                     onChange={() => onToggleBrand(b.name)}
-                    className="accent-amazon-orange"
+                    className="accent-harbor"
                   />
                   {b.name} <span className="text-neutral-400">({b.count})</span>
                 </label>
@@ -63,14 +63,14 @@ export default function FilterSidebar({
       )}
 
       <div>
-        <h3 className="mb-2 font-bold text-neutral-900">Customer Review</h3>
+          <h3 className="mb-3 text-sm font-semibold text-ink">Customer Review</h3>
         <ul className="space-y-1.5">
           {RATINGS.map((r) => (
             <li key={r}>
               <button
                 type="button"
                 onClick={() => onSetRating(minRating === r ? null : r)}
-                className={`text-sm hover:underline ${minRating === r ? "font-bold text-amazon-red" : "text-neutral-700"}`}
+                className={`text-sm hover:underline ${minRating === r ? "font-bold text-clay" : "text-slate"}`}
               >
                 {"★".repeat(r)}
                 {"☆".repeat(5 - r)} &amp; Up
@@ -82,7 +82,7 @@ export default function FilterSidebar({
 
       {facets.priceRange && (
         <div>
-          <h3 className="mb-2 font-bold text-neutral-900">Price</h3>
+          <h3 className="mb-3 text-sm font-semibold text-ink">Price</h3>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -96,7 +96,7 @@ export default function FilterSidebar({
               placeholder={`$${facets.priceRange.min}`}
               value={minPrice}
               onChange={(e) => onPriceChange(e.target.value, maxPrice)}
-              className="w-16 rounded border border-neutral-300 px-1.5 py-1 text-sm"
+              className="h-9 w-20 rounded-md border border-line-strong px-2 text-sm outline-none focus:border-harbor"
             />
             <span className="text-neutral-400">–</span>
             <input
@@ -105,9 +105,9 @@ export default function FilterSidebar({
               placeholder={`$${facets.priceRange.max}`}
               value={maxPrice}
               onChange={(e) => onPriceChange(minPrice, e.target.value)}
-              className="w-16 rounded border border-neutral-300 px-1.5 py-1 text-sm"
+              className="h-9 w-20 rounded-md border border-line-strong px-2 text-sm outline-none focus:border-harbor"
             />
-            <button type="submit" className="rounded border border-neutral-300 px-2 py-1 text-sm hover:bg-neutral-100">
+            <button type="submit" className="h-9 rounded-md border border-line-strong px-2 text-sm font-semibold text-harbor hover:bg-paper">
               Go
             </button>
           </form>
@@ -115,12 +115,12 @@ export default function FilterSidebar({
       )}
 
       <div>
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-700">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-slate">
           <input
             type="checkbox"
             checked={inStock}
             onChange={(e) => onToggleInStock(e.target.checked)}
-            className="accent-amazon-orange"
+            className="accent-harbor"
           />
           In Stock only
         </label>

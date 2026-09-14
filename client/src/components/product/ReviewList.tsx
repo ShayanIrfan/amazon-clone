@@ -34,8 +34,8 @@ export default function ReviewList({
 }: Props) {
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 pb-2">
-        <h2 className="text-lg font-bold text-neutral-900">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
+        <h2 className="text-lg font-semibold text-ink">
           {starFilter ? `${starFilter}-star reviews` : "Customer Reviews"} ({total.toLocaleString()})
         </h2>
         <div className="flex items-center gap-3">
@@ -49,7 +49,7 @@ export default function ReviewList({
             <select
               value={sort}
               onChange={(e) => onSortChange(e.target.value as ReviewSort)}
-              className="rounded border border-neutral-300 px-2 py-1"
+              className="h-9 rounded-md border border-line-strong bg-white px-2 text-sm outline-none focus:border-harbor"
             >
               {(Object.keys(SORT_LABELS) as ReviewSort[]).map((s) => (
                 <option key={s} value={s}>
@@ -64,22 +64,22 @@ export default function ReviewList({
       {reviews.length === 0 ? (
         <p className="py-8 text-center text-neutral-500">No reviews match this filter.</p>
       ) : (
-        <ul className="divide-y divide-neutral-100">
+        <ul className="divide-y divide-line">
           {reviews.map((r) => (
             <li key={r._id} className="py-4">
               <div className="flex items-center gap-2">
                 <StarRating rating={r.rating} />
-                <span className="font-medium text-neutral-900">{r.reviewerName}</span>
+                <span className="font-medium text-ink">{r.reviewerName}</span>
               </div>
               {r.verifiedPurchase && (
-                <p className="mt-1 flex items-center gap-1 text-xs font-medium text-amazon-orange">
+                <p className="mt-1 flex items-center gap-1 text-xs font-medium text-moss">
                   <BadgeCheck size={14} /> Verified Purchase
                 </p>
               )}
               <p className="mt-1 text-xs text-neutral-500">
                 {new Date(r.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
               </p>
-              <p className="mt-2 text-sm text-neutral-800">{r.comment}</p>
+              <p className="mt-2 text-sm text-ink">{r.comment}</p>
             </li>
           ))}
         </ul>

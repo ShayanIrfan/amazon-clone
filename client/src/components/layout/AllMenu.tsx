@@ -1,15 +1,18 @@
 import { X } from "lucide-react";
+import { useRef } from "react";
 import { Link, useNavigate } from "react-router";
 import { useCategories } from "../../hooks/useProducts";
 import { useAuth } from "../../context/AuthContext";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
-import ComingSoon from "./ComingSoon";
+import { useDialogFocus } from "../../hooks/useDialogFocus";
 
 export default function AllMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { data } = useCategories();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const panelRef = useRef<HTMLDivElement>(null);
   useEscapeKey(open, onClose);
+  useDialogFocus(open, panelRef);
 
   return (
     <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
@@ -18,11 +21,15 @@ export default function AllMenu({ open, onClose }: { open: boolean; onClose: () 
         className={`absolute inset-0 bg-black/50 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
       />
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shop by category"
         className={`absolute top-0 left-0 h-full w-80 max-w-[85vw] overflow-y-auto bg-white shadow-xl transition-transform ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between bg-amazon-navy px-4 py-3 text-white">
+        <div className="flex items-center justify-between bg-harbor-dark px-4 py-3 text-white">
           <span className="text-lg font-bold">Shop by Category</span>
           <button type="button" onClick={onClose} aria-label="Close menu">
             <X size={22} />
@@ -44,7 +51,7 @@ export default function AllMenu({ open, onClose }: { open: boolean; onClose: () 
         </ul>
 
         <div className="mt-2 border-t border-neutral-200 py-2">
-          <p className="px-4 py-1 text-xs font-bold tracking-wide text-neutral-500 uppercase">Help &amp; Settings</p>
+          <p className="px-4 py-1 text-xs font-semibold text-slate">Account</p>
           {user ? (
             <button
               type="button"
@@ -63,13 +70,13 @@ export default function AllMenu({ open, onClose }: { open: boolean; onClose: () 
             </Link>
           )}
           {user && (
-            <Link to="/lists" onClick={onClose} className="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100">
-              Your Lists
-            </Link>
+            <>
+              <Link to="/account" onClick={onClose} className="block w-full px-4 py-2.5 text-left text-sm hover:bg-paper">Account overview</Link>
+              <Link to="/orders" onClick={onClose} className="block w-full px-4 py-2.5 text-left text-sm hover:bg-paper">Your Orders</Link>
+              <Link to="/account/addresses" onClick={onClose} className="block w-full px-4 py-2.5 text-left text-sm hover:bg-paper">Your Addresses</Link>
+              <Link to="/lists" onClick={onClose} className="block w-full px-4 py-2.5 text-left text-sm hover:bg-paper">Your Lists</Link>
+            </>
           )}
-          <ComingSoon milestone="a later milestone" className="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100">
-            Customer Service
-          </ComingSoon>
         </div>
       </div>
     </div>

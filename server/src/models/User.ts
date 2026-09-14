@@ -33,6 +33,11 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
     isDemo: { type: Boolean, default: false },
+    emailVerifiedAt: { type: Date },
+    twoFactorEnabled: { type: Boolean, default: false },
+    twoFactorRecoveryCodeHashes: { type: [String], default: [] },
+    securityVersion: { type: Number, default: 0 },
+    cartMergeKeys: { type: [String], default: [] },
     addresses: { type: [addressSchema], default: [] },
     cart: { type: [cartItemSchema], default: [] },
     recentlyViewed: {

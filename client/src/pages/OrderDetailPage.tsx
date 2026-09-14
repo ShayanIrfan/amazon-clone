@@ -4,6 +4,8 @@ import { useOrder, useCancelOrder } from "../hooks/useOrders";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
 import OrderStatusBadge from "../components/orders/OrderStatusBadge";
+import PageLoader from "../components/ui/PageLoader";
+import ErrorState from "../components/ui/ErrorState";
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,24 +16,19 @@ export default function OrderDetailPage() {
   const { addItem } = useCart();
   const navigate = useNavigate();
 
-  if (isLoading) return <div className="p-16 text-center text-neutral-500">Loading…</div>;
+  if (isLoading) return <PageLoader label="Loading order details" />;
   if (isError || !data) {
     return (
-      <div className="flex flex-col items-center gap-2 p-16 text-center">
-        <p className="text-amazon-red">Order not found.</p>
-        <Link to="/orders" className="text-link hover:underline">
-          Back to Your Orders
-        </Link>
-      </div>
+      <ErrorState message="Order not found." detail="The order may no longer be available for this account." />
     );
   }
 
   const { order } = data;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4">
+    <div className="page-shell max-w-5xl py-6">
       {confirmed && order.status === "paid" && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
+        <div className="mb-5 flex items-center gap-3 rounded-md border border-moss/30 bg-moss/10 p-4 text-moss">
           <CircleCheck size={24} />
           <div>
             <p className="font-bold">Thanks for your order!</p>
@@ -41,17 +38,17 @@ export default function OrderDetailPage() {
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-medium text-neutral-900">Order Details</h1>
+        <div><p className="eyebrow">Purchase record</p><h1 className="page-title mt-1 text-ink">Order Details</h1></div>
         <OrderStatusBadge status={order.status} />
       </div>
-      <p className="text-sm text-neutral-500">
+      <p className="mt-2 text-sm text-slate">
         Placed on{" "}
         {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
       </p>
 
-      <div className="mt-4 grid gap-6 sm:grid-cols-[1fr_280px]">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
         <div>
-          <ul className="divide-y divide-neutral-100 rounded-lg border border-neutral-200">
+          <ul className="surface divide-y divide-line overflow-hidden rounded-md">
             {order.items.map((item, i) => (
               <li key={i} className="flex gap-3 p-3">
                 <img src={item.thumbnail} alt={item.title} className="h-16 w-16 shrink-0 bg-white object-contain" />
@@ -59,7 +56,7 @@ export default function OrderDetailPage() {
                   <Link to={`/product/${item.product}`} className="hover:text-link hover:underline">
                     {item.title}
                   </Link>
-                  <p className="text-neutral-500">
+                  <p className="amount text-neutral-500">
                     Qty: {item.quantity} × {formatPrice(item.unitPrice)}
                   </p>
                 </div>
@@ -74,7 +71,7 @@ export default function OrderDetailPage() {
                 for (const item of order.items) addItem(item.product, item.quantity);
                 navigate("/cart");
               }}
-              className="rounded-full border border-neutral-300 px-4 py-1.5 text-sm hover:bg-neutral-50"
+              className="rounded-md border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-harbor hover:bg-paper"
             >
               Buy it again
             </button>
@@ -83,7 +80,7 @@ export default function OrderDetailPage() {
                 type="button"
                 disabled={cancelOrder.isPending}
                 onClick={() => cancelOrder.mutate(order._id)}
-                className="rounded-full border border-neutral-300 px-4 py-1.5 text-sm hover:bg-neutral-50 disabled:opacity-50"
+                className="rounded-md border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-clay hover:bg-paper disabled:opacity-50"
               >
                 Cancel order
               </button>
@@ -92,7 +89,7 @@ export default function OrderDetailPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-lg border border-neutral-200 p-4 text-sm">
+          <div className="surface rounded-md p-4 text-sm">
             <h2 className="font-bold text-neutral-900">Shipping address</h2>
             <p className="mt-1 text-neutral-700">
               {order.address.fullName}
@@ -106,16 +103,16 @@ export default function OrderDetailPage() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-neutral-200 p-4 text-sm">
+          <div className="surface rounded-md p-4 text-sm">
             <h2 className="font-bold text-neutral-900">Payment method</h2>
             <p className="mt-1 text-neutral-700">
               {order.payment.brand} ending in {order.payment.last4}
             </p>
           </div>
 
-          <div className="rounded-lg border border-neutral-200 p-4 text-sm">
+          <div className="surface rounded-md p-4 text-sm">
             <h2 className="font-bold text-neutral-900">Order summary</h2>
-            <dl className="mt-2 space-y-1">
+            <dl className="amount mt-2 space-y-1">
               <div className="flex justify-between">
                 <dt>Subtotal:</dt>
                 <dd>{formatPrice(order.subtotal)}</dd>

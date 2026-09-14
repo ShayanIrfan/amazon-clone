@@ -17,15 +17,35 @@ import type {
 } from "./types";
 import type { CartItem } from "./cartStorage";
 
+export type AuthSuccess = { user: AuthUser };
+export type AuthChallengeResponse =
+  | AuthSuccess
+  | { verificationRequired: true; email: string }
+  | { twoFactorRequired: true; email: string };
+
+function readCsrfToken() {
+  if (typeof document === "undefined") return null;
+  return document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("csrf-token="))?.slice("csrf-token=".length) ?? null;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  if (init?.body) headers.set("Content-Type", "application/json");
+  if (init?.method && init.method !== "GET" && init.method !== "HEAD") {
+    if (!readCsrfToken()) await fetch("/api/health", { credentials: "include" });
+    const csrfToken = readCsrfToken();
+    if (csrfToken) headers.set("X-CSRF-Token", decodeURIComponent(csrfToken));
+  }
   const res = await fetch(`/api${path}`, {
     credentials: "include",
-    headers: init?.body ? { "Content-Type": "application/json" } : undefined,
     ...init,
+    headers,
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Request failed: ${res.status}`);
+    const error = new Error(body.error ?? `Request failed: ${res.status}`) as Error & { code?: string };
+    error.code = body.code;
+    throw error;
   }
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
@@ -83,13 +103,25 @@ export const api = {
     post<{ review: Review }>(`/products/${id}/reviews`, data),
 
   auth: {
-    checkEmail: (email: string) => post<{ exists: boolean }>("/auth/check-email", { email }),
-    signup: (data: { name: string; email: string; password: string; guestCart: CartItem[] }) =>
-      post<{ user: AuthUser }>("/auth/signup", data),
-    login: (data: { email: string; password: string; guestCart: CartItem[] }) =>
-      post<{ user: AuthUser }>("/auth/login", data),
-    demo: (data: { guestCart: CartItem[] }) => post<{ user: AuthUser }>("/auth/demo", data),
+    signup: (data: { name: string; email: string; password: string; guestCart?: CartItem[]; mergeKey?: string }) =>
+      post<{ verificationRequired: true; email: string }>("/auth/signup", data),
+    verifyEmail: (data: { email: string; code: string; guestCart: CartItem[]; mergeKey: string }) =>
+      post<AuthSuccess>("/auth/verify-email", data),
+    resendVerification: (email: string) => post<{ ok: true }>("/auth/resend-verification", { email }),
+    login: (data: { email: string; password: string; guestCart?: CartItem[]; mergeKey?: string }) =>
+      post<AuthChallengeResponse>("/auth/login", data),
+    verifyLogin: (data: { email: string; code: string; guestCart: CartItem[]; mergeKey: string }) =>
+      post<AuthSuccess>("/auth/verify-login", data),
+    resendLoginCode: (email: string) => post<{ ok: true }>("/auth/resend-login-code", { email }),
+    demo: (data: { guestCart?: CartItem[]; mergeKey?: string }) => post<AuthSuccess>("/auth/demo", data),
+    forgotPassword: (email: string) => post<{ ok: true }>("/auth/forgot-password", { email }),
+    resetPassword: (data: { email: string; code: string; password: string }) => post<{ ok: true }>("/auth/reset-password", data),
     logout: () => post<void>("/auth/logout"),
+    logoutAll: () => post<void>("/auth/logout-all"),
+    security: () => get<{ twoFactorEnabled: boolean; recoveryCodesRemaining: number }>("/auth/security"),
+    requestTwoFactor: (password: string) => post<{ challengeSent: true }>("/auth/2fa/enable/request", { password }),
+    confirmTwoFactor: (code: string) => post<{ twoFactorEnabled: true; recoveryCodes: string[] }>("/auth/2fa/enable/confirm", { code }),
+    disableTwoFactor: (data: { password: string; recoveryCode: string }) => post<{ twoFactorEnabled: false }>("/auth/2fa/disable", data),
     // 401 (not signed in) is a normal state here, not an error to throw.
     me: async () => {
       try {

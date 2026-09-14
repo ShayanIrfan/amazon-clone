@@ -1,31 +1,31 @@
-import ComingSoon from "./ComingSoon";
+import { Link } from "react-router";
 
-const COLUMNS: { title: string; links: string[] }[] = [
-  { title: "Get to Know Us", links: ["About Us", "Careers", "Press Releases"] },
-  { title: "Make Money with Us", links: ["Sell on amazon-clone", "Become an Affiliate", "Advertise Your Products"] },
-  { title: "Payment Products", links: ["Business Card", "Shop with Points", "Reload Your Balance"] },
-  { title: "Let Us Help You", links: ["Your Account", "Your Orders", "Returns & Replacements", "Help"] },
+const COLUMNS = [
+  { title: "Shop", links: [{ label: "All products", to: "/search" }, { label: "Today's deals", to: "/#todays-deals" }] },
+  { title: "Your purchases", links: [{ label: "Cart", to: "/cart" }, { label: "Orders", to: "/orders" }] },
+  { title: "Your account", links: [{ label: "Account overview", to: "/account" }, { label: "Addresses", to: "/account/addresses" }] },
+  { title: "Saved for later", links: [{ label: "Lists", to: "/lists" }, { label: "Recently viewed", to: "/account" }] },
 ];
 
 export default function Footer() {
   return (
-    <footer className="mt-8 bg-amazon-navy-light text-white">
+    <footer className="mt-12 bg-harbor-dark text-white">
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="w-full bg-neutral-700 py-3 text-center text-sm hover:bg-neutral-600"
+        className="w-full bg-harbor py-3 text-center text-sm hover:bg-harbor-dark"
       >
         Back to top
       </button>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-6 py-10 sm:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-10 px-6 py-12 sm:grid-cols-4">
         {COLUMNS.map((col) => (
           <div key={col.title}>
             <h3 className="mb-3 font-bold">{col.title}</h3>
             <ul className="space-y-2">
-              {col.links.map((label) => (
-                <li key={label}>
-                  <ComingSoon className="text-left text-sm text-neutral-300 hover:underline">{label}</ComingSoon>
+              {col.links.map((link) => (
+                <li key={link.label}>
+                  <Link to={link.to} className="text-left text-sm text-neutral-300 hover:text-white hover:underline">{link.label}</Link>
                 </li>
               ))}
             </ul>

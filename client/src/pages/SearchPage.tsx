@@ -1,19 +1,24 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { useProducts } from "../hooks/useProducts";
 import { useEscapeKey } from "../hooks/useEscapeKey";
+import { useDialogFocus } from "../hooks/useDialogFocus";
 import FilterSidebar from "../components/search/FilterSidebar";
 import SortBar from "../components/search/SortBar";
 import Pagination from "../components/search/Pagination";
 import ProductCard from "../components/product/ProductCard";
 import type { SortOption } from "../lib/types";
-import { SearchX, SlidersHorizontal, TriangleAlert, X } from "lucide-react";
+import { SearchX, SlidersHorizontal, X } from "lucide-react";
+import { ProductCardSkeleton } from "../components/ui/Skeleton";
+import ErrorState from "../components/ui/ErrorState";
+import EmptyState from "../components/ui/EmptyState";
 
 const EMPTY_FACETS = { brands: [], priceRange: null };
 
 export default function SearchPage() {
   const [params, setParams] = useSearchParams();
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const filterPanelRef = useRef<HTMLDivElement>(null);
 
   const q = params.get("q") ?? undefined;
   const category = params.get("category") ?? undefined;
@@ -29,7 +34,7 @@ export default function SearchPage() {
   const sort = (params.get("sort") as SortOption) ?? "featured";
   const page = Number(params.get("page")) || 1;
 
-  const { data, isLoading, isFetching, isError } = useProducts({
+  const { data, isLoading, isFetching, isError, refetch } = useProducts({
     q,
     category,
     brand,
@@ -42,6 +47,7 @@ export default function SearchPage() {
   });
 
   useEscapeKey(filtersOpen, () => setFiltersOpen(false));
+  useDialogFocus(filtersOpen, filterPanelRef);
 
   function update(patch: Record<string, string | null>) {
     const next = new URLSearchParams(params);
@@ -78,11 +84,14 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-neutral-900">{heading}</h1>
+    <div className="page-shell py-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="eyebrow">Browse the catalog</p>
+          <h1 className="page-title mt-1 text-ink">{heading}</h1>
+        </div>
         {category && (
-          <button type="button" onClick={() => update({ category: null })} className="text-sm text-link hover:underline">
+          <button type="button" onClick={() => update({ category: null })} className="text-sm font-semibold text-harbor hover:underline">
             Clear department
           </button>
         )}
@@ -93,13 +102,13 @@ export default function SearchPage() {
       <button
         type="button"
         onClick={() => setFiltersOpen(true)}
-        className="mt-3 flex items-center gap-2 rounded-full border border-neutral-300 px-4 py-1.5 text-sm sm:hidden"
+        className="mt-5 flex items-center gap-2 rounded-md border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-harbor sm:hidden"
       >
         <SlidersHorizontal size={16} />
         Filters{activeFilterCount > 0 && ` (${activeFilterCount})`}
       </button>
 
-      <div className="mt-4 flex flex-col gap-6 sm:flex-row">
+      <div className="mt-6 flex flex-col gap-6 sm:flex-row">
         <div className="hidden sm:block">
           <FilterSidebar {...filterProps} />
         </div>
@@ -107,9 +116,9 @@ export default function SearchPage() {
         {filtersOpen && (
           <div className="fixed inset-0 z-50 sm:hidden" role="dialog" aria-modal="true" aria-label="Filters">
             <div onClick={() => setFiltersOpen(false)} className="absolute inset-0 bg-black/50" />
-            <div className="absolute top-0 right-0 flex h-full w-72 max-w-[85vw] flex-col bg-white shadow-xl">
+            <div ref={filterPanelRef} className="absolute top-0 right-0 flex h-full w-80 max-w-[88vw] flex-col bg-white shadow-xl">
               <div className="flex items-center justify-between border-b border-neutral-200 p-4">
-                <h2 className="font-bold text-neutral-900">Filters</h2>
+                <h2 className="text-lg font-semibold text-ink">Filters</h2>
                 <button type="button" onClick={() => setFiltersOpen(false)} aria-label="Close filters">
                   <X size={22} />
                 </button>
@@ -120,7 +129,7 @@ export default function SearchPage() {
               <button
                 type="button"
                 onClick={() => setFiltersOpen(false)}
-                className="m-4 rounded-full bg-amazon-yellow py-2 text-sm font-medium text-neutral-900 hover:brightness-95"
+                className="m-4 rounded-md bg-marigold py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark"
               >
                 Show results
               </button>
@@ -139,22 +148,20 @@ export default function SearchPage() {
           />
 
           {isError ? (
-            <div className="flex flex-col items-center gap-3 py-16 text-center text-neutral-600">
-              <TriangleAlert size={40} className="text-neutral-300" />
-              <p className="text-lg font-medium">Something went wrong loading these results.</p>
-              <p className="text-sm">Check your connection and try again.</p>
-            </div>
+            <ErrorState message="Couldn't load these results." onRetry={() => refetch()} />
           ) : isLoading ? (
-            <div className="py-16 text-center text-neutral-500">Loading…</div>
-          ) : !data?.items.length ? (
-            <div className="flex flex-col items-center gap-3 py-16 text-center text-neutral-600">
-              <SearchX size={40} className="text-neutral-300" />
-              <p className="text-lg font-medium">No results{q && <> for &ldquo;{q}&rdquo;</>}</p>
-              <p className="text-sm">Try checking your spelling, using fewer filters, or a more general search.</p>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-5 sm:grid-cols-3 lg:grid-cols-4" role="status" aria-label="Loading products">
+              {Array.from({ length: 8 }, (_, index) => <ProductCardSkeleton key={index} />)}
             </div>
+          ) : !data?.items.length ? (
+            <EmptyState
+              icon={SearchX}
+              title={q ? `No results for “${q}”` : "No products found"}
+              description="Try checking your spelling, using fewer filters, or searching for something more general."
+            />
           ) : (
             <div
-              className={`grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 ${isFetching ? "opacity-60" : ""}`}
+              className={`grid grid-cols-2 gap-x-2 gap-y-5 sm:grid-cols-3 lg:grid-cols-4 ${isFetching ? "opacity-60" : ""}`}
             >
               {data.items.map((p) => (
                 <ProductCard key={p._id} product={p} />

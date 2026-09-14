@@ -1,4 +1,4 @@
-import { formatPrice, listPrice } from "../../lib/format";
+import { formatDiscount, formatPrice, listPrice } from "../../lib/format";
 
 interface Props {
   price: number;
@@ -13,17 +13,26 @@ export default function PriceTag({ price, discountPercentage, size = "sm" }: Pro
   const [dollars, cents] = price.toFixed(2).split(".");
 
   return (
-    <div className="flex items-baseline gap-2">
-      <span className={size === "lg" ? "text-2xl font-medium" : "text-lg font-medium"}>
-        {hasDiscount && <sup className="text-xs align-super">-{Math.round(discountPercentage)}%</sup>}
-        <span className="ml-0.5">
-          <sup className="text-[0.6em] align-super mr-px">$</sup>
-          {dollars}
-          <sup className="text-[0.6em] align-super ml-px">{cents}</sup>
+    <div>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span
+          className={`amount inline-flex whitespace-nowrap font-semibold leading-none tracking-[-0.04em] text-ink ${size === "lg" ? "text-4xl" : "text-2xl"}`}
+          aria-label={formatPrice(price)}
+        >
+          <span aria-hidden="true" className="mt-[0.16em] text-[0.5em] font-medium tracking-normal">$</span>
+          <span aria-hidden="true">{dollars}</span>
+          <span aria-hidden="true" className="mt-[0.12em] text-[0.48em] tracking-normal">{cents}</span>
         </span>
-      </span>
+        {hasDiscount && (
+          <span className={`${size === "lg" ? "text-sm" : "text-xs"} whitespace-nowrap font-bold text-clay`}>
+            {formatDiscount(discountPercentage)}% off
+          </span>
+        )}
+      </div>
       {hasDiscount && (
-        <span className="text-xs text-neutral-500">List: {formatPrice(list)}</span>
+        <p className="mt-1 text-xs text-slate">
+          List price: <s className="amount">{formatPrice(list)}</s>
+        </p>
       )}
     </div>
   );
