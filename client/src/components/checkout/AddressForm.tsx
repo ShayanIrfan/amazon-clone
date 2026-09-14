@@ -34,6 +34,9 @@ export default function AddressForm({ onSubmit, onCancel, busy, error }: Props) 
   return (
     <form onSubmit={submit} className="surface rounded-md p-4 sm:p-5">
       <h3 className="text-lg font-semibold text-ink">Add a new address</h3>
+      <p className="mt-1 text-xs text-slate">
+        Fields marked <span className="text-clay">*</span> are required.
+      </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <Field label="Full name" value={form.fullName} onChange={(v) => set("fullName", v)} required />
         <Field label="Phone number" value={form.phone} onChange={(v) => set("phone", v)} required />
@@ -78,7 +81,14 @@ function Field({
 }) {
   return (
     <label className={`block text-sm ${className ?? ""}`}>
-      <span className="font-medium text-neutral-800">{label}</span>
+      <span className="font-medium text-neutral-800">
+        {label}
+        {required && (
+          <span aria-hidden="true" className="ml-0.5 text-clay">
+            *
+          </span>
+        )}
+      </span>
       <input
         type="text"
         required={required}
