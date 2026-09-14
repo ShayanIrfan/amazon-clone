@@ -128,9 +128,11 @@ ordersRouter.post("/", async (req, res, next) => {
           {
             amount: toCents(order.total),
             currency: "usd",
-            // Cards (incl. 3-D Secure, which Stripe.js handles in-page) and
-            // other methods that never leave the page — no return-URL flow.
-            automatic_payment_methods: { enabled: true, allow_redirects: "never" },
+            // Cards only (3-D Secure is handled in-page by Stripe.js). Listing the
+            // type explicitly keeps Dashboard-enabled methods such as bank debits
+            // and Klarna out of the Payment Element; order fulfillment also
+            // expects a card charge (brand + last 4).
+            payment_method_types: ["card"],
             metadata: { orderId: order.id, userId: user.id },
             description: `amazon-clone order ${order.id}`,
           },

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import type { StripeElementsOptions } from "@stripe/stripe-js";
 import { Lock } from "lucide-react";
+import Badge from "../ui/Badge";
 import Button from "../ui/Button";
 import { formatPrice } from "../../lib/format";
 import { getStripe, stripeKeyConfigured, stripeTestMode } from "../../lib/stripe";
@@ -37,16 +38,13 @@ export default function StripePaymentStep({ clientSecret, total, onConfirmed }: 
 
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">Payment</h2>
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">Payment</h2>
+        {stripeTestMode && <Badge tone="warning">Test mode — no real charges</Badge>}
+      </div>
       <p className="mt-1 flex items-center gap-1.5 text-sm text-slate">
         <Lock size={14} aria-hidden /> Your card details go straight to Stripe. This site never sees your card number.
       </p>
-      {stripeTestMode && (
-        <div className="mt-3 rounded-md border border-line bg-paper p-3 text-xs text-slate">
-          Test mode: use <code className="font-mono">4242 4242 4242 4242</code> with any future date and any CVC.{" "}
-          <code className="font-mono">4000 0000 0000 9995</code> is declined.
-        </div>
-      )}
       {/* key: a new PaymentIntent (e.g. after changing delivery speed) needs a fresh Elements instance. */}
       <Elements key={clientSecret} stripe={getStripe()} options={{ clientSecret, appearance }}>
         <PaymentForm total={total} onConfirmed={onConfirmed} />
