@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { ChevronDown } from "lucide-react";
 import type { AddressInput } from "../../lib/types";
 import { COUNTRIES } from "../../lib/countries";
 
@@ -124,18 +125,27 @@ function SelectField({
           </span>
         )}
       </span>
-      <select
-        required={required}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-1 h-10 w-full rounded-md border border-line-strong bg-white px-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+      {/* The browser's own arrow sits flush against the border and can't be
+          nudged consistently, so it's hidden and replaced with an inset chevron. */}
+      <span className="relative mt-1 block">
+        <select
+          required={required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-10 w-full appearance-none rounded-md border border-line-strong bg-white pr-10 pl-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
+        >
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={16}
+          aria-hidden
+          className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-slate"
+        />
+      </span>
     </label>
   );
 }
