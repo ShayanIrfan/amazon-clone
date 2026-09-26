@@ -89,8 +89,8 @@ export default function AdminLayout() {
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-white lg:flex">
-        <div className="flex items-center gap-3 px-4 py-5">
-          <Link to="/admin" aria-label="Admin home" className="shrink-0">
+        <div className="flex flex-col items-start gap-2.5 px-4 py-5">
+          <Link to="/admin" aria-label="Admin home" className="min-w-0">
             <Logo compact />
           </Link>
           <Badge tone="info">Admin</Badge>

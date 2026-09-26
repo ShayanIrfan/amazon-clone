@@ -60,17 +60,17 @@ export default function Hero({ totals, pictures }: Props) {
         {/* Collage: three round frames. Decorative, so hidden from assistive tech. */}
         <div aria-hidden className="relative mx-auto hidden h-[22rem] w-full max-w-md lg:col-span-5 lg:block">
           {top && (
-            <div className="absolute top-0 right-0 flex h-40 w-40 items-center justify-center rounded-full bg-white p-6 shadow-[var(--shadow-lift)]">
+            <div className="hero-float hero-float-delay absolute top-0 right-0 flex h-40 w-40 items-center justify-center rounded-full bg-white p-6 shadow-[var(--shadow-lift)]">
               <img src={top} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
             </div>
           )}
           {main && (
-            <div className="absolute top-[4.5rem] right-12 flex h-56 w-56 items-center justify-center rounded-full bg-white p-8 shadow-[var(--shadow-lift)]">
+            <div className="hero-float absolute top-[4.5rem] right-12 flex h-56 w-56 items-center justify-center rounded-full bg-white p-8 shadow-[var(--shadow-lift)]">
               <img src={main} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
             </div>
           )}
           {bottom && (
-            <div className="absolute bottom-0 left-0 flex h-44 w-44 items-center justify-center rounded-full bg-white p-7 shadow-[var(--shadow-lift)]">
+            <div className="hero-float hero-float-slow hero-float-delay-2 absolute bottom-0 left-0 flex h-44 w-44 items-center justify-center rounded-full bg-white p-7 shadow-[var(--shadow-lift)]">
               <img src={bottom} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
             </div>
           )}

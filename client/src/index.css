@@ -209,6 +209,32 @@ a {
   }
 }
 
+/* Hero collage: a gentle, continuous float. Transform-only (no layout shift),
+   ease-in-out for a natural oscillation, and staggered per circle so they don't
+   move in lockstep. The global prefers-reduced-motion block above disables it. */
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.hero-float {
+  animation: hero-float 6s ease-in-out infinite;
+  will-change: transform;
+}
+.hero-float-slow {
+  animation-duration: 7.5s;
+}
+.hero-float-delay {
+  animation-delay: -2s;
+}
+.hero-float-delay-2 {
+  animation-delay: -4s;
+}
+
 /* Horizontal product rows: native snap scrolling, scrollbar hidden since
    ProductRow provides its own prev/next buttons. */
 .scroll-snap-x {

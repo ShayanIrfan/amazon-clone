@@ -186,13 +186,17 @@ export default function ProductForm({ product, departments, busy, error, submitL
     <form ref={formRef} onSubmit={submit} noValidate className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0 space-y-6">
         <Panel className="space-y-4 p-5">
-          <h2 className="text-lg font-semibold text-ink">Basic details</h2>
-          <TextField label="Title" value={values.title} onChange={(e) => set("title", e.target.value)} error={errors.title} maxLength={220} />
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold text-ink">Basic details</h2>
+            <p className="text-xs text-slate"><span className="text-clay">*</span> Required field</p>
+          </div>
+          <TextField label="Title" required value={values.title} onChange={(e) => set("title", e.target.value)} error={errors.title} maxLength={220} />
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField label="Brand" value={values.brand} onChange={(e) => set("brand", e.target.value)} hint="Optional" />
             <div>
               <Select
                 label="Department"
+                required
                 value={values.department}
                 onChange={(e) => set("department", e.target.value)}
                 aria-invalid={!!errors.department || undefined}
@@ -212,6 +216,7 @@ export default function ProductForm({ product, departments, busy, error, submitL
           {values.department === NEW_DEPARTMENT && (
             <TextField
               label="New department name"
+              required
               value={values.newDepartment}
               onChange={(e) => set("newDepartment", e.target.value)}
               error={errors.department}
@@ -219,8 +224,8 @@ export default function ProductForm({ product, departments, busy, error, submitL
             />
           )}
           <div>
-            <label htmlFor="product-description" className="mb-1 block text-sm font-medium text-ink">
-              Description
+            <label htmlFor="product-description" className="mb-1.5 block text-sm font-semibold text-ink">
+              Description<span className="text-clay"> *</span>
             </label>
             <textarea
               id="product-description"
@@ -238,9 +243,9 @@ export default function ProductForm({ product, departments, busy, error, submitL
         <Panel className="space-y-4 p-5">
           <h2 className="text-lg font-semibold text-ink">Pricing and stock</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <TextField label="Price (USD)" type="number" inputMode="decimal" step="0.01" min="0" value={values.price} onChange={(e) => set("price", e.target.value)} error={errors.price} />
+            <TextField label="Price (USD)" required type="number" inputMode="decimal" step="0.01" min="0" value={values.price} onChange={(e) => set("price", e.target.value)} error={errors.price} />
             <TextField label="Discount %" type="number" inputMode="decimal" step="0.1" min="0" max="90" value={values.discount} onChange={(e) => set("discount", e.target.value)} error={errors.discount} hint="Optional, 0 to 90" />
-            <TextField label="Stock" type="number" inputMode="numeric" step="1" min="0" value={values.stock} onChange={(e) => set("stock", e.target.value)} error={errors.stock} />
+            <TextField label="Stock" required type="number" inputMode="numeric" step="1" min="0" value={values.stock} onChange={(e) => set("stock", e.target.value)} error={errors.stock} />
             <TextField label="Minimum order quantity" type="number" inputMode="numeric" step="1" min="1" value={values.minQty} onChange={(e) => set("minQty", e.target.value)} error={errors.minQty} hint="Optional, defaults to 1" />
             <TextField label="SKU" value={values.sku} onChange={(e) => set("sku", e.target.value)} hint="Optional" containerClassName="sm:col-span-2" />
           </div>
@@ -248,8 +253,8 @@ export default function ProductForm({ product, departments, busy, error, submitL
 
         <Panel className="space-y-3 p-5">
           <div>
-            <h2 className="text-lg font-semibold text-ink">Images</h2>
-            <p className="text-sm text-slate">Paste image URLs. The first one is the main image shown on cards.</p>
+            <h2 className="text-lg font-semibold text-ink">Images<span className="text-clay"> *</span></h2>
+            <p className="text-sm text-slate">Paste image URLs — at least one is required. The first one is the main image shown on cards.</p>
           </div>
           <ul className="space-y-3">
             {values.images.map((url, index) => {

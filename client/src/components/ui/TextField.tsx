@@ -5,10 +5,12 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
   error?: string;
   containerClassName?: string;
+  /** Shows a red asterisk on the label and sets aria-required. */
+  required?: boolean;
 }
 
 const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
-  { label, hint, error, id, className = "", containerClassName = "", ...rest },
+  { label, hint, error, id, className = "", containerClassName = "", required, ...rest },
   ref,
 ) {
   const autoId = useId();
@@ -19,11 +21,14 @@ const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
       {label && (
         <label htmlFor={fieldId} className="mb-1.5 block text-sm font-semibold text-ink">
           {label}
+          {required && <span className="text-clay"> *</span>}
         </label>
       )}
       <input
         ref={ref}
         id={fieldId}
+        required={required}
+        aria-required={required || undefined}
         aria-invalid={!!error || undefined}
         aria-describedby={error ? `${fieldId}-error` : hint ? `${fieldId}-hint` : undefined}
         className={`h-11 w-full rounded-xl border bg-white px-4 text-sm text-ink outline-none transition-colors placeholder:text-slate/60 focus:ring-4 ${

@@ -43,8 +43,8 @@ export default function PromoPanels({ categories }: { categories: HomeData["cate
       {PANELS.map((panel) => {
         const picture = pictureFor(panel.slug);
         return (
-          <article key={panel.slug} className={`relative flex min-h-64 flex-col justify-center overflow-hidden rounded-2xl p-8 sm:flex-row sm:items-center sm:p-10 ${panel.tint}`}>
-            <div className="relative z-10 sm:max-w-[60%]">
+          <article key={panel.slug} className={`relative flex min-h-64 flex-col justify-center gap-6 overflow-hidden rounded-2xl p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10 ${panel.tint}`}>
+            <div className="relative z-10 min-w-0 sm:flex-1">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[0.6875rem] font-bold tracking-wider text-slate uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-harbor" aria-hidden />
                 {panel.tag}
@@ -59,7 +59,7 @@ export default function PromoPanels({ categories }: { categories: HomeData["cate
               </Link>
             </div>
             {picture && (
-              <div aria-hidden className="relative mt-6 flex h-36 w-36 items-center justify-center rounded-2xl bg-white/80 p-4 shadow-[var(--shadow-card)] sm:absolute sm:top-1/2 sm:right-8 sm:mt-0 sm:h-52 sm:w-52 sm:-translate-y-1/2 sm:p-5">
+              <div aria-hidden className="relative flex h-36 w-36 shrink-0 items-center justify-center rounded-2xl bg-white/80 p-4 shadow-[var(--shadow-card)] sm:h-44 sm:w-44 sm:p-5 lg:h-48 lg:w-48">
                 <img src={picture} alt="" loading="lazy" className="max-h-full max-w-full object-contain mix-blend-multiply" />
               </div>
             )}
