@@ -137,7 +137,7 @@ ordersRouter.post("/", async (req, res, next) => {
             // expects a card charge (brand + last 4).
             payment_method_types: ["card"],
             metadata: { orderId: order.id, userId: user.id },
-            description: `amazon-clone order ${order.id}`,
+            description: `Harbor Market order ${order.id}`,
           },
           { idempotencyKey: `order_${order.id}` },
         );

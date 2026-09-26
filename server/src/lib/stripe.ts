@@ -6,7 +6,7 @@ let client: Stripe | null = null;
 /** Lazily created so the mock-payments setup (placeholder keys) never builds a client. */
 export function getStripe(): Stripe {
   if (!stripeConfigured) throw new Error("Stripe is not configured (STRIPE_SECRET_KEY is a placeholder)");
-  client ??= new Stripe(env.STRIPE_SECRET_KEY, { maxNetworkRetries: 2, appInfo: { name: "amazon-clone" } });
+  client ??= new Stripe(env.STRIPE_SECRET_KEY, { maxNetworkRetries: 2, appInfo: { name: "Harbor Market" } });
   return client;
 }
 

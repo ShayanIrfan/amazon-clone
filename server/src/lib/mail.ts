@@ -12,9 +12,9 @@ export interface TestMail {
 export const testMailOutbox: TestMail[] = [];
 
 const SUBJECTS: Record<AuthMailPurpose, string> = {
-  email_verification: "Verify your amazon-clone account",
-  login_2fa: "Your amazon-clone sign-in code",
-  password_reset: "Reset your amazon-clone password",
+  email_verification: "Verify your Harbor Market account",
+  login_2fa: "Your Harbor Market sign-in code",
+  password_reset: "Reset your Harbor Market password",
   enable_2fa: "Confirm two-factor authentication",
 };
 
@@ -43,7 +43,7 @@ export async function sendAuthCode({ to, code, purpose }: { to: string; code: st
     to,
     from: `${env.RESEND_FROM_NAME} <${env.RESEND_FROM_EMAIL}>`,
     subject,
-    text: `Your amazon-clone code is ${code}. It expires in 10 minutes. If you did not request this, you can ignore this email.`,
+    text: `Your Harbor Market code is ${code}. It expires in 10 minutes. If you did not request this, you can ignore this email.`,
     html: `<div style="font-family:Arial,sans-serif;line-height:1.5"><h2>${escapeHtml(subject)}</h2><p>Your verification code is:</p><p style="font-size:28px;font-weight:700;letter-spacing:6px">${escapeHtml(code)}</p><p>This code expires in 10 minutes. If you did not request this, you can ignore this email.</p></div>`,
   });
   if (error) throw new Error(`Resend email failed: ${error.message}`);

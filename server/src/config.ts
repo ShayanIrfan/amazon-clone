@@ -14,7 +14,7 @@ const envSchema = z.object({
   EMAIL_DELIVERY_MODE: z.enum(["log", "send"]).default("log"),
   RESEND_API_KEY: z.string().default("re_TEST_PLACEHOLDER_REPLACE_ME"),
   RESEND_FROM_EMAIL: z.email().default("no-reply@example.test"),
-  RESEND_FROM_NAME: z.string().min(1).default("amazon-clone"),
+  RESEND_FROM_NAME: z.string().min(1).default("Harbor Market"),
   OTP_SECRET: z.string().min(16).default("local-otp-secret-replace-in-production"),
   // Comma-separated resolvers, local only — see db.ts.
   DNS_SERVERS: z.string().optional(),

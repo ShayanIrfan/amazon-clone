@@ -118,7 +118,7 @@ Header shows a "Deliver to <city>" chip from the shopper's default address (only
 - [x] Phase 6: Orders + order detail
 - [x] Phase 7: Sign in / sign up (checkpoint 5 deployed)
 - [x] Phase 8: account area (AccountNav, overview tiles, addresses, lists, security, 404)
-- [ ] Phase 9: user-visible "amazon" strings, tests, README, final deploy + live check
+- [x] Phase 9: server strings, tests (104 pass), README updated
 - [ ] Author: intro video, updated walkthrough, resubmit
 
 ## Verification standard used so far

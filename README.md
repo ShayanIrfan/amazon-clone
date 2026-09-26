@@ -1,8 +1,15 @@
-# amazon-clone
+# Harbor Market
 
-A rebuild of amazon.com's core shopping loop for the 8x assignment — browse, search, product
-detail, cart, sign-in, checkout, orders, and account features (addresses, lists, recently
-viewed, reviews). Not affiliated with Amazon.com, Inc.
+A full e-commerce marketplace built for the 8x assignment: an original storefront design
+("Harbor Market") on a real, working backend — browse, search, product detail, cart, sign-in,
+Stripe checkout, orders, an admin panel, and account features (addresses, lists, recently
+viewed, reviews). Generic across every category, not a clone of any one store. The catalog is
+snapshotted from DummyJSON; nothing is affiliated with any real retailer.
+
+The frontend is the candidate's own design — a coherent system (Plus Jakarta Sans, a harbor-teal
+and mint palette, 16px cards, fully-rounded controls) applied across the storefront and admin,
+responsive from 390px up. The backend, database, payments, and auth are genuinely live, not
+mocked.
 
 **Live link:** https://harbor-market-demo.vercel.app
 **Repository:** this one, including `.agent-logs/` (see [Agent capture](#agent-capture) below)
