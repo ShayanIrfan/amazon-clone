@@ -14,6 +14,11 @@ let connectPromise: Promise<typeof mongoose> | null = null;
 // Cached so serverless invocations (Vercel) and the dev watcher reuse one
 // connection instead of opening a new one per request/reload.
 export function connectDB() {
+  // A warm serverless instance can outlive its connection (Atlas closes idle ones). The cached
+  // promise would still resolve, so notice the drop and connect again.
+  if (connectPromise && mongoose.connection.readyState === mongoose.ConnectionStates.disconnected) {
+    connectPromise = null;
+  }
   connectPromise ??= mongoose
     .connect(env.MONGODB_URI)
     .then((m) => {
