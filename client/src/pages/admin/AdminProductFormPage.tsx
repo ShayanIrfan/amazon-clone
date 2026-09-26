@@ -116,6 +116,9 @@ export default function AdminProductFormPage() {
         <Link to={`/product/${product._id}`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 text-sm font-medium text-harbor hover:underline">
           View in store <ExternalLink size={14} aria-hidden />
         </Link>
+        <Link to={`/admin/reviews?productId=${product._id}`} className="flex items-center justify-center text-sm font-medium text-harbor hover:underline">
+          Manage reviews ({product.ratingCount})
+        </Link>
       </Panel>
 
       <Panel className="space-y-2 p-4">

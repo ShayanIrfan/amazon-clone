@@ -27,6 +27,10 @@ import type {
   AdminOrderStatusFilter,
   AdminStats,
   StatsRange,
+  AdminReviewList,
+  AdminCustomerList,
+  AdminCustomerDetail,
+  CustomerSort,
 } from "./types";
 import type { CartItem } from "./cartStorage";
 
@@ -157,6 +161,22 @@ export const api = {
       return get<{ items: AuditEntry[] }>(`/admin/activity${qs.size ? `?${qs}` : ""}`);
     },
     stats: (range: StatsRange) => get<AdminStats>(`/admin/stats?range=${range}`),
+    reviews: {
+      list: (params: { q?: string; rating?: number; productId?: string; page?: number }) => {
+        const qs = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) if (value !== undefined && value !== "") qs.set(key, String(value));
+        return get<AdminReviewList>(`/admin/reviews${qs.size ? `?${qs}` : ""}`);
+      },
+      remove: (id: string) => del<void>(`/admin/reviews/${id}`),
+    },
+    customers: {
+      list: (params: { q?: string; sort?: CustomerSort; page?: number }) => {
+        const qs = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) if (value !== undefined && value !== "") qs.set(key, String(value));
+        return get<AdminCustomerList>(`/admin/customers${qs.size ? `?${qs}` : ""}`);
+      },
+      get: (id: string) => get<AdminCustomerDetail>(`/admin/customers/${id}`),
+    },
     products: {
       list: (params: { q?: string; category?: string; status?: AdminProductStatus; sort?: AdminProductSort; page?: number }) => {
         const qs = new URLSearchParams();

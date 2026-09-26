@@ -263,3 +263,48 @@ export interface AdminStats {
   topProducts: { productId: string; title: string; thumbnail: string; units: number; revenue: number }[];
   lowStock: { threshold: number; count: number; items: { productId: string; title: string; thumbnail: string; stock: number }[] };
 }
+
+export interface AdminReviewRow {
+  _id: string;
+  product: { id: string; title: string; thumbnail: string } | null;
+  reviewerName: string;
+  rating: number;
+  comment: string;
+  date: string;
+  verifiedPurchase: boolean;
+  /** Written by a signed-in customer, as opposed to a review that came with the seeded catalog. */
+  hasAccount: boolean;
+}
+
+export interface AdminReviewList {
+  items: AdminReviewRow[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export type CustomerSort = "joined" | "spent" | "orders";
+
+export interface AdminCustomerRow {
+  _id: string;
+  name: string;
+  email: string;
+  joinedAt: string;
+  orders: number;
+  spent: number;
+  lastOrderAt: string | null;
+  isAdmin: boolean;
+  isDemo: boolean;
+}
+
+export interface AdminCustomerList {
+  items: AdminCustomerRow[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface AdminCustomerDetail {
+  customer: AdminCustomerRow & { emailVerified: boolean; twoFactorEnabled: boolean };
+  recentOrders: { _id: string; orderNumber: string; status: OrderStatus; total: number; placedAt: string; itemCount: number; refunded: boolean }[];
+}

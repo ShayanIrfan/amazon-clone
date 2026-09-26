@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
-import type { AdminOrderStatusFilter, AdminProductInput, AdminProductSort, AdminProductStatus, AuditEntityType, StatsRange } from "../lib/types";
+import type { AdminOrderStatusFilter, AdminProductInput, AdminProductSort, AdminProductStatus, AuditEntityType, CustomerSort, StatsRange } from "../lib/types";
 
 export function useAdminActivity(params: { entityType?: AuditEntityType; entityId?: string; limit?: number } = {}, enabled = true) {
   return useQuery({
@@ -103,5 +103,40 @@ export function useAdminStats(range: StatsRange) {
     queryKey: ["admin", "stats", range],
     queryFn: () => api.admin.stats(range),
     placeholderData: (previous) => previous, // keep the old numbers up while a new range loads
+  });
+}
+
+export function useAdminReviews(params: { q?: string; rating?: number; productId?: string; page?: number }) {
+  return useQuery({
+    queryKey: ["admin", "reviews", params],
+    queryFn: () => api.admin.reviews.list(params),
+    placeholderData: (previous) => previous,
+  });
+}
+
+/** Deleting a review changes the product's rating everywhere, so refresh everything on screen. */
+export function useAdminReviewMutations() {
+  const queryClient = useQueryClient();
+  return {
+    remove: useMutation({
+      mutationFn: (id: string) => api.admin.reviews.remove(id),
+      onSuccess: () => queryClient.invalidateQueries(),
+    }),
+  };
+}
+
+export function useAdminCustomers(params: { q?: string; sort?: CustomerSort; page?: number }) {
+  return useQuery({
+    queryKey: ["admin", "customers", params],
+    queryFn: () => api.admin.customers.list(params),
+    placeholderData: (previous) => previous,
+  });
+}
+
+export function useAdminCustomer(id: string | undefined) {
+  return useQuery({
+    queryKey: ["admin", "customer", id],
+    queryFn: () => api.admin.customers.get(id!),
+    enabled: !!id,
   });
 }
