@@ -22,6 +22,9 @@ import type {
   AdminProductList,
   AdminProductSort,
   AdminProductStatus,
+  AdminOrderDetail,
+  AdminOrderList,
+  AdminOrderStatusFilter,
 } from "./types";
 import type { CartItem } from "./cartStorage";
 
@@ -165,6 +168,16 @@ export const api = {
       archive: (id: string) => post<{ product: AdminProduct }>(`/admin/products/${id}/archive`),
       restore: (id: string) => post<{ product: AdminProduct }>(`/admin/products/${id}/restore`),
       remove: (id: string) => del<void>(`/admin/products/${id}`),
+    },
+    orders: {
+      list: (params: { q?: string; status?: AdminOrderStatusFilter; page?: number }) => {
+        const qs = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) if (value !== undefined && value !== "") qs.set(key, String(value));
+        return get<AdminOrderList>(`/admin/orders${qs.size ? `?${qs}` : ""}`);
+      },
+      get: (id: string) => get<AdminOrderDetail>(`/admin/orders/${id}`),
+      setStatus: (id: string, status: "shipped" | "delivered") => post<AdminOrderDetail>(`/admin/orders/${id}/status`, { status }),
+      cancel: (id: string) => post<AdminOrderDetail>(`/admin/orders/${id}/cancel`),
     },
   },
 

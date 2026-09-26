@@ -4,6 +4,7 @@ import { useOrder, useCancelOrder } from "../hooks/useOrders";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
 import OrderStatusBadge from "../components/orders/OrderStatusBadge";
+import OrderStatusTracker from "../components/orders/OrderStatusTracker";
 import PageLoader from "../components/ui/PageLoader";
 import ErrorState from "../components/ui/ErrorState";
 
@@ -51,6 +52,10 @@ export default function OrderDetailPage() {
         Placed on{" "}
         {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
       </p>
+
+      <div className="surface mt-5 rounded-md p-4 sm:p-5">
+        <OrderStatusTracker order={order} />
+      </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
         <div>
@@ -118,6 +123,12 @@ export default function OrderDetailPage() {
                   ? "Awaiting payment confirmation"
                   : (order.payment?.brand ?? "Card")}
             </p>
+            {order.refund && (
+              <p className="mt-1 font-medium text-moss">
+                Refunded {formatPrice(order.refund.amount)} on{" "}
+                {new Date(order.refund.at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+              </p>
+            )}
           </div>
 
           <div className="surface rounded-md p-4 text-sm">

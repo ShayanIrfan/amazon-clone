@@ -138,6 +138,19 @@ export interface Order {
   /** Absent until a Stripe payment succeeds. */
   payment?: { brand?: string; last4?: string };
   placedAt: string;
+  /** Shipping and cancellation steps with who took them; older orders have none. */
+  statusHistory?: StatusHistoryEntry[];
+  /** Set once Stripe reports the payment refunded. */
+  refund?: { amount: number; at: string };
+  cancellationReason?: string;
+}
+
+export type StatusActor = "customer" | "admin" | "stripe" | "system";
+
+export interface StatusHistoryEntry {
+  status: OrderStatus;
+  at: string;
+  by: StatusActor;
 }
 
 export interface WishList {
@@ -198,4 +211,33 @@ export interface AdminProductInput {
   shippingInformation?: string;
   returnPolicy?: string;
   images: string[];
+}
+
+export type AdminOrderStatusFilter = OrderStatus | "all";
+
+export interface AdminOrderRow {
+  _id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  total: number;
+  itemCount: number;
+  placedAt: string;
+  thumbnails: string[];
+  firstItemTitle: string;
+  extraItems: number;
+  refunded: boolean;
+  customer: { id: string; name: string; email: string } | null;
+}
+
+export interface AdminOrderList {
+  items: AdminOrderRow[];
+  total: number;
+  page: number;
+  limit: number;
+  counts: Record<OrderStatus, number>;
+}
+
+export interface AdminOrderDetail {
+  order: Order & { orderNumber: string; paymentIntentId?: string };
+  customer: { id: string; name: string; email: string; orderCount: number; joinedAt: string | null } | null;
 }

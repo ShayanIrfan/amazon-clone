@@ -2,6 +2,8 @@ import { Route, Routes } from "react-router";
 import AdminLayout from "../../components/admin/AdminLayout";
 import NotFoundPage from "../NotFoundPage";
 import AdminDashboardPage from "./AdminDashboardPage";
+import AdminOrderDetailPage from "./AdminOrderDetailPage";
+import AdminOrdersPage from "./AdminOrdersPage";
 import AdminProductFormPage from "./AdminProductFormPage";
 import AdminProductsPage from "./AdminProductsPage";
 
@@ -15,6 +17,8 @@ export default function AdminRoutes() {
         <Route path="products" element={<AdminProductsPage />} />
         <Route path="products/new" element={<AdminProductFormPage />} />
         <Route path="products/:id" element={<AdminProductFormPage />} />
+        <Route path="orders" element={<AdminOrdersPage />} />
+        <Route path="orders/:id" element={<AdminOrderDetailPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

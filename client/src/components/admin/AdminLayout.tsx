@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
-import { LayoutDashboard, LogOut, Package, Store, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, Package, ShoppingBag, Store, type LucideIcon } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Logo from "../layout/Logo";
 import Badge from "../ui/Badge";
@@ -16,6 +16,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin/products", label: "Products", icon: Package },
+  { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
 ];
 
 const linkClasses = ({ isActive }: { isActive: boolean }) =>
