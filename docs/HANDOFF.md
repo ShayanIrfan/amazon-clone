@@ -24,14 +24,19 @@ one-minute intro video and to resubmit at 8x's link (not something code can do).
   (the agent logs are public). Ask the author, or create your own admin:
   `npm run create-admin -w server -- --email you@x.com --password '<12+ chars>'`.
 
-## The design: Stitch
+## The design: Stitch (DROPPED as of 26 Sep 18:45)
+
+> **The author has no time for more Stitch work. Do not call the Stitch MCP.** The remaining
+> pages are designed from the system below. **Follow `docs/BUILD_PLAN.md`** (phased, time-boxed,
+> with a cut line). The saved mockups in `design/stitch/` are still references for Search and
+> Product only.
 
 - Project: **"Harbor Market E-Commerce Homepage"**, id `3942548850007889312`.
   Fetch with the Stitch MCP (`mcp__stitch__list_screens`, `mcp__stitch__get_screen`) if it is
   connected in your session; the API key lives in the author's `claude mcp` user config.
 - Already downloaded to `design/stitch/`: `01-home.html`, `02-search.html`,
   `02-search-loading.html`, `02-search-empty.html`, `03-product.html`, `logo.svg`, plus small
-  `.jpg` thumbnails. **Only these 4 storefront screens exist in Stitch.** There is no cart,
+  `.jpg` thumbnails. **Only these 4 storefront screens exist in Stitch.** (Cart/checkout screens were briefly in the project and then removed by the author; do not build from them. Re-run `list_screens` before each page in case the author adds screens.) There is no cart,
   checkout, orders, account or sign-in design, so those pages must be restyled by applying the
   same system (see "Design system") rather than copied from a mockup.
 - The HTML is Tailwind (CDN) + Material Symbols. **Do not paste it.** Rebuild with the app's own
@@ -57,7 +62,7 @@ one-minute intro video and to resubmit at 8x's link (not something code can do).
 - **Branch:** `redesign/stitch` (from `main`). Commit small; merge to `main` (fast-forward) and
   deploy when a page is verified. Commit author is the existing git config; end commit messages
   with the Co-Authored-By line the harness gives you.
-- **Never commit:** `.agents/`, `skills-lock.json`, `docs/screenshots/`, `.env*`, secrets, or
+- **Never commit:** `.agents/`, `.claude/skills/`, `skills-lock.json`, `docs/screenshots/`, `.env*`, secrets, or
   the admin password. Never print secrets from `.env` files. `.agent-logs/` is committed by a
   hook and is public, so never put a secret in chat.
 - **Deploy:** `npx vercel deploy --prod --yes` from the repo root (Git auto-deploy is NOT
@@ -103,13 +108,17 @@ Header shows a "Deliver to <city>" chip from the shopper's default address (only
 - [x] ProductCard, ProductRow, StarRating, AddToListMenu (icon variant)
 - [x] Server: home API extras, `sort=discount`
 - [x] Home page (hero, department tiles, price drops, promos, rails) — verified at 1280 and 390
-- [ ] **Search results page** ← in progress (filters sidebar, chips, grid, pagination, loading + empty states)
-- [ ] Product detail page
-- [ ] Cart, checkout (address/delivery/payment/confirmation), orders, account, lists, sign-in
-- [ ] Admin restyle (last)
-- [ ] Remove remaining "amazon" strings (`grep -rni amazon client/src server/src`), README, rename
-      the GitHub repo? (ask the author first), mobile pass at 390px, typecheck, tests
-- [ ] Deploy, verify live, update README with the new screenshots/description
+- [x] Build plan for the remaining pages: `docs/BUILD_PLAN.md` (phases and times are there)
+- [ ] Phase 0: shared primitives + sweep (checkpoint 1: first deploy of the new design)
+- [ ] Phase 1: Search results
+- [ ] Phase 2: Product detail (checkpoint 2)
+- [ ] Phase 3: Cart
+- [ ] Phase 4: Checkout (checkpoint 3)
+- [ ] Phase 5: Orders + order detail
+- [ ] Phase 6: Sign in / sign up (checkpoint 4) ✂ cut line 22:15
+- [ ] Phase 7 (stretch): account area (AccountShell, account, addresses, lists, security, 404)
+- [ ] Phase 8 (stretch): admin shape pass
+- [ ] Phase 9: user-visible "amazon" strings, tests, README, final deploy + live check
 - [ ] Author: intro video, updated walkthrough, resubmit
 
 ## Verification standard used so far
