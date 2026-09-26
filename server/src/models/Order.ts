@@ -52,8 +52,32 @@ const orderSchema = new Schema(
     payment: { brand: String, last4: String },
     cancellationReason: {
       type: String,
-      enum: ["cancelled_by_customer", "out_of_stock", "superseded", "payment_setup_failed"],
+      enum: [
+        "cancelled_by_customer",
+        "cancelled_by_admin",
+        "refunded_in_stripe",
+        "out_of_stock",
+        "superseded",
+        "payment_setup_failed",
+      ],
     },
+    // Fulfilment and cancellation steps taken after payment, with who took them.
+    // Orders from before this existed simply have none; screens fall back to placedAt.
+    statusHistory: {
+      type: [
+        new Schema(
+          {
+            status: { type: String, enum: ORDER_STATUSES, required: true },
+            at: { type: Date, default: Date.now },
+            by: { type: String, enum: ["customer", "admin", "stripe", "system"], required: true },
+          },
+          { _id: false },
+        ),
+      ],
+      default: [],
+    },
+    // Set when Stripe reports the payment refunded, whoever issued the refund.
+    refund: { amount: Number, at: Date },
     placedAt: { type: Date, default: Date.now },
   },
   { timestamps: true },

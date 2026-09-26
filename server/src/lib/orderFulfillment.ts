@@ -12,6 +12,8 @@ export type FinalizeResult =
   | { outcome: "refunded_out_of_stock"; order: OrderDoc }
   | { outcome: "not_found" };
 
+export const APP_REFUND_SOURCE = "harbor-market-app";
+
 class StockRaceError extends Error {}
 
 function brandLabel(brand: string | null | undefined) {
@@ -27,7 +29,12 @@ async function retrieveIntent(stripe: Stripe, id: string) {
 async function refundIntent(stripe: Stripe, intent: Stripe.PaymentIntent) {
   const charge = typeof intent.latest_charge === "object" ? intent.latest_charge : null;
   if (charge?.refunded) return;
-  await stripe.refunds.create({ payment_intent: intent.id }, { idempotencyKey: `refund_${intent.id}` });
+  // metadata.source lets the charge.refunded webhook tell this refund (whose order the app is
+  // already cancelling) from one someone issued in the Stripe Dashboard.
+  await stripe.refunds.create(
+    { payment_intent: intent.id, metadata: { source: APP_REFUND_SOURCE } },
+    { idempotencyKey: `refund_app_${intent.id}` },
+  );
 }
 
 /**

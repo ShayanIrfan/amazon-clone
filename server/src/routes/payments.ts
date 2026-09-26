@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { env, stripeConfigured } from "../config.js";
 import { getStripe, webhookConfigured } from "../lib/stripe.js";
 import { finalizeStripeOrder } from "../lib/orderFulfillment.js";
+import { handleChargeRefunded } from "../lib/refundSync.js";
 
 export const paymentsRouter = Router();
 
@@ -35,6 +36,8 @@ export async function stripeWebhook(req: Request, res: Response) {
     if (event.type === "payment_intent.succeeded") {
       const orderId = event.data.object.metadata?.orderId;
       if (orderId) await finalizeStripeOrder(orderId);
+    } else if (event.type === "charge.refunded") {
+      await handleChargeRefunded(event.data.object);
     }
     res.json({ received: true });
   } catch (err) {

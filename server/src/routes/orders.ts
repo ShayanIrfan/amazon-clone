@@ -9,6 +9,7 @@ import { computeTotals, loadActiveCartItems, findStockShortfalls } from "../lib/
 import { stripeConfigured } from "../config.js";
 import { getStripe, toCents } from "../lib/stripe.js";
 import { finalizeStripeOrder, releaseStripePayment, supersedePendingOrders } from "../lib/orderFulfillment.js";
+import { cancelOpenOrder } from "../lib/orderCancellation.js";
 
 export const ordersRouter = Router();
 ordersRouter.use(requireAuth);
@@ -315,30 +316,14 @@ ordersRouter.post("/:id/cancel", async (req, res, next) => {
       }
     }
 
-    // Stock was never taken for an unpaid order, so there's nothing to restock.
-    if (order.status === "pending_payment") {
-      order.status = "cancelled";
-      order.cancellationReason = "cancelled_by_customer";
-      await order.save();
-      res.json({ order });
+    // Conditional, shared with admin cancellation and the refund webhook, so a
+    // simultaneous cancel or Stripe refund can never restock this order twice.
+    const { order: cancelled } = await cancelOpenOrder(order.id, { reason: "cancelled_by_customer", by: "customer" });
+    if (cancelled?.status !== "cancelled") {
+      res.status(409).json({ error: "This order can no longer be cancelled." });
       return;
     }
-
-    const session = await mongoose.startSession();
-    try {
-      await session.withTransaction(async () => {
-        for (const item of order.items) {
-          await ProductModel.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } }, { session });
-        }
-        order.status = "cancelled";
-        order.cancellationReason = "cancelled_by_customer";
-        await order.save({ session });
-      });
-    } finally {
-      await session.endSession();
-    }
-
-    res.json({ order });
+    res.json({ order: cancelled });
   } catch (err) {
     next(err);
   }

@@ -24,6 +24,9 @@ export function isAdminUser(user: {
   return !!user.emailVerifiedAt && adminEmails.has(user.email.toLowerCase());
 }
 
+/** The short, human-friendly reference for an order: the last 8 characters of its id. */
+export const orderNumber = (id: string) => id.slice(-8).toUpperCase();
+
 type Actor = { id: string; email: string };
 
 /**
