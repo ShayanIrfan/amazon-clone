@@ -50,7 +50,7 @@ export default function AddressForm({ onSubmit, onCancel, busy, error }: Props) 
         <SelectField label="Country" value={form.country} options={COUNTRIES} onChange={(v) => set("country", v)} required />
       </div>
 
-      {error && <p className="mt-3 text-sm text-amazon-red">{error}</p>}
+      {error && <p className="mt-3 text-sm text-clay">{error}</p>}
 
       <div className="mt-4 flex gap-2">
         <button

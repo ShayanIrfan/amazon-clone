@@ -88,7 +88,7 @@ export default function ListsPage() {
                           <img src={product.thumbnail} alt={product.title} className="h-full w-full object-contain" />
                         </Link>
                         <div className="min-w-36 flex-1 text-sm">
-                          <Link to={`/product/${product._id}`} className="hover:text-link hover:underline">
+                          <Link to={`/product/${product._id}`} className="hover:text-harbor hover:underline">
                             {product.title}
                           </Link>
                           <p className="amount text-neutral-600">{formatPrice(product.price)}</p>

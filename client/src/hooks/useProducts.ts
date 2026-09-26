@@ -7,7 +7,9 @@ export interface HomeData {
   bestSellers: Product[];
   topRated: Product[];
   newArrivals: Product[];
-  categories: Category[];
+  /** The top departments by size, each with a representative product picture. */
+  categories: (Category & { thumbnail: string | null })[];
+  totals: { products: number; categories: number };
 }
 
 export function useHome() {

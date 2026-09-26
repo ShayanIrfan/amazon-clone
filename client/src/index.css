@@ -1,34 +1,40 @@
 @import "tailwindcss";
-@import "@fontsource-variable/figtree";
+@import "@fontsource-variable/plus-jakarta-sans";
 
 @theme {
-  /* Calm, product-first palette — see docs/design-notes.md for the reasoning.
-     Named for role, not the literal hue, so meaning stays clear at the call site. */
-  --color-harbor: #0f3a40;
-  --color-harbor-dark: #0a262b;
-  --color-paper: #f4f6f5;
+  /* Harbor Market design system (Stitch: "Harbor Modern Marketplace").
+     Named for role, not hue, so meaning stays clear at the call site. */
+  --color-harbor: #0f3a40; /* brand: primary actions, links, active states */
+  --color-harbor-dark: #0a272c;
+  --color-canvas: #effcfa; /* page background */
+  --color-mint: #e3f1ea; /* hero and soft brand panels */
+  --color-mint-strong: #d5eae0;
+  --color-paper: #f4f6f5; /* product image wells, filter panels, summaries */
   --color-line: #d7dedc;
-  --color-line-strong: #b7c1be;
+  --color-line-strong: #bac4c1;
   --color-slate: #56656a;
   --color-ink: #14201f;
-  --color-clay: #b3261e;
+  --color-clay: #b3261e; /* discounts, low stock, destructive */
   --color-clay-dark: #8c1e18;
-  --color-marigold: #f2a900;
+  --color-marigold: #f2a900; /* ratings only */
   --color-marigold-dark: #b97e00;
   --color-moss: #2f6844;
 
-  /* TODO(redesign): kept temporarily so untouched components don't go
-     unstyled mid-branch. Delete once `grep -r amazon- client/src` and
-     `grep -r color-link client/src` are both empty (tracked in step 2). */
-  --color-amazon-navy: #131921;
-  --color-amazon-navy-light: #232f3e;
-  --color-amazon-orange: #f08804;
-  --color-amazon-yellow: #febd69;
-  --color-amazon-red: #b12704;
-  --color-link: #007185;
-  --color-link-hover: #c7511f;
+  /* Department tile tints. */
+  --color-tint-mint: #e7f6ee;
+  --color-tint-sky: #e6f3fa;
+  --color-tint-peach: #fdeee4;
+  --color-tint-lilac: #f1ecfb;
+  --color-tint-butter: #fff4d6;
+  --color-tint-sage: #edf2ee;
+  --color-tint-rose: #fbeef1;
+  --color-tint-sand: #f6f1ea;
 
-  --font-sans: "Figtree Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --shadow-card: 0 1px 3px rgb(15 58 64 / 4%);
+  --shadow-lift: 0 8px 20px -4px rgb(15 58 64 / 8%), 0 2px 6px -1px rgb(15 58 64 / 3%);
+  --shadow-float: 0 16px 36px -8px rgb(15 58 64 / 12%), 0 4px 12px rgb(15 58 64 / 4%);
+
+  --font-sans: "Plus Jakarta Sans Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* A fixed type scale (12/14/16/20/28/36) instead of Tailwind's default —
      see the design plan. Named text-* so existing text-sm/base/lg usages
@@ -52,13 +58,13 @@
 }
 
 html {
-  background: var(--color-paper);
+  background: var(--color-canvas);
 }
 
 body {
   color-scheme: light;
   margin: 0;
-  background-color: var(--color-paper);
+  background-color: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
   line-height: 1.5;
@@ -93,13 +99,22 @@ a {
   width: 100%;
   max-width: 1280px;
   margin-inline: auto;
-  padding-inline: 1rem;
+  padding-inline: 1.5rem;
 }
 
 .page-title {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
-  line-height: 1.1;
+  font-size: clamp(1.625rem, 3vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.12;
   letter-spacing: -0.03em;
+}
+
+.section-title {
+  font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
 }
 
 .eyebrow {
@@ -113,7 +128,7 @@ a {
 .surface {
   border: 1px solid var(--color-line);
   background: white;
-  box-shadow: 0 1px 2px rgb(20 32 31 / 5%);
+  box-shadow: var(--shadow-card);
 }
 
 .surface-hover {
@@ -122,8 +137,8 @@ a {
 
 .surface-hover:hover {
   border-color: var(--color-line-strong);
-  box-shadow: 0 8px 24px rgb(20 32 31 / 9%);
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
 }
 
 .muted {
@@ -178,7 +193,7 @@ a {
 
 @media (max-width: 640px) {
   .page-shell {
-    padding-inline: 0.875rem;
+    padding-inline: 1rem;
   }
 }
 

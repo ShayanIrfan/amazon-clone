@@ -65,11 +65,11 @@ export default function ProductDetailPage() {
   return (
     <div className="page-shell py-6">
       <nav className="mb-5 flex items-center gap-1 text-xs text-slate">
-        <Link to="/" className="hover:text-link hover:underline">
+        <Link to="/" className="hover:text-harbor hover:underline">
           Home
         </Link>
         <ChevronRight size={12} />
-        <Link to={`/search?category=${product.category}`} className="hover:text-link hover:underline">
+        <Link to={`/search?category=${product.category}`} className="hover:text-harbor hover:underline">
           {categoryLabel(product.category)}
         </Link>
       </nav>
@@ -120,11 +120,11 @@ export default function ProductDetailPage() {
                 </p>
                 <p className="mt-3 text-sm font-semibold text-moss">In Stock</p>
                 {product.stock <= 10 && (
-                  <p className="text-sm text-amazon-red">Only {product.stock} left — order soon.</p>
+                  <p className="text-sm text-clay">Only {product.stock} left — order soon.</p>
                 )}
               </>
             ) : (
-              <p className="mt-2 text-lg font-medium text-amazon-red">
+              <p className="mt-2 text-lg font-medium text-clay">
                 {archived ? "No longer available" : "Out of Stock"}
               </p>
             )}

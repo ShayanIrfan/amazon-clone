@@ -50,7 +50,7 @@ export default function ReviewStep({
         </SummaryRow>
       </div>
 
-      {error && <p className="mt-3 text-sm font-medium text-amazon-red">{error}</p>}
+      {error && <p className="mt-3 text-sm font-medium text-clay">{error}</p>}
 
       <button
         type="button"

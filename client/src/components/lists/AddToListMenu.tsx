@@ -5,7 +5,16 @@ import { useLists, useCreateList, useAddToList, useRemoveFromList } from "../../
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { Link } from "react-router";
 
-export default function AddToListMenu({ productId, variant = "button" }: { productId: string; variant?: "button" | "link" }) {
+export default function AddToListMenu({
+  productId,
+  variant = "button",
+  label = "Save to list",
+}: {
+  productId: string;
+  /** "icon" is the round heart on product cards. */
+  variant?: "button" | "link" | "icon";
+  label?: string;
+}) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [newName, setNewName] = useState("");
@@ -28,45 +37,56 @@ export default function AddToListMenu({ productId, variant = "button" }: { produ
   const lists = data?.items ?? [];
   const inAnyList = lists.some((l) => l.items.some((i) => i.product === productId));
 
+  const iconClass = `flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[var(--shadow-card)] transition hover:scale-105 ${inAnyList ? "text-clay" : "text-line-strong hover:text-clay"}`;
   const buttonClass =
     variant === "link"
       ? `text-link hover:underline ${inAnyList ? "font-medium" : ""}`
-      : `flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm hover:bg-neutral-50 ${
-          inAnyList ? "border-amazon-orange text-amazon-orange" : "border-neutral-300"
-        }`;
+      : variant === "icon"
+        ? iconClass
+        : `flex items-center gap-1.5 rounded-full px-1 py-1.5 text-sm font-medium hover:text-harbor ${inAnyList ? "text-clay" : "text-ink"}`;
 
   if (!user) {
+    if (variant === "icon") {
+      return (
+        <Link to="/login" aria-label="Sign in to save this item" title="Sign in to save items" className={iconClass}>
+          <Heart size={16} aria-hidden />
+        </Link>
+      );
+    }
     return variant === "link" ? (
       <Link to="/login" className="text-link hover:underline" title="Sign in to add to a list">
         Add to List
       </Link>
     ) : (
-      <Link
-        to="/login"
-        className="flex items-center gap-1 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50"
-        title="Sign in to add to a list"
-      >
-        <Heart size={16} /> Add to List
+      <Link to="/login" className="flex items-center gap-1.5 rounded-full px-1 py-1.5 text-sm font-medium text-ink hover:text-harbor" title="Sign in to save items">
+        <Heart size={16} aria-hidden /> {label}
       </Link>
     );
   }
 
   return (
     <div ref={ref} className="relative inline-block">
-      <button type="button" onClick={() => setOpen((o) => !o)} className={buttonClass}>
-        {variant === "button" && <Heart size={16} fill={inAnyList ? "currentColor" : "none"} className="mr-1 inline" />}
-        Add to List
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={buttonClass}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label={variant === "icon" ? (inAnyList ? "Saved to a list. Change lists" : "Save to a list") : undefined}
+      >
+        {variant !== "link" && <Heart size={16} fill={inAnyList ? "currentColor" : "none"} aria-hidden />}
+        {variant !== "icon" && (variant === "link" ? "Add to List" : inAnyList ? "Saved" : label)}
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 z-30 mt-1 w-64 max-w-[85vw] rounded-md border border-neutral-200 bg-white p-3 shadow-lg">
-          {lists.length === 0 && <p className="mb-2 text-sm text-neutral-500">You don't have any lists yet.</p>}
+        <div className={`absolute top-full z-30 mt-2 w-64 max-w-[85vw] rounded-2xl border border-line bg-white p-3 text-left shadow-[var(--shadow-float)] ${variant === "icon" ? "right-0" : "left-0"}`}>
+          {lists.length === 0 && <p className="mb-2 text-sm text-slate">You don't have any lists yet.</p>}
           <ul className="max-h-48 space-y-1 overflow-y-auto">
             {lists.map((list) => {
               const checked = list.items.some((i) => i.product === productId);
               return (
                 <li key={list._id}>
-                  <label className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-neutral-50">
+                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink hover:bg-paper">
                     <input
                       type="checkbox"
                       checked={checked}
@@ -75,7 +95,7 @@ export default function AddToListMenu({ productId, variant = "button" }: { produ
                           ? removeFromList.mutate({ listId: list._id, productId })
                           : addToList.mutate({ listId: list._id, productId })
                       }
-                      className="accent-amazon-orange"
+                      className="accent-harbor"
                     />
                     {list.name}
                   </label>
@@ -96,16 +116,16 @@ export default function AddToListMenu({ productId, variant = "button" }: { produ
                 },
               });
             }}
-            className="mt-2 flex gap-1 border-t border-neutral-100 pt-2"
+            className="mt-2 flex gap-1.5 border-t border-line pt-2"
           >
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="New list name"
-              className="min-w-0 flex-1 rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="min-w-0 flex-1 rounded-lg border border-line px-2.5 py-1.5 text-sm outline-none focus:border-harbor"
             />
-            <button type="submit" className="rounded border border-neutral-300 px-2 py-1 text-sm hover:bg-neutral-50">
+            <button type="submit" className="rounded-full bg-harbor px-3 py-1.5 text-sm font-semibold text-white hover:bg-harbor-dark">
               Create
             </button>
           </form>

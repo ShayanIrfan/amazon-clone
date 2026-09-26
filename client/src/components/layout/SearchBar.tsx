@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { ChevronDown, LayoutGrid, Search } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router";
-import { useCategories } from "../../hooks/useProducts";
-import { useSuggestions } from "../../hooks/useProducts";
+import { useCategories, useSuggestions } from "../../hooks/useProducts";
 
 export default function SearchBar() {
   const navigate = useNavigate();
@@ -36,6 +35,8 @@ export default function SearchBar() {
     setOpen(false);
   }
 
+  const departmentName = categoriesData?.items.find((c) => c.slug === department)?.name;
+
   return (
     <form
       ref={containerRef}
@@ -44,21 +45,27 @@ export default function SearchBar() {
         e.preventDefault();
         search();
       }}
-      className="relative flex h-10 w-full max-w-3xl rounded-md focus-within:ring-2 focus-within:ring-marigold"
+      className="relative flex h-12 w-full items-center gap-2 rounded-full border border-line bg-paper p-1 pl-4 transition-colors focus-within:border-harbor focus-within:bg-white focus-within:ring-3 focus-within:ring-harbor/12"
     >
-      <select
-        aria-label="Search department"
-        value={department}
-        onChange={(e) => setDepartment(e.target.value)}
-        className="hidden shrink-0 rounded-l-md border-r border-line bg-paper px-2 text-sm text-ink sm:block"
-      >
-        <option value="">All</option>
-        {categoriesData?.items.map((c) => (
-          <option key={c.slug} value={c.slug}>
-            {c.name}
-          </option>
-        ))}
-      </select>
+      {/* The visible label and chevron sit on top of a transparent native select, so it stays keyboard- and screen-reader-friendly. */}
+      <span className="relative hidden shrink-0 items-center gap-1.5 border-r border-line pr-3 text-sm font-semibold text-slate hover:text-ink md:flex">
+        <LayoutGrid size={15} aria-hidden />
+        <span className="max-w-32 truncate">{departmentName ?? "All departments"}</span>
+        <ChevronDown size={14} aria-hidden />
+        <select
+          aria-label="Search department"
+          value={department}
+          onChange={(e) => setDepartment(e.target.value)}
+          className="absolute inset-0 cursor-pointer opacity-0"
+        >
+          <option value="">All departments</option>
+          {categoriesData?.items.map((c) => (
+            <option key={c.slug} value={c.slug}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </span>
       <input
         value={q}
         onChange={(e) => {
@@ -84,25 +91,29 @@ export default function SearchBar() {
           }
         }}
         type="text"
-        placeholder="Search amazon-clone"
-        aria-label="Search amazon-clone"
+        placeholder="Search groceries, tech, fashion, home…"
+        aria-label="Search Harbor Market"
         role="combobox"
         aria-autocomplete="list"
         aria-expanded={open && !!suggestions?.items.length}
         aria-controls="search-suggestions"
         aria-activedescendant={activeIndex >= 0 ? `search-suggestion-${activeIndex}` : undefined}
-        className="min-w-0 flex-1 rounded-l-md bg-white px-3 text-sm text-ink outline-none sm:rounded-none"
+        className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-slate"
       />
       <button
         type="submit"
         aria-label="Search"
-        className="flex w-12 shrink-0 items-center justify-center rounded-r-md bg-marigold text-harbor-dark hover:bg-marigold-dark"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-harbor text-white hover:bg-harbor-dark"
       >
-        <Search size={20} />
+        <Search size={19} aria-hidden />
       </button>
 
       {open && q.trim().length > 1 && !!suggestions?.items.length && (
-        <ul id="search-suggestions" role="listbox" className="absolute top-11 left-0 z-30 w-full rounded-md border border-line bg-white py-1 text-sm text-ink shadow-lg">
+        <ul
+          id="search-suggestions"
+          role="listbox"
+          className="absolute top-[3.25rem] left-0 z-30 w-full overflow-hidden rounded-2xl border border-line bg-white py-1.5 text-sm text-ink shadow-[var(--shadow-float)]"
+        >
           {suggestions.items.map((s, index) => (
             <li key={s}>
               <button
@@ -114,9 +125,9 @@ export default function SearchBar() {
                   setQ(s);
                   search(s);
                 }}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-ink ${activeIndex === index ? "bg-paper" : "hover:bg-paper"}`}
+                className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-ink ${activeIndex === index ? "bg-paper" : "hover:bg-paper"}`}
               >
-                <Search size={14} className="text-neutral-400" />
+                <Search size={14} className="text-slate" aria-hidden />
                 {s}
               </button>
             </li>

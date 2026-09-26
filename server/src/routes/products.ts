@@ -9,7 +9,7 @@ import { ACTIVE_PRODUCT } from "../lib/catalog.js";
 
 export const productsRouter = Router();
 
-const SORTS = ["featured", "price_low", "price_high", "rating", "newest", "bestseller"] as const;
+const SORTS = ["featured", "price_low", "price_high", "rating", "newest", "bestseller", "discount"] as const;
 type Sort = (typeof SORTS)[number];
 
 const listQuerySchema = z.object({
@@ -49,6 +49,8 @@ function sortStage(sort: Sort | undefined): Record<string, 1 | -1> {
       return { createdAt: -1 };
     case "bestseller":
       return { ratingCount: -1 };
+    case "discount":
+      return { discountPercentage: -1, rating: -1 };
     case "featured":
     default:
       return { rating: -1, ratingCount: -1 };

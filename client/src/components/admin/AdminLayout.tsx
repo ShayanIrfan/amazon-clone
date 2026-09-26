@@ -35,7 +35,7 @@ export default function AdminLayout() {
       <aside className="flex flex-col border-b border-line bg-white lg:sticky lg:top-0 lg:h-screen lg:border-r lg:border-b-0">
         <div className="flex items-center gap-3 px-4 py-4 lg:flex-col lg:items-start lg:gap-2">
           <Link to="/admin" aria-label="Admin home" className="shrink-0">
-            <Logo tone="light" compact />
+            <Logo compact />
           </Link>
           <Badge tone="info">Admin</Badge>
         </div>

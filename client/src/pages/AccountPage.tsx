@@ -60,7 +60,7 @@ export default function AccountPage() {
                     type="button"
                     onClick={() => removeViewed.mutate(id)}
                     aria-label="Remove from view"
-                    className="absolute top-1 right-1 rounded-full bg-white p-0.5 text-neutral-500 hover:text-amazon-red"
+                    className="absolute top-1 right-1 rounded-full bg-white p-0.5 text-neutral-500 hover:text-clay"
                   >
                     <X size={14} />
                   </button>

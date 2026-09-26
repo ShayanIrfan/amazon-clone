@@ -29,7 +29,7 @@ export default function WriteReviewForm({ productId, onDone }: { productId: stri
             onClick={() => setRating(star)}
             aria-label={`${star} star${star > 1 ? "s" : ""}`}
           >
-            <Star size={24} className={star <= shown ? "text-amazon-orange" : "text-neutral-300"} fill="currentColor" strokeWidth={0} />
+            <Star size={24} className={star <= shown ? "text-marigold" : "text-neutral-300"} fill="currentColor" strokeWidth={0} />
           </button>
         ))}
       </div>
@@ -42,11 +42,11 @@ export default function WriteReviewForm({ productId, onDone }: { productId: stri
         onChange={(e) => setComment(e.target.value)}
         placeholder="What did you like or dislike? What did you use this product for?"
         rows={4}
-        className="mt-3 w-full rounded border border-neutral-300 p-2 text-sm focus:border-amazon-orange focus:ring-1 focus:ring-amazon-orange focus:outline-none"
+        className="mt-3 w-full rounded border border-neutral-300 p-2 text-sm focus:border-marigold focus:ring-1 focus:ring-marigold focus:outline-none"
       />
 
       {writeReview.isError && (
-        <p className="mt-2 text-sm text-amazon-red">
+        <p className="mt-2 text-sm text-clay">
           {writeReview.error instanceof Error ? writeReview.error.message : "Couldn't submit your review."}
         </p>
       )}
@@ -55,7 +55,7 @@ export default function WriteReviewForm({ productId, onDone }: { productId: stri
         <button
           type="submit"
           disabled={rating === 0 || writeReview.isPending}
-          className="rounded-full bg-amazon-yellow px-4 py-1.5 text-sm font-medium text-neutral-900 hover:brightness-95 disabled:opacity-50"
+          className="rounded-full bg-marigold px-4 py-1.5 text-sm font-medium text-neutral-900 hover:brightness-95 disabled:opacity-50"
         >
           Submit
         </button>

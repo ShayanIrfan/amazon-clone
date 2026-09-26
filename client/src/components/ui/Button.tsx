@@ -8,22 +8,22 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   // Text colours are !important because index.css sets an unlayered `a { color: inherit }`,
   // which would otherwise beat these utilities whenever a <Link> is styled as a button.
   primary: "bg-harbor text-white! border border-harbor hover:bg-harbor-dark",
-  secondary: "bg-white text-harbor! border border-line-strong hover:bg-paper",
+  secondary: "bg-white text-ink! border border-line hover:border-harbor hover:bg-paper",
   quiet: "bg-transparent text-harbor! border border-transparent hover:bg-paper",
   danger: "bg-white text-clay! border border-line-strong hover:border-clay",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-sm gap-1.5",
-  md: "h-10 px-4 text-sm gap-2",
-  lg: "h-12 px-6 text-base gap-2",
+  sm: "h-8 px-3.5 text-sm gap-1.5",
+  md: "h-11 px-5 text-sm gap-2",
+  lg: "h-12 px-7 text-base gap-2",
 };
 
 /** Shared class builder so a <Link> can look exactly like a <Button> — see
  * e.g. EmptyState's "Continue shopping" link, which can't be a real button
  * since it navigates. */
 export function buttonClasses(variant: ButtonVariant = "primary", size: ButtonSize = "md", className = "") {
-  return `inline-flex items-center justify-center rounded-md font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`;
+  return `inline-flex items-center justify-center rounded-full font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`;
 }
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {

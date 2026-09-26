@@ -64,7 +64,7 @@ export default function OrderDetailPage() {
               <li key={i} className="flex gap-3 p-3">
                 <img src={item.thumbnail} alt={item.title} className="h-16 w-16 shrink-0 bg-white object-contain" />
                 <div className="flex-1 text-sm">
-                  <Link to={`/product/${item.product}`} className="hover:text-link hover:underline">
+                  <Link to={`/product/${item.product}`} className="hover:text-harbor hover:underline">
                     {item.title}
                   </Link>
                   <p className="amount text-neutral-500">

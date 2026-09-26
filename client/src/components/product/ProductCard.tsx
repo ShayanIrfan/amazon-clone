@@ -1,39 +1,88 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { Check, Plus } from "lucide-react";
 import type { Product } from "../../lib/types";
+import { formatPrice, listPrice } from "../../lib/format";
+import { useCart } from "../../context/CartContext";
+import AddToListMenu from "../lists/AddToListMenu";
 import StarRating from "./StarRating";
-import PriceTag from "./PriceTag";
-import { estimatedDelivery } from "../../lib/format";
 
+const LOW_STOCK = 10;
+
+/**
+ * The storefront product card. The image and title link to the product; the
+ * heart and the round "+" are separate buttons (never nested inside the link),
+ * so each has its own keyboard stop and accessible name.
+ */
 export default function ProductCard({ product }: { product: Product }) {
-  const outOfStock = product.stock <= 0;
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+  const soldOut = product.stock <= 0 || !!product.archivedAt;
+  const discount = Math.round(product.discountPercentage);
+  const href = `/product/${product._id}`;
+
+  useEffect(() => {
+    if (!added) return;
+    const timer = setTimeout(() => setAdded(false), 1400);
+    return () => clearTimeout(timer);
+  }, [added]);
 
   return (
-    <Link
-      to={`/product/${product._id}`}
-      className="group flex h-full w-full flex-col rounded-md border border-transparent p-2 transition hover:border-line hover:bg-white sm:p-3"
-    >
-      <div className="flex aspect-square items-center justify-center overflow-hidden bg-white">
-        <img
-          src={product.thumbnail}
-          alt={product.title}
-          loading="lazy"
-          className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]"
-        />
+    <article className="group flex h-full flex-col rounded-2xl bg-white p-3 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-lift)]">
+      <div className="relative mb-3.5 aspect-square overflow-hidden rounded-xl bg-paper">
+        <Link to={href} tabIndex={-1} aria-hidden className="flex h-full w-full items-center justify-center p-5">
+          <img
+            src={product.thumbnail}
+            alt=""
+            loading="lazy"
+            className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+          />
+        </Link>
+        {discount > 0 && (
+          <span className="absolute top-2.5 left-2.5 rounded-full bg-clay px-2.5 py-1 text-xs font-bold text-white">-{discount}%</span>
+        )}
+        <div className="absolute top-2.5 right-2.5">
+          <AddToListMenu productId={product._id} variant="icon" />
+        </div>
+        {!soldOut && (
+          <button
+            type="button"
+            onClick={() => {
+              addItem(product._id, 1);
+              setAdded(true);
+            }}
+            aria-label={added ? `${product.title} added to cart` : `Add ${product.title} to cart`}
+            className={`absolute right-2.5 bottom-2.5 flex h-9 w-9 items-center justify-center rounded-full text-white shadow transition hover:scale-105 ${
+              added ? "bg-moss" : "bg-harbor hover:bg-harbor-dark"
+            }`}
+          >
+            {added ? <Check size={18} aria-hidden /> : <Plus size={19} aria-hidden />}
+          </button>
+        )}
       </div>
-      <p className="mt-3 line-clamp-2 min-h-10 text-sm text-ink group-hover:text-harbor">{product.title}</p>
-      <div className="mt-1">
+
+      <div className="flex flex-1 flex-col px-1">
+        {product.brand && (
+          <span className="mb-1 truncate text-xs font-semibold tracking-wider text-slate uppercase">{product.brand}</span>
+        )}
+        <h3 className="mb-2 line-clamp-2 text-sm leading-snug font-medium text-ink">
+          <Link to={href} className="transition-colors group-hover:text-harbor">
+            {product.title}
+          </Link>
+        </h3>
         <StarRating rating={product.rating} count={product.ratingCount} />
+        <div className="mt-auto flex flex-wrap items-baseline gap-x-2 pt-3">
+          <span className="amount text-lg font-extrabold tracking-[-0.01em] text-ink">{formatPrice(product.price)}</span>
+          {discount > 0 && (
+            <span className="amount text-xs text-slate line-through">{formatPrice(listPrice(product.price, product.discountPercentage))}</span>
+          )}
+        </div>
+        {soldOut ? (
+          <p className="mt-1 text-xs font-semibold text-clay">{product.archivedAt ? "No longer available" : "Out of stock"}</p>
+        ) : (
+          product.stock < LOW_STOCK && <p className="mt-1 text-xs font-semibold text-clay">Only {product.stock} left</p>
+        )}
       </div>
-      <div className="mt-1">
-        <PriceTag price={product.price} discountPercentage={product.discountPercentage} />
-      </div>
-      {outOfStock ? (
-        <p className="mt-1 text-sm font-medium text-clay">Out of stock</p>
-      ) : (
-        <p className="mt-1 text-xs text-neutral-600">
-          FREE delivery <span className="font-medium text-neutral-800">{estimatedDelivery()}</span>
-        </p>
-      )}
-    </Link>
+    </article>
   );
 }

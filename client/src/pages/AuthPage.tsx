@@ -179,7 +179,7 @@ export default function AuthPage() {
   return (
     <main id="main-content" className="flex min-h-screen flex-col items-center bg-paper px-4 py-8 sm:py-10">
       <Link to="/" aria-label="amazon-clone home" className="mb-8 inline-flex rounded-md px-2 py-1">
-        <Logo tone="light" />
+        <Logo />
       </Link>
 
       <div className="mb-6 text-center">

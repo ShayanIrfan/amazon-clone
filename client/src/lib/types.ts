@@ -77,7 +77,7 @@ export interface ProductListResponse {
   facets: Facets;
 }
 
-export type SortOption = "featured" | "price_low" | "price_high" | "rating" | "newest" | "bestseller";
+export type SortOption = "featured" | "price_low" | "price_high" | "rating" | "newest" | "bestseller" | "discount";
 
 export interface Address {
   _id: string;
