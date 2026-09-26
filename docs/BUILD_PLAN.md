@@ -83,7 +83,7 @@ secure card payments (Stripe), and cancel for a full refund until the order ship
 Each phase ends with `npm run typecheck` (clean) and a quick browser look at 1280 and 390
 wide. Use the build + `serve-local.mjs` flow from HANDOFF, **not** `npm run dev`.
 
-### Phase 0: shared primitives + sweep (18:50–19:20). Checkpoint 1: deploy
+### Phase 0: shared primitives + sweep (18:55–19:25). Checkpoint 1: deploy
 
 Most of the app's "old look" comes from a handful of shared components. Fixing them first gives
 every page, including admin, the new shape before any page-level work starts.
@@ -115,12 +115,12 @@ every page, including admin, the new shape before any page-level work starts.
      in `StarRating`, `RatingBreakdown` and `WriteReviewForm` stars.
    - `neutral-*` / `gray-*` become `text-slate`, `text-line-strong`, `border-line` or
      `bg-paper`.
-   - Skip `pages/admin/*` and `components/admin/*` in this sweep (Phase 8).
+   - Skip `pages/admin/*` and `components/admin/*` in this sweep; they get their own pass in Phase 5.
 4. Typecheck, build, check Home, Search, Product and Cart at 390 and 1280. Then do the
    **first deploy**: merge to `main` fast-forward, run `npx vercel deploy --prod --yes`, and
    load the live Home page.
 
-### Phase 1: Search results `/search` (19:20–19:55)
+### Phase 1: Search results `/search` (19:25–19:55)
 
 Reference: `design/stitch/02-search.html`, `02-search-loading.html`, `02-search-empty.html`.
 Render the HTML with Playwright to look at it. **Do not paste it.** Files:
@@ -148,7 +148,7 @@ minRating, inStock, sort, page`, and returns `facets.brands` and `facets.priceRa
   and department chips from `/api/categories`.
 - All state stays in the URL (it already does; keep it that way).
 
-### Phase 2: Product detail `/product/:id` (19:55–20:30). Checkpoint 2: deploy
+### Phase 2: Product detail `/product/:id` (19:55–20:25). Checkpoint 2: deploy
 
 Reference: `design/stitch/03-product.html`, minus everything in "Never build". Files:
 `pages/ProductDetailPage.tsx`, `components/product/{ImageGallery,PriceTag,QuantitySelector,SpecsTable,RatingBreakdown,ReviewList,WriteReviewForm}.tsx`.
@@ -176,7 +176,7 @@ Reference: `design/stitch/03-product.html`, minus everything in "Never build". F
 - Skeleton in the same two-column shape. Not found: `EmptyState` with a link back to search.
 - **Checkpoint 2:** typecheck, browser pass, merge, deploy.
 
-### Phase 3: Cart `/cart` (20:30–20:50)
+### Phase 3: Cart `/cart` (20:25–20:40)
 
 Files: `pages/CartPage.tsx`, `components/cart/CartLineItem.tsx`, `components/checkout/OrderSummary.tsx`.
 
@@ -195,7 +195,7 @@ Files: `pages/CartPage.tsx`, `components/cart/CartLineItem.tsx`, `components/che
   "Top rated" `ProductRow` from `useHome()` (real data).
 - Skeleton lines while loading.
 
-### Phase 4: Checkout `/checkout` (20:50–21:30). Checkpoint 3: deploy
+### Phase 4: Checkout `/checkout` (20:40–21:15). Checkpoint 3: deploy
 
 Files: `pages/CheckoutPage.tsx`, `components/checkout/*`. **The highest-risk page, because
 real Stripe money flow runs through it.** Change markup and classes, not logic.
@@ -218,7 +218,89 @@ real Stripe money flow runs through it.** Change markup and classes, not logic.
   error must be visible and clear). Afterwards cancel the test order from the order page so
   stock is returned. Then run checkpoint 3.
 
-### Phase 5: Orders `/orders` + order detail `/orders/:id` (21:30–21:50)
+### Phase 5: Admin panel, desktop + mobile (21:15–22:00). Checkpoint 4: deploy
+
+Files: `components/admin/*`, `pages/admin/*`. Admin is part of the "real backend" story, so it
+gets a proper pass. **Change markup and classes only; keep every hook, mutation and guard as it
+is.** The admin API tests don't need to change.
+
+**Signing in for checks.** The admin password is not in the repo and must not appear in chat,
+because `.agent-logs/` is public. Create a throwaway admin with
+`npm run create-admin -w server -- --email <throwaway>@harbor-market.test --password <generated>`.
+Generate the password inside a script and keep it only in a file in the session scratchpad, never
+printed. Delete that user in Phase 9.
+
+**5a. Desktop (~25 min)**
+
+- `AdminLayout`:
+  - Main area background `bg-canvas`, to match the store.
+  - White sidebar with `Logo` and the "Admin" badge.
+  - Nav items are `rounded-xl h-10 px-3`; the active one is `bg-mint text-harbor font-semibold`.
+  - At the bottom, a user card: an initial avatar, the email (truncated, with `title`),
+    "View store" and "Sign out".
+- Every admin page starts with `PageHeader`: the title, a one-line description, and actions on
+  the right (for example a primary "New product" on Products).
+- Dashboard:
+  - `StatCard` is a Panel with a 40px `bg-mint` icon square, an `eyebrow` label, the value in
+    `text-2xl font-extrabold .amount`, and the change as a small moss or clay pill.
+  - The range picker is a segmented pill control (`role="radiogroup"`).
+  - `OrdersChart` uses harbor for the series, `line` for gridlines, and slate for axis text.
+    Read the `dataviz` skill before touching it, and keep the existing `sr-only` data table.
+  - Recent activity (`ActivityList`) goes in a Panel.
+- Tables (Products, Orders, Customers, Reviews, Customer detail):
+  - Wrap each in a Panel.
+  - Above the table, a toolbar: a pill search input, then filters as a `Select` or chips.
+  - Header row: `bg-paper text-xs font-bold uppercase tracking-wider text-slate`.
+  - Rows: `border-t border-line hover:bg-paper/60`, about 56px tall.
+  - Product thumbnails sit in 40px `bg-paper rounded-lg` wells. Status uses `Badge`
+    (`AdminOrderStatusBadge`).
+  - Row actions are quiet icon buttons with an `aria-label`. Use the shared `Pagination`.
+- `ProductForm` / `AdminProductFormPage`:
+  - Sections in separate Panels: Basics, Pricing and stock, Images, Visibility. Two columns
+    from `md` up. Errors appear under each field.
+  - A sticky bottom action bar holds Cancel (secondary) and Save (primary with `loading`).
+- `AdminOrderDetailPage`:
+  - The same two-column layout as the shopper's order detail: `OrderStatusTracker` and items on
+    the left, with customer, address and payment in the sidebar.
+  - Actions: "Mark shipped" / "Mark delivered" (primary), and "Cancel and refund" (danger)
+    behind `ConfirmDialog`.
+- `ConfirmDialog`: a `rounded-2xl` panel on a `bg-harbor-dark/40` backdrop, with focus
+  trapped, Esc to close, pill buttons, and the destructive button last.
+- `InlineStockEditor`: a pill input with − and + buttons.
+
+**5b. Mobile, below `lg` (~20 min)**
+
+Today, on phones, the nav is a sideways-scrolling tab row, **Sign out is hidden (`hidden
+lg:block`), which is a bug to fix**, and the tables are 720–760px wide, so they scroll sideways.
+
+- **Top bar + drawer:**
+  - Replace the tab row with a sticky top bar: a menu button (`h-11 w-11`,
+    `aria-label="Open admin menu"`, `aria-expanded`), then `Logo compact` and the "Admin"
+    badge, then a "View store" icon link on the right.
+  - The menu button opens a left drawer holding the nav, the user card and **Sign out**. Reuse
+    the `AllMenu.tsx` pattern: focus trap, Esc and backdrop click close it, body scroll is
+    locked, and focus returns to the menu button.
+  - The drawer closes when the route changes.
+- **Tables become cards below `md`:**
+  - Products, Orders, Customers and Reviews render a `md:hidden` card list from the same data,
+    next to the `hidden md:block` table.
+  - Each card is a Panel with: the thumbnail or initial avatar, the title, 2–4 key fields as
+    label/value pairs, the status Badge, and the same actions as the row (44px targets).
+  - Tapping the card title opens the detail page.
+  - Customer detail's small order table can keep `overflow-x-auto` inside its Panel.
+- **Toolbars:** the search is full width. Filter chips go in their own `overflow-x-auto` row,
+  so only that row scrolls and never the page.
+- **Dashboard:** stat cards two across, then the chart full width with fewer axis ticks, then
+  activity.
+- **Product form:** one column. The sticky save bar gets `pb-[env(safe-area-inset-bottom)]`.
+- **Order detail:** the sidebar stacks under the items, with the action buttons full width.
+- **Check at 390 and 768:** on every admin route,
+  `document.documentElement.scrollWidth <= clientWidth`. The drawer must open and close by
+  keyboard, and Sign out must work from the drawer.
+- **Checkpoint 4:** typecheck, run `npm test` (a safety net, though the server should be
+  unchanged), then commit, merge and deploy. Log into the live `/admin` on a 390-wide viewport.
+
+### Phase 6: Orders `/orders` + order detail `/orders/:id` (22:00–22:15)
 
 Files: `pages/OrdersListPage.tsx`, `pages/OrderDetailPage.tsx`, `components/orders/*`.
 
@@ -234,7 +316,7 @@ Files: `pages/OrdersListPage.tsx`, `pages/OrderDetailPage.tsx`, `components/orde
   - a danger-secondary "Cancel order" behind a confirm, shown only while the order is
     cancellable
 
-### Phase 6: Sign in / sign up / codes `/login`, `/signup` (21:50–22:15). Checkpoint 4: deploy
+### Phase 7: Sign in / sign up / codes `/login`, `/signup` (22:15–22:30). Checkpoint 5: final deploy
 
 File: `pages/AuthPage.tsx`. It renders outside `Layout`.
 
@@ -247,15 +329,16 @@ File: `pages/AuthPage.tsx`. It renders outside `Layout`.
 - Code inputs (email OTP, 2FA): one `h-12` input with `inputMode="numeric"`,
   `autoComplete="one-time-code"`, `tracking-[0.5em] text-center text-lg`.
 - Errors in `role="alert"`, and `loading` on submit.
-- **Checkpoint 4:** typecheck, a browser pass through the demo path (Home → Search → Product →
+- **Checkpoint 5:** typecheck, a browser pass through the demo path (Home → Search → Product →
   Cart → sign in → Checkout → Order), merge, deploy, verify live.
 
-### ✂ CUT LINE: 22:15. If you are behind, stop here and ship.
+### ✂ CUT LINE: 22:15, CODE FREEZE: 22:30
 
-The pages below already inherit Phase 0's primitives, so they will look consistent even if
-nothing more is done.
+At 22:15, finish whatever phase is in progress in its simplest form and ship. Phase 7 (auth)
+already uses the new inputs and buttons from Phase 0, so it can be cut to just the
+"amazon-clone" string fix if needed. After 22:30, only Phase 9 remains, and it changes no UI.
 
-### Phase 7 (stretch): account area
+### Phase 8 (stretch, after the freeze only if the author agrees): account area
 
 - New `components/account/AccountShell.tsx`. On desktop it is a left nav (Account, Orders,
   Lists, Addresses, Security, with the active item `bg-mint text-harbor`). On mobile it is a
@@ -268,12 +351,10 @@ nothing more is done.
 - `SecurityPage`: separate Panels for 2FA, recovery codes and sign out everywhere.
 - `NotFoundPage`: `EmptyState` with a search link and "Back to home".
 
-### Phase 8 (stretch): admin shape pass
+The account pages already inherit Phase 0's primitives, so they look consistent even if this is
+never done.
 
-Classes only, no layout changes: apply the Phase 0 sweep rules to `pages/admin/*` and
-`components/admin/*`. Keep the table density. Chart colours use harbor and mint.
-
-### Phase 9: wrap-up (always do this, even if phases 7–8 are skipped)
+### Phase 9: wrap-up (22:30–22:45; no UI changes, so it can run while the author records the video)
 
 - User-visible "amazon" strings:
   - `server/src/lib/mail.ts` subjects and body text become "Harbor Market".
@@ -283,6 +364,7 @@ Classes only, no layout changes: apply the Phase 0 sweep rules to `pages/admin/*
 - **Do not** rename the demo email `demo@amazon-clone.test` (it is in the README and the
   submission), the cart `localStorage` keys (renaming them empties shoppers' carts), or the
   repo.
+- Delete the throwaway admin user created in Phase 5, and any other test data.
 - Run `npm test`, since the server changed.
 - README: replace the screenshots or description if time allows.
 - Update the HANDOFF checklist and commit. Final merge, deploy, and a live check at

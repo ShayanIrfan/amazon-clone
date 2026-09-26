@@ -15,7 +15,7 @@ one-minute intro video and to resubmit at 8x's link (not something code can do).
 - **Backend:** Express 5 + TypeScript + Mongoose on MongoDB Atlas, Stripe (test mode) with
   webhook, Resend email, auth (OTP, 2FA, sessions, CSRF). ~100 API tests.
 - **Admin panel** at `/admin` (dashboard, products, orders, reviews, customers, audit log).
-  Fully working and deployed. Its UI uses the *old* look and is restyled only in the last step.
+  Fully working and deployed. Its UI uses the *old* look; it is restyled for desktop and mobile in Phase 5 of `docs/BUILD_PLAN.md`.
 - **Live site:** https://harbor-market-demo.vercel.app (Vercel project `harbor-market-demo`).
   Repo: https://github.com/ShayanIrfan/amazon-clone (public). `main` = what is deployed.
 - **Demo shopper login:** `demo@amazon-clone.test` / `DemoAccount123!`. Test cards:
@@ -114,10 +114,10 @@ Header shows a "Deliver to <city>" chip from the shopper's default address (only
 - [ ] Phase 2: Product detail (checkpoint 2)
 - [ ] Phase 3: Cart
 - [ ] Phase 4: Checkout (checkpoint 3)
-- [ ] Phase 5: Orders + order detail
-- [ ] Phase 6: Sign in / sign up (checkpoint 4) ✂ cut line 22:15
-- [ ] Phase 7 (stretch): account area (AccountShell, account, addresses, lists, security, 404)
-- [ ] Phase 8 (stretch): admin shape pass
+- [ ] Phase 5: Admin panel, desktop restyle + mobile (drawer nav, tables as cards) (checkpoint 4)
+- [ ] Phase 6: Orders + order detail
+- [ ] Phase 7: Sign in / sign up (checkpoint 5, final) ✂ cut line 22:15, freeze 22:30
+- [ ] Phase 8 (stretch): account area (AccountShell, account, addresses, lists, security, 404)
 - [ ] Phase 9: user-visible "amazon" strings, tests, README, final deploy + live check
 - [ ] Author: intro video, updated walkthrough, resubmit
 
