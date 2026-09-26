@@ -115,8 +115,8 @@ Header shows a "Deliver to <city>" chip from the shopper's default address (only
 - [x] Phase 3: Cart
 - [x] Phase 4: Checkout (checkpoint 3 deployed) — full Stripe flow tested at 390
 - [x] Phase 5: Admin panel (checkpoint 4 deployed) — mobile drawer + sign-out fix; tables scroll-in-card (per-row card view still a polish TODO)
-- [ ] Phase 6: Orders + order detail
-- [ ] Phase 7: Sign in / sign up (checkpoint 5, final) ✂ cut line 22:15, freeze 22:30
+- [x] Phase 6: Orders + order detail
+- [ ] Phase 7: Sign in / sign up (checkpoint 5, final) ← in progress
 - [ ] Phase 8 (stretch): account area (AccountShell, account, addresses, lists, security, 404)
 - [ ] Phase 9: user-visible "amazon" strings, tests, README, final deploy + live check
 - [ ] Author: intro video, updated walkthrough, resubmit

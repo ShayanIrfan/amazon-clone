@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useSearchParams, Link, useNavigate } from "react-router";
 import { CircleCheck } from "lucide-react";
 import { useOrder, useCancelOrder } from "../hooks/useOrders";
@@ -5,6 +6,8 @@ import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
 import OrderStatusBadge from "../components/orders/OrderStatusBadge";
 import OrderStatusTracker from "../components/orders/OrderStatusTracker";
+import Breadcrumbs from "../components/ui/Breadcrumbs";
+import Panel from "../components/ui/Panel";
 import PageLoader from "../components/ui/PageLoader";
 import ErrorState from "../components/ui/ErrorState";
 
@@ -16,93 +19,116 @@ export default function OrderDetailPage() {
   const cancelOrder = useCancelOrder();
   const { addItem } = useCart();
   const navigate = useNavigate();
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
   if (isLoading) return <PageLoader label="Loading order details" />;
   if (isError || !data) {
-    return (
-      <ErrorState message="Order not found." detail="The order may no longer be available for this account." />
-    );
+    return <ErrorState message="Order not found." detail="The order may no longer be available for this account." />;
   }
 
   const { order } = data;
+  const cancellable = order.status === "paid";
 
   return (
-    <div className="page-shell max-w-5xl py-6">
+    <div className="page-shell max-w-5xl py-8">
+      <Breadcrumbs className="mb-6" items={[{ label: "Your orders", to: "/orders" }, { label: `#${order._id.slice(-8).toUpperCase()}` }]} />
+
       {confirmed && order.status === "paid" && (
-        <div className="mb-5 flex items-center gap-3 rounded-md border border-moss/30 bg-moss/10 p-4 text-moss">
-          <CircleCheck size={24} />
+        <div className="mb-6 flex items-center gap-3 rounded-2xl bg-mint p-5 text-harbor">
+          <CircleCheck size={24} aria-hidden />
           <div>
             <p className="font-bold">Thanks for your order!</p>
-            <p className="text-sm">A confirmation has been placed in Your Orders.</p>
+            <p className="text-sm">A confirmation is saved in Your orders.</p>
           </div>
         </div>
       )}
       {order.status === "pending_payment" && (
-        <div role="status" className="mb-5 rounded-md border border-harbor/40 bg-marigold/10 p-4 text-sm text-ink">
+        <div role="status" className="mb-6 rounded-2xl border border-line bg-tint-butter p-5 text-sm text-ink">
           <p className="font-bold">Confirming your payment</p>
           <p>This page updates on its own once Stripe confirms the payment.</p>
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div><p className="eyebrow">Purchase record</p><h1 className="page-title mt-1 text-ink">Order Details</h1></div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="eyebrow">Purchase record</p>
+          <h1 className="page-title mt-1 text-ink">Order details</h1>
+          <p className="mt-2 text-sm text-slate">
+            Placed on {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+          </p>
+        </div>
         <OrderStatusBadge status={order.status} />
       </div>
-      <p className="mt-2 text-sm text-slate">
-        Placed on{" "}
-        {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-      </p>
 
-      <div className="surface mt-5 rounded-md p-4 sm:p-5">
+      <Panel className="mt-6 p-5 sm:p-6">
         <OrderStatusTracker order={order} />
-      </div>
+      </Panel>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div>
-          <ul className="surface divide-y divide-line overflow-hidden rounded-md">
+          <Panel className="divide-y divide-line px-5">
             {order.items.map((item, i) => (
-              <li key={i} className="flex gap-3 p-3">
-                <img src={item.thumbnail} alt={item.title} className="h-16 w-16 shrink-0 bg-white object-contain" />
+              <div key={i} className="flex gap-4 py-4">
+                <Link to={`/product/${item.product}`} className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-paper p-2">
+                  <img src={item.thumbnail} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                </Link>
                 <div className="flex-1 text-sm">
-                  <Link to={`/product/${item.product}`} className="hover:text-harbor hover:underline">
+                  <Link to={`/product/${item.product}`} className="font-semibold text-ink hover:text-harbor">
                     {item.title}
                   </Link>
-                  <p className="amount text-neutral-500">
-                    Qty: {item.quantity} × {formatPrice(item.unitPrice)}
+                  <p className="amount mt-1 text-slate">
+                    Qty {item.quantity} × {formatPrice(item.unitPrice)}
                   </p>
                 </div>
-              </li>
+                <span className="amount shrink-0 text-sm font-semibold text-ink">{formatPrice(item.unitPrice * item.quantity)}</span>
+              </div>
             ))}
-          </ul>
+          </Panel>
 
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => {
                 for (const item of order.items) addItem(item.product, item.quantity);
                 navigate("/cart");
               }}
-              className="rounded-md border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-harbor hover:bg-paper"
+              className="h-10 rounded-full border border-line bg-white px-5 text-sm font-semibold text-ink transition-colors hover:bg-paper"
             >
               Buy it again
             </button>
-            {order.status === "paid" && (
-              <button
-                type="button"
-                disabled={cancelOrder.isPending}
-                onClick={() => cancelOrder.mutate(order._id)}
-                className="rounded-md border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-clay hover:bg-paper disabled:opacity-50"
-              >
-                Cancel order
-              </button>
-            )}
+            {cancellable &&
+              (confirmCancel ? (
+                <div className="flex items-center gap-2 rounded-full bg-clay/5 py-1 pr-1 pl-4">
+                  <span className="text-sm font-semibold text-clay">Cancel this order?</span>
+                  <button
+                    type="button"
+                    disabled={cancelOrder.isPending}
+                    onClick={() => cancelOrder.mutate(order._id)}
+                    className="h-8 rounded-full bg-clay px-4 text-sm font-semibold text-white transition-colors hover:bg-clay-dark disabled:opacity-50"
+                  >
+                    {cancelOrder.isPending ? "Cancelling…" : "Yes, cancel"}
+                  </button>
+                  <button type="button" onClick={() => setConfirmCancel(false)} className="h-8 rounded-full px-3 text-sm font-semibold text-slate hover:text-ink">
+                    Keep
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmCancel(true)}
+                  className="h-10 rounded-full border border-line bg-white px-5 text-sm font-semibold text-clay transition-colors hover:bg-clay/5"
+                >
+                  Cancel order
+                </button>
+              ))}
           </div>
+          {cancellable && <p className="mt-2 text-xs text-slate">Cancel any time before it ships for a full refund.</p>}
         </div>
 
         <div className="space-y-4">
-          <div className="surface rounded-md p-4 text-sm">
-            <h2 className="font-bold text-neutral-900">Shipping address</h2>
-            <p className="mt-1 text-neutral-700">
+          <Panel className="p-5 text-sm">
+            <h2 className="text-base font-bold text-ink">Shipping address</h2>
+            <p className="mt-2 text-slate">
               {order.address.fullName}
               <br />
               {order.address.street}
@@ -112,11 +138,11 @@ export default function OrderDetailPage() {
               <br />
               {order.address.country}
             </p>
-          </div>
+          </Panel>
 
-          <div className="surface rounded-md p-4 text-sm">
-            <h2 className="font-bold text-neutral-900">Payment method</h2>
-            <p className="mt-1 text-neutral-700">
+          <Panel className="p-5 text-sm">
+            <h2 className="text-base font-bold text-ink">Payment</h2>
+            <p className="mt-2 text-slate">
               {order.payment?.last4
                 ? `${order.payment.brand ?? "Card"} ending in ${order.payment.last4}`
                 : order.status === "pending_payment"
@@ -124,35 +150,34 @@ export default function OrderDetailPage() {
                   : (order.payment?.brand ?? "Card")}
             </p>
             {order.refund && (
-              <p className="mt-1 font-medium text-moss">
+              <p className="mt-2 font-semibold text-moss">
                 Refunded {formatPrice(order.refund.amount)} on{" "}
                 {new Date(order.refund.at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
               </p>
             )}
-          </div>
+          </Panel>
 
-          <div className="surface rounded-md p-4 text-sm">
-            <h2 className="font-bold text-neutral-900">Order summary</h2>
-            <dl className="amount mt-2 space-y-1">
+          <Panel className="p-5 text-sm">
+            <h2 className="text-base font-bold text-ink">Order summary</h2>
+            <dl className="mt-3 space-y-2.5">
               <div className="flex justify-between">
-                <dt>Subtotal:</dt>
-                <dd>{formatPrice(order.subtotal)}</dd>
+                <dt className="text-slate">Subtotal</dt>
+                <dd className="amount font-semibold text-ink">{formatPrice(order.subtotal)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt>Shipping:</dt>
-                <dd>{order.shipping === 0 ? "FREE" : formatPrice(order.shipping)}</dd>
+                <dt className="text-slate">Delivery</dt>
+                <dd className={`amount font-semibold ${order.shipping === 0 ? "text-moss" : "text-ink"}`}>{order.shipping === 0 ? "Free" : formatPrice(order.shipping)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt>Tax:</dt>
-                <dd>{formatPrice(order.tax)}</dd>
+                <dt className="text-slate">Tax</dt>
+                <dd className="amount font-semibold text-ink">{formatPrice(order.tax)}</dd>
               </div>
-              <div className="my-1 border-t border-neutral-200" />
-              <div className="flex justify-between font-bold">
-                <dt>Total:</dt>
-                <dd>{formatPrice(order.total)}</dd>
+              <div className="flex items-baseline justify-between border-t border-line pt-3">
+                <dt className="font-bold text-ink">Total</dt>
+                <dd className="amount text-lg font-extrabold text-ink">{formatPrice(order.total)}</dd>
               </div>
             </dl>
-          </div>
+          </Panel>
         </div>
       </div>
     </div>
