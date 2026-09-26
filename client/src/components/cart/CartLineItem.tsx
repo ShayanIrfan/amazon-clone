@@ -3,7 +3,6 @@ import type { Product } from "../../lib/types";
 import type { CartItem } from "../../lib/cartStorage";
 import { formatPrice } from "../../lib/format";
 import QuantitySelector from "../product/QuantitySelector";
-import AddToListMenu from "../lists/AddToListMenu";
 
 interface Props {
   item: CartItem;
@@ -11,62 +10,53 @@ interface Props {
   onSetQuantity: (quantity: number) => void;
   onRemove: () => void;
   onSaveForLater: () => void;
-  onMoveToCart: () => void;
 }
 
-export default function CartLineItem({ item, product, onSetQuantity, onRemove, onSaveForLater, onMoveToCart }: Props) {
-  // An archived product can't be bought even if units remain, so it reads as gone.
+export default function CartLineItem({ item, product, onSetQuantity, onRemove, onSaveForLater }: Props) {
   const archived = !!product.archivedAt;
   const outOfStock = product.stock <= 0 || archived;
   const quantityExceedsStock = !outOfStock && item.quantity > product.stock;
 
   return (
-    <li className="flex gap-3 border-b border-line py-5 sm:gap-4">
-      <Link to={`/product/${product._id}`} className="h-20 w-20 shrink-0 rounded-md bg-white sm:h-28 sm:w-28">
-        <img src={product.thumbnail} alt={product.title} className="h-full w-full object-contain" />
+    <li className="flex gap-4 py-5">
+      <Link to={`/product/${product._id}`} className="flex h-24 w-24 shrink-0 items-center justify-center rounded-xl bg-paper p-2.5">
+        <img src={product.thumbnail} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
       </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col justify-between">
-        <div>
-          <Link to={`/product/${product._id}`} className="text-sm font-medium text-ink hover:text-harbor hover:underline">
-            {product.title}
-          </Link>
-          <p className="amount mt-1 text-base font-medium sm:text-lg">{formatPrice(product.price)}</p>
-          {outOfStock ? (
-            <p className="text-sm font-medium text-clay">{archived ? "No longer available" : "No longer in stock"}</p>
-          ) : quantityExceedsStock ? (
-            <p className="text-sm font-medium text-clay">Only {product.stock} left — quantity reduced at checkout</p>
-          ) : (
-            <p className="text-sm text-moss">In Stock</p>
-          )}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            {product.brand && <span className="mb-0.5 block text-xs font-semibold tracking-wider text-slate uppercase">{product.brand}</span>}
+            <Link to={`/product/${product._id}`} className="line-clamp-2 text-sm font-semibold text-ink hover:text-harbor">
+              {product.title}
+            </Link>
+          </div>
+          <span className="amount shrink-0 text-base font-extrabold text-ink">{formatPrice(product.price * item.quantity)}</span>
         </div>
 
-        <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
-          {!item.savedForLater && !outOfStock && (
-            <QuantitySelector quantity={item.quantity} max={product.stock} onChange={onSetQuantity} />
-          )}
-          <span className="text-line-strong">·</span>
-          <button type="button" onClick={onRemove} className="text-link hover:underline">
-            Delete
-          </button>
-          <span className="text-line-strong">·</span>
-          {item.savedForLater ? (
-            <button type="button" onClick={onMoveToCart} className="text-link hover:underline">
-              Move to Cart
-            </button>
-          ) : (
-            <button type="button" onClick={onSaveForLater} className="text-link hover:underline">
+        {outOfStock ? (
+          <p className="mt-1 text-xs font-semibold text-clay">{archived ? "No longer available" : "No longer in stock"}</p>
+        ) : quantityExceedsStock ? (
+          <p className="mt-1 text-xs font-semibold text-clay">Only {product.stock} left — quantity reduced at checkout</p>
+        ) : (
+          <p className="mt-1 text-xs font-semibold text-moss">In stock</p>
+        )}
+
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-3">
+          {!outOfStock && <QuantitySelector quantity={item.quantity} max={product.stock} onChange={onSetQuantity} />}
+          <div className="flex items-center gap-3 text-sm">
+            <button type="button" onClick={onSaveForLater} className="font-semibold text-slate hover:text-harbor">
               Save for later
             </button>
-          )}
-          <span className="text-line-strong">·</span>
-          <AddToListMenu productId={product._id} variant="link" />
+            <span className="text-line-strong" aria-hidden>
+              ·
+            </span>
+            <button type="button" onClick={onRemove} className="font-semibold text-slate hover:text-clay">
+              Remove
+            </button>
+          </div>
         </div>
       </div>
-
-      {!item.savedForLater && (
-        <p className="amount shrink-0 text-right text-base font-medium sm:text-lg">{formatPrice(product.price * item.quantity)}</p>
-      )}
     </li>
   );
 }
