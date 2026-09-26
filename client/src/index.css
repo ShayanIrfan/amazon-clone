@@ -18,6 +18,7 @@
   --color-clay-dark: #8c1e18;
   --color-marigold: #f2a900; /* ratings only */
   --color-marigold-dark: #b97e00;
+  --color-amber-ink: #6e5200; /* text on butter/warning surfaces (marigold is ratings-only) */
   --color-moss: #2f6844;
 
   /* Department tile tints. */

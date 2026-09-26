@@ -22,7 +22,7 @@ export default function DeliveryStep({ value, onChange, onContinue }: Props) {
           <label
             key={o.value}
             className={`flex items-center justify-between rounded-lg border p-3 text-sm ${
-              value === o.value ? "border-marigold ring-1 ring-marigold" : "border-line"
+              value === o.value ? "border-harbor bg-mint/50 ring-1 ring-harbor" : "border-line"
             }`}
           >
             <span className="flex items-center gap-3">
@@ -45,7 +45,7 @@ export default function DeliveryStep({ value, onChange, onContinue }: Props) {
       <button
         type="button"
         onClick={onContinue}
-        className="mt-5 rounded-md bg-marigold px-6 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark"
+        className="mt-5 rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark"
       >
         Continue to payment
       </button>

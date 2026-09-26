@@ -41,7 +41,7 @@ export default function AddressStep({ selectedId, onSelect, onContinue }: Props)
           <label
             key={a._id}
             className={`flex items-start gap-3 rounded-lg border p-3 ${
-              selectedId === a._id ? "border-marigold ring-1 ring-marigold" : "border-line"
+              selectedId === a._id ? "border-harbor bg-mint/50 ring-1 ring-harbor" : "border-line"
             }`}
           >
             <input
@@ -106,7 +106,7 @@ export default function AddressStep({ selectedId, onSelect, onContinue }: Props)
             type="button"
             disabled={!selectedId}
             onClick={onContinue}
-            className="order-1 w-full rounded-md bg-marigold px-6 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-50 sm:order-2 sm:w-auto"
+            className="order-1 w-full rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-50 sm:order-2 sm:w-auto"
           >
             Use this address
           </button>

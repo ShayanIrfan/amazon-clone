@@ -92,7 +92,7 @@ export default function SecurityPage() {
           <div className="mt-5 max-w-sm">
             <label className="block text-sm font-bold text-neutral-800" htmlFor="security-password">Confirm your password</label>
             <input id="security-password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} className={inputClass} />
-            <button type="button" disabled={busy || !password} onClick={requestEnable} className="mt-4 rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-60">Send setup code</button>
+            <button type="button" disabled={busy || !password} onClick={requestEnable} className="mt-4 rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60">Send setup code</button>
           </div>
         )}
 

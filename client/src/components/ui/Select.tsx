@@ -16,7 +16,7 @@ const Select = forwardRef<HTMLSelectElement, Props>(function Select(
   return (
     <div className={containerClassName}>
       {label && (
-        <label htmlFor={fieldId} className="mb-1 block text-sm font-medium text-ink">
+        <label htmlFor={fieldId} className="mb-1.5 block text-sm font-semibold text-ink">
           {label}
         </label>
       )}
@@ -24,7 +24,7 @@ const Select = forwardRef<HTMLSelectElement, Props>(function Select(
         <select
           ref={ref}
           id={fieldId}
-          className={`h-10 w-full appearance-none rounded-md border border-line-strong bg-white pr-9 pl-3 text-sm text-ink outline-none focus:border-harbor ${className}`}
+          className={`h-11 w-full appearance-none rounded-xl border border-line-strong bg-white pr-9 pl-4 text-sm text-ink outline-none transition-colors focus:border-harbor focus:ring-4 focus:ring-harbor/10 ${className}`}
           {...rest}
         >
           {children}

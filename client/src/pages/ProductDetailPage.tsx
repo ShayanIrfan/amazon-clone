@@ -143,7 +143,7 @@ export default function ProductDetailPage() {
                 setJustAdded(true);
                 setTimeout(() => setJustAdded(false), 2500);
               }}
-              className="mt-4 w-full rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-50"
+              className="mt-4 w-full rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-50"
             >
               Add to Cart
             </button>

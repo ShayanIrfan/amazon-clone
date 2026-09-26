@@ -53,7 +53,7 @@ export default function CartPage() {
         <ShoppingCart size={48} className="text-neutral-300" />
         <h1 className="page-title text-ink">Your cart is empty</h1>
         <p className="muted">Continue shopping to add items to your cart.</p>
-        <Link to="/" className="mt-2 rounded-md bg-marigold px-6 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark">
+        <Link to="/" className="mt-2 rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark">
           Continue shopping
         </Link>
       </div>
@@ -160,7 +160,7 @@ function CartSummary({
         type="button"
         disabled={disabled}
         onClick={onCheckout}
-        className="mt-4 w-full rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-50"
+        className="mt-4 w-full rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-50"
       >
         Proceed to checkout
       </button>

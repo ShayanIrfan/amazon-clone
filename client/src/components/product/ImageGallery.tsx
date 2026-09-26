@@ -26,7 +26,7 @@ export default function ImageGallery({ images, title }: { images: string[]; titl
               onClick={() => setActive(i)}
               aria-label={`Show image ${i + 1}`}
               className={`h-14 w-14 shrink-0 overflow-hidden rounded-md border-2 bg-white ${
-                i === active ? "border-marigold" : "border-line"
+                i === active ? "border-harbor" : "border-line"
               }`}
             >
               <img src={src} alt="" className="h-full w-full object-contain" />

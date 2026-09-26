@@ -17,7 +17,7 @@ const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
   return (
     <div className={containerClassName}>
       {label && (
-        <label htmlFor={fieldId} className="mb-1 block text-sm font-medium text-ink">
+        <label htmlFor={fieldId} className="mb-1.5 block text-sm font-semibold text-ink">
           {label}
         </label>
       )}
@@ -26,17 +26,17 @@ const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
         id={fieldId}
         aria-invalid={!!error || undefined}
         aria-describedby={error ? `${fieldId}-error` : hint ? `${fieldId}-hint` : undefined}
-        className={`h-10 w-full rounded-md border bg-white px-3 text-sm text-ink outline-none transition-colors placeholder:text-slate/70 ${
-          error ? "border-clay" : "border-line-strong focus:border-harbor"
+        className={`h-11 w-full rounded-xl border bg-white px-4 text-sm text-ink outline-none transition-colors placeholder:text-slate/60 focus:ring-4 ${
+          error ? "border-clay focus:border-clay focus:ring-clay/10" : "border-line-strong focus:border-harbor focus:ring-harbor/10"
         } ${className}`}
         {...rest}
       />
       {error ? (
-        <p id={`${fieldId}-error`} className="mt-1 text-sm text-clay">
+        <p id={`${fieldId}-error`} role="alert" className="mt-1.5 text-sm text-clay">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${fieldId}-hint`} className="mt-1 text-sm text-slate">
+        <p id={`${fieldId}-hint`} className="mt-1.5 text-sm text-slate">
           {hint}
         </p>
       ) : null}

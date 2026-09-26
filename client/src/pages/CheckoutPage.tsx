@@ -75,7 +75,7 @@ export default function CheckoutPage() {
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="mt-2 rounded-md bg-marigold px-6 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark"
+          className="mt-2 rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark"
         >
           Continue shopping
         </button>

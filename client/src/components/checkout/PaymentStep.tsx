@@ -94,7 +94,7 @@ export default function PaymentStep({ onSubmit, busy }: Props) {
         <button
           type="submit"
           disabled={busy}
-          className="rounded-md bg-marigold px-6 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-60"
+          className="rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60"
         >
           Continue to review
         </button>

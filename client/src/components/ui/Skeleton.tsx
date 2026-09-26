@@ -1,5 +1,5 @@
 export default function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-line/70 ${className}`} aria-hidden />;
+  return <div className={`animate-pulse rounded-xl bg-line/50 ${className}`} aria-hidden />;
 }
 
 /** Placeholder matching ProductCard's shape, for grids/rows while data loads. */

@@ -129,7 +129,7 @@ export default function SearchPage() {
               <button
                 type="button"
                 onClick={() => setFiltersOpen(false)}
-                className="m-4 rounded-md bg-marigold py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark"
+                className="m-4 rounded-full bg-harbor py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark"
               >
                 Show results
               </button>

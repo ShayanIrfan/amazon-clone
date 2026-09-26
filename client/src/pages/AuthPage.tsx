@@ -201,7 +201,7 @@ export default function AuthPage() {
             <div className="mt-2 text-right">
               <button type="button" onClick={() => go("forgot")} className="text-sm font-semibold text-harbor hover:underline">Forgot password?</button>
             </div>
-            <button type="submit" disabled={busy} className="mt-4 w-full rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-60">Sign in</button>
+            <button type="submit" disabled={busy} className="mt-4 w-full rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60">Sign in</button>
           </form>
         )}
 
@@ -216,7 +216,7 @@ export default function AuthPage() {
             <p className="mt-1 text-xs text-slate">Use 8–72 characters with uppercase, lowercase, a number, and a special character.</p>
             <label className="mt-3 block text-sm font-bold text-neutral-800" htmlFor="signup-confirm-password">Re-enter password</label>
             <input id="signup-confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={inputClass} required />
-            <button type="submit" disabled={busy} className="mt-4 w-full rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-60">Create account</button>
+            <button type="submit" disabled={busy} className="mt-4 w-full rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60">Create account</button>
           </form>
         )}
 
@@ -225,7 +225,7 @@ export default function AuthPage() {
             <p className="text-sm text-slate">Enter the six-digit code sent to <span className="font-semibold text-ink">{email}</span>.</p>
             <label className="mt-4 block text-sm font-bold text-neutral-800" htmlFor="verification-code">Verification code</label>
             <input id="verification-code" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} autoFocus value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))} className={`${inputClass} text-center text-xl tracking-[0.35em]`} required />
-            <button type="submit" disabled={busy || code.length !== 6} className="mt-4 w-full rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-60">Verify code</button>
+            <button type="submit" disabled={busy || code.length !== 6} className="mt-4 w-full rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60">Verify code</button>
             <button type="button" disabled={busy} onClick={resend} className="mt-3 w-full text-sm font-semibold text-harbor hover:underline">Resend code</button>
           </form>
         )}
@@ -235,7 +235,7 @@ export default function AuthPage() {
             <p className="text-sm text-slate">Enter your account email and we’ll send reset instructions if it exists.</p>
             <label className="mt-4 block text-sm font-bold text-neutral-800" htmlFor="forgot-email">Email address</label>
             <input id="forgot-email" type="email" autoComplete="email" autoFocus value={email} onChange={(event) => setEmail(event.target.value)} className={inputClass} required />
-            <button type="submit" disabled={busy} className="mt-4 w-full rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-60">Send reset code</button>
+            <button type="submit" disabled={busy} className="mt-4 w-full rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60">Send reset code</button>
           </form>
         )}
 
@@ -248,7 +248,7 @@ export default function AuthPage() {
             <p className="mt-1 text-xs text-slate">Use 8–72 characters with uppercase, lowercase, a number, and a special character.</p>
             <label className="mt-3 block text-sm font-bold text-neutral-800" htmlFor="reset-confirm-password">Re-enter password</label>
             <input id="reset-confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={inputClass} required />
-            <button type="submit" disabled={busy} className="mt-4 w-full rounded-md bg-marigold px-4 py-2.5 text-sm font-semibold text-harbor-dark hover:bg-marigold-dark disabled:opacity-60">Update password</button>
+            <button type="submit" disabled={busy} className="mt-4 w-full rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60">Update password</button>
             <button type="button" disabled={busy} onClick={resend} className="mt-3 w-full text-sm font-semibold text-harbor hover:underline">Send another code</button>
           </form>
         )}

@@ -38,7 +38,7 @@ export default function OrderDetailPage() {
         </div>
       )}
       {order.status === "pending_payment" && (
-        <div role="status" className="mb-5 rounded-md border border-marigold/40 bg-marigold/10 p-4 text-sm text-ink">
+        <div role="status" className="mb-5 rounded-md border border-harbor/40 bg-marigold/10 p-4 text-sm text-ink">
           <p className="font-bold">Confirming your payment</p>
           <p>This page updates on its own once Stripe confirms the payment.</p>
         </div>
