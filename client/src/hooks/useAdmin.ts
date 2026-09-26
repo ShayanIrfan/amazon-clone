@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
-import type { AdminOrderStatusFilter, AdminProductInput, AdminProductSort, AdminProductStatus, AuditEntityType } from "../lib/types";
+import type { AdminOrderStatusFilter, AdminProductInput, AdminProductSort, AdminProductStatus, AuditEntityType, StatsRange } from "../lib/types";
 
 export function useAdminActivity(params: { entityType?: AuditEntityType; entityId?: string; limit?: number } = {}, enabled = true) {
   return useQuery({
@@ -96,4 +96,12 @@ export function useAdminOrderMutations() {
     }),
     cancel: useMutation({ mutationFn: (id: string) => api.admin.orders.cancel(id), onSuccess: refreshAll }),
   };
+}
+
+export function useAdminStats(range: StatsRange) {
+  return useQuery({
+    queryKey: ["admin", "stats", range],
+    queryFn: () => api.admin.stats(range),
+    placeholderData: (previous) => previous, // keep the old numbers up while a new range loads
+  });
 }

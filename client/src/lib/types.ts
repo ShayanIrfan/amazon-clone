@@ -241,3 +241,25 @@ export interface AdminOrderDetail {
   order: Order & { orderNumber: string; paymentIntentId?: string };
   customer: { id: string; name: string; email: string; orderCount: number; joinedAt: string | null } | null;
 }
+
+export type StatsRange = "7d" | "30d" | "90d";
+
+export interface AdminStatTotals {
+  revenue: number;
+  orders: number;
+  units: number;
+  newCustomers: number;
+}
+
+export interface AdminStats {
+  range: StatsRange;
+  from: string;
+  to: string;
+  totals: AdminStatTotals;
+  /** The same figures for the period of equal length just before this one. */
+  previous: AdminStatTotals;
+  awaitingShipment: number;
+  ordersPerDay: { date: string; orders: number; revenue: number }[];
+  topProducts: { productId: string; title: string; thumbnail: string; units: number; revenue: number }[];
+  lowStock: { threshold: number; count: number; items: { productId: string; title: string; thumbnail: string; stock: number }[] };
+}

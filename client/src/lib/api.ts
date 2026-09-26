@@ -25,6 +25,8 @@ import type {
   AdminOrderDetail,
   AdminOrderList,
   AdminOrderStatusFilter,
+  AdminStats,
+  StatsRange,
 } from "./types";
 import type { CartItem } from "./cartStorage";
 
@@ -154,6 +156,7 @@ export const api = {
       if (params.limit) qs.set("limit", String(params.limit));
       return get<{ items: AuditEntry[] }>(`/admin/activity${qs.size ? `?${qs}` : ""}`);
     },
+    stats: (range: StatsRange) => get<AdminStats>(`/admin/stats?range=${range}`),
     products: {
       list: (params: { q?: string; category?: string; status?: AdminProductStatus; sort?: AdminProductSort; page?: number }) => {
         const qs = new URLSearchParams();
