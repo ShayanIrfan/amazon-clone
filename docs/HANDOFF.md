@@ -110,8 +110,8 @@ Header shows a "Deliver to <city>" chip from the shopper's default address (only
 - [x] Home page (hero, department tiles, price drops, promos, rails) — verified at 1280 and 390
 - [x] Build plan for the remaining pages: `docs/BUILD_PLAN.md` (phases and times are there)
 - [x] Phase 0: shared primitives + sweep (checkpoint 1 deployed — new design live)
-- [ ] Phase 1: Search results ← in progress
-- [ ] Phase 2: Product detail (checkpoint 2)
+- [x] Phase 1: Search results
+- [x] Phase 2: Product detail (checkpoint 2 deployed)
 - [ ] Phase 3: Cart
 - [ ] Phase 4: Checkout (checkpoint 3)
 - [ ] Phase 5: Admin panel, desktop restyle + mobile (drawer nav, tables as cards) (checkpoint 4)

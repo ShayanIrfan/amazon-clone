@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router";
-import { ChevronRight, CircleCheck } from "lucide-react";
+import { useParams, useNavigate } from "react-router";
+import { Check, Lock, RotateCcw, Truck } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useProduct, useRelatedProducts, useReviews } from "../hooks/useProductDetail";
 import ImageGallery from "../components/product/ImageGallery";
 import StarRating from "../components/product/StarRating";
-import PriceTag from "../components/product/PriceTag";
 import QuantitySelector from "../components/product/QuantitySelector";
 import SpecsTable from "../components/product/SpecsTable";
 import RatingBreakdown from "../components/product/RatingBreakdown";
@@ -13,10 +12,18 @@ import ReviewList from "../components/product/ReviewList";
 import ProductRow from "../components/product/ProductRow";
 import AddToListMenu from "../components/lists/AddToListMenu";
 import WriteReviewForm from "../components/product/WriteReviewForm";
-import { estimatedDelivery } from "../lib/format";
-import type { ReviewSort } from "../lib/types";
-import PageLoader from "../components/ui/PageLoader";
+import Breadcrumbs from "../components/ui/Breadcrumbs";
+import Panel from "../components/ui/Panel";
+import Skeleton from "../components/ui/Skeleton";
 import ErrorState from "../components/ui/ErrorState";
+import { formatPrice, listPrice } from "../lib/format";
+import type { ReviewSort } from "../lib/types";
+
+const PROMISES = [
+  { icon: Truck, label: "Free standard delivery" },
+  { icon: Lock, label: "Secure card payments" },
+  { icon: RotateCcw, label: "Cancel for a full refund until it ships" },
+];
 
 function categoryLabel(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -38,14 +45,14 @@ export default function ProductDetailPage() {
 
   const { data: reviewData } = useReviews(id, { sort: reviewSort, star: starFilter ?? undefined, page: reviewPage });
 
-  if (isLoading) return <PageLoader label="Loading product details" />;
+  if (isLoading) return <ProductSkeleton />;
   if (isError || !product) {
     return <ErrorState message="Product not found." detail="This product may have been removed from the catalog." />;
   }
 
-  // Archived products stay reachable (e.g. from order history) but can't be bought.
   const archived = !!product.archivedAt;
   const canBuy = product.stock > 0 && !archived;
+  const discount = Math.round(product.discountPercentage);
 
   const bullets = product.description
     .split(/(?<=[.!?])\s+/)
@@ -56,146 +63,149 @@ export default function ProductDetailPage() {
     setReviewSort(sort);
     setReviewPage(1);
   }
-
   function changeStarFilter(star: number | null) {
     setStarFilter(star);
     setReviewPage(1);
   }
+  function add() {
+    addItem(product!._id, quantity);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 2000);
+  }
 
   return (
-    <div className="page-shell py-6">
-      <nav className="mb-5 flex items-center gap-1 text-xs text-slate">
-        <Link to="/" className="hover:text-harbor hover:underline">
-          Home
-        </Link>
-        <ChevronRight size={12} />
-        <Link to={`/search?category=${product.category}`} className="hover:text-harbor hover:underline">
-          {categoryLabel(product.category)}
-        </Link>
-      </nav>
+    <div className="page-shell py-8">
+      <Breadcrumbs
+        className="mb-6"
+        items={[
+          { label: "Home", to: "/" },
+          { label: categoryLabel(product.category), to: `/search?category=${product.category}` },
+          { label: product.title },
+        ]}
+      />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px] lg:gap-8">
-        <div className="md:col-span-1">
-          <ImageGallery images={product.images} title={product.title} />
-        </div>
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+        <ImageGallery images={product.images} title={product.title} />
 
-        <div className="md:col-span-1">
-          <h1 className="text-2xl font-semibold leading-tight tracking-[-0.035em] text-ink sm:text-3xl">{product.title}</h1>
-          <p className="mt-2 text-sm font-semibold text-harbor hover:underline">Visit the {product.brand} Store</p>
-          <div className="mt-1">
-            <StarRating rating={product.rating} count={product.ratingCount} />
+        <div className="flex flex-col">
+          {product.brand && <p className="eyebrow mb-2">{product.brand}</p>}
+          <h1 className="text-2xl font-extrabold leading-tight tracking-[-0.03em] text-ink sm:text-3xl">{product.title}</h1>
+
+          <a href="#reviews" className="mt-3 inline-flex w-fit items-center gap-1.5 hover:opacity-80">
+            <StarRating rating={product.rating} count={product.ratingCount} showValue />
+            <span className="text-sm font-semibold text-harbor underline underline-offset-2">See reviews</span>
+          </a>
+
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="amount text-3xl font-extrabold tracking-[-0.02em] text-ink">{formatPrice(product.price)}</span>
+            {discount > 0 && (
+              <>
+                <span className="amount text-base text-slate line-through">{formatPrice(listPrice(product.price, product.discountPercentage))}</span>
+                <span className="rounded-full bg-clay px-2.5 py-1 text-xs font-bold text-white">-{discount}%</span>
+              </>
+            )}
           </div>
-          <div className="mt-3">
-            <AddToListMenu productId={product._id} />
-          </div>
 
-          <div className="mt-4 border-t border-line pt-4">
-            <PriceTag price={product.price} discountPercentage={product.discountPercentage} size="lg" />
-          </div>
+          <p className={`mt-3 text-sm font-semibold ${canBuy ? "text-moss" : "text-clay"}`}>
+            {archived ? "No longer available" : !canBuy ? "Out of stock" : product.stock <= 10 ? `Only ${product.stock} left — order soon` : "In stock"}
+          </p>
 
-          {bullets.length > 0 && (
-            <div className="mt-4">
-              <h2 className="text-lg font-semibold text-ink">About this item</h2>
-              <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-neutral-700">
-                {bullets.map((b, i) => (
-                  <li key={i}>{b}</li>
-                ))}
-              </ul>
+          {canBuy && (
+            <div className="mt-6">
+              <QuantitySelector quantity={quantity} max={product.stock} onChange={setQuantity} />
             </div>
           )}
 
-          <div className="mt-6">
-              <h2 className="mb-2 text-lg font-semibold text-ink">Specifications</h2>
-            <SpecsTable product={product} />
-          </div>
-        </div>
-
-        <div className="md:col-span-2 lg:col-span-1">
-          <div className="surface rounded-md p-4 lg:sticky lg:top-28">
-            <PriceTag price={product.price} discountPercentage={product.discountPercentage} size="lg" />
-            {canBuy ? (
-              <>
-                <p className="mt-2 text-sm text-neutral-700">
-                  FREE delivery <span className="font-medium text-neutral-900">{estimatedDelivery(4)}</span>
-                </p>
-                <p className="mt-3 text-sm font-semibold text-moss">In Stock</p>
-                {product.stock <= 10 && (
-                  <p className="text-sm text-clay">Only {product.stock} left — order soon.</p>
-                )}
-              </>
-            ) : (
-              <p className="mt-2 text-lg font-medium text-clay">
-                {archived ? "No longer available" : "Out of Stock"}
-              </p>
-            )}
-
-            {canBuy && (
-              <div className="mt-3">
-                <QuantitySelector quantity={quantity} max={product.stock} onChange={setQuantity} />
-              </div>
-            )}
-
+          <div className="mt-6 flex items-stretch gap-3">
             <button
               type="button"
               disabled={!canBuy}
-              onClick={() => {
-                addItem(product._id, quantity);
-                setJustAdded(true);
-                setTimeout(() => setJustAdded(false), 2500);
-              }}
-              className="mt-4 w-full rounded-full bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-50"
+              onClick={add}
+              className={`flex h-12 flex-1 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
+                justAdded ? "bg-moss" : "bg-harbor hover:bg-harbor-dark"
+              }`}
             >
-              Add to Cart
+              {justAdded ? (
+                <>
+                  <Check size={18} aria-hidden /> Added to cart
+                </>
+              ) : (
+                "Add to cart"
+              )}
             </button>
-            {justAdded && (
-              <p className="mt-2 flex items-center gap-1 text-sm font-medium text-green-700">
-                <CircleCheck size={16} /> Added to Cart
-              </p>
-            )}
-            <button
-              type="button"
-              disabled={!canBuy}
-              onClick={() => {
-                addItem(product._id, quantity);
-                navigate("/checkout");
-              }}
-              className="mt-2 w-full rounded-md bg-harbor px-4 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-50"
-            >
-              Buy Now
-            </button>
-
-            {product.returnPolicy && <p className="mt-3 text-xs text-neutral-600">{product.returnPolicy}</p>}
-            {product.shippingInformation && (
-              <p className="mt-1 text-xs text-neutral-600">{product.shippingInformation}</p>
-            )}
+            <div className="flex items-center">
+              <AddToListMenu productId={product._id} variant="icon" />
+            </div>
           </div>
+          <button
+            type="button"
+            disabled={!canBuy}
+            onClick={() => {
+              addItem(product._id, quantity);
+              navigate("/checkout");
+            }}
+            className="mt-3 h-12 w-full rounded-full border border-line-strong bg-white text-sm font-semibold text-ink transition-colors hover:bg-paper disabled:opacity-50"
+          >
+            Buy now
+          </button>
+
+          <ul className="mt-6 space-y-3 rounded-2xl bg-paper p-5">
+            {PROMISES.map(({ icon: Icon, label }) => (
+              <li key={label} className="flex items-center gap-3 text-sm font-medium text-ink">
+                <Icon size={18} className="shrink-0 text-harbor" aria-hidden />
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
-      <div className="mt-12 border-t border-line pt-8">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-ink">Customer Reviews</h2>
+      {/* Description + specs */}
+      <div className="mt-14 grid gap-10 lg:grid-cols-2">
+        {bullets.length > 0 && (
+          <section>
+            <h2 className="section-title mb-4 text-xl!">About this item</h2>
+            <ul className="space-y-2.5">
+              {bullets.map((b, i) => (
+                <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-slate">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-harbor" aria-hidden />
+                  {b}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        <section>
+          <h2 className="section-title mb-4 text-xl!">Specifications</h2>
+          <Panel className="p-5 sm:p-6">
+            <SpecsTable product={product} />
+          </Panel>
+        </section>
+      </div>
+
+      {/* Reviews */}
+      <section id="reviews" className="mt-14 scroll-mt-32 border-t border-line pt-10">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="section-title text-xl!">Customer reviews</h2>
           {product.canReview?.eligible && !showReviewForm && (
             <button
               type="button"
               onClick={() => setShowReviewForm(true)}
-              className="rounded-md border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-harbor hover:bg-paper"
+              className="h-10 rounded-full border border-line-strong bg-white px-5 text-sm font-semibold text-ink transition-colors hover:bg-paper"
             >
-              Write a customer review
+              Write a review
             </button>
           )}
-          {product.canReview?.alreadyReviewed && (
-            <p className="text-sm text-neutral-500">You've reviewed this item.</p>
-          )}
+          {product.canReview?.alreadyReviewed && <p className="text-sm text-slate">You've reviewed this item.</p>}
         </div>
 
         {showReviewForm && (
-          <div className="mt-4">
+          <div className="mt-5">
             <WriteReviewForm productId={product._id} onDone={() => setShowReviewForm(false)} />
           </div>
         )}
 
-        <div className="mt-4 grid gap-8 sm:grid-cols-[240px_1fr]">
+        <div className="mt-6 grid gap-8 lg:grid-cols-[280px_1fr]">
           <RatingBreakdown
             average={product.rating}
             total={reviewData?.total ?? product.ratingCount}
@@ -217,13 +227,33 @@ export default function ProductDetailPage() {
             />
           )}
         </div>
-      </div>
+      </section>
 
       {!!related?.items.length && (
-        <div className="mt-10">
-          <ProductRow title="Related products" products={related.items} />
+        <div className="mt-16">
+          <ProductRow title="You may also like" products={related.items} />
         </div>
       )}
+    </div>
+  );
+}
+
+function ProductSkeleton() {
+  return (
+    <div className="page-shell py-8">
+      <Skeleton className="mb-6 h-4 w-64" />
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+        <Skeleton className="aspect-square w-full rounded-2xl" />
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="mt-2 h-10 w-32" />
+          <Skeleton className="mt-4 h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+        </div>
+      </div>
     </div>
   );
 }
