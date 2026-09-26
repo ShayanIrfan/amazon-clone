@@ -33,7 +33,7 @@ export default function PaymentStep({ onSubmit, busy }: Props) {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">Payment method</h2>
+      <h2 className="text-lg font-bold text-ink">Payment method</h2>
       <p className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
         <Lock size={12} /> This is a demo checkout — no real card is charged.
       </p>
@@ -44,7 +44,7 @@ export default function PaymentStep({ onSubmit, busy }: Props) {
 
       <form onSubmit={submit} className="mt-3 max-w-sm space-y-3">
         <label className="block text-sm">
-          <span className="font-medium text-neutral-800">Card number</span>
+          <span className="text-sm font-semibold text-ink">Card number</span>
           <input
             type="text"
             inputMode="numeric"
@@ -52,12 +52,12 @@ export default function PaymentStep({ onSubmit, busy }: Props) {
             value={number}
             onChange={(e) => setNumber(formatCardNumber(e.target.value))}
             placeholder="0000 0000 0000 0000"
-            className="mt-1 h-10 w-full rounded-md border border-line-strong px-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
+            className="mt-1.5 h-11 w-full rounded-xl border border-line-strong px-4 text-sm outline-none transition-colors focus:border-harbor focus:ring-4 focus:ring-harbor/10"
           />
         </label>
         <div className="flex gap-3">
           <label className="block flex-1 text-sm">
-            <span className="font-medium text-neutral-800">Expiration (MM/YY)</span>
+            <span className="text-sm font-semibold text-ink">Expiration (MM/YY)</span>
             <input
               type="text"
               inputMode="numeric"
@@ -65,11 +65,11 @@ export default function PaymentStep({ onSubmit, busy }: Props) {
               value={expiry}
               onChange={(e) => setExpiry(formatExpiry(e.target.value))}
               placeholder="MM/YY"
-              className="mt-1 h-10 w-full rounded-md border border-line-strong px-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
+              className="mt-1.5 h-11 w-full rounded-xl border border-line-strong px-4 text-sm outline-none transition-colors focus:border-harbor focus:ring-4 focus:ring-harbor/10"
             />
           </label>
           <label className="block w-24 text-sm">
-            <span className="font-medium text-neutral-800">CVV</span>
+            <span className="text-sm font-semibold text-ink">CVV</span>
             <input
               type="text"
               inputMode="numeric"
@@ -77,24 +77,24 @@ export default function PaymentStep({ onSubmit, busy }: Props) {
               value={cvv}
               onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
               placeholder="123"
-              className="mt-1 h-10 w-full rounded-md border border-line-strong px-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
+              className="mt-1.5 h-11 w-full rounded-xl border border-line-strong px-4 text-sm outline-none transition-colors focus:border-harbor focus:ring-4 focus:ring-harbor/10"
             />
           </label>
         </div>
         <label className="block text-sm">
-          <span className="font-medium text-neutral-800">Name on card</span>
+          <span className="text-sm font-semibold text-ink">Name on card</span>
           <input
             type="text"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 h-10 w-full rounded-md border border-line-strong px-3 text-sm outline-none focus:border-harbor focus:ring-2 focus:ring-harbor/15"
+            className="mt-1.5 h-11 w-full rounded-xl border border-line-strong px-4 text-sm outline-none transition-colors focus:border-harbor focus:ring-4 focus:ring-harbor/10"
           />
         </label>
         <button
           type="submit"
           disabled={busy}
-          className="rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60"
+          className="h-11 rounded-full bg-harbor px-6 text-sm font-semibold text-white transition-colors hover:bg-harbor-dark disabled:opacity-60"
         >
           Continue to review
         </button>

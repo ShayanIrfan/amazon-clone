@@ -16,36 +16,33 @@ const OPTIONS: { value: DeliverySpeed; label: string; price: number; days: numbe
 export default function DeliveryStep({ value, onChange, onContinue }: Props) {
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">Delivery speed</h2>
-      <div className="mt-3 space-y-2">
-        {OPTIONS.map((o) => (
-          <label
-            key={o.value}
-            className={`flex items-center justify-between rounded-lg border p-3 text-sm ${
-              value === o.value ? "border-harbor bg-mint/50 ring-1 ring-harbor" : "border-line"
-            }`}
-          >
-            <span className="flex items-center gap-3">
-              <input
-                type="radio"
-                name="delivery"
-                checked={value === o.value}
-                onChange={() => onChange(o.value)}
-                className="accent-harbor"
-              />
-              <span>
-                <span className="font-medium">{o.label}</span> — arrives by{" "}
-                <span className="font-medium">{estimatedDelivery(o.days)}</span>
+      <h2 className="text-lg font-bold text-ink">Delivery speed</h2>
+      <div className="mt-4 space-y-3">
+        {OPTIONS.map((o) => {
+          const selected = value === o.value;
+          return (
+            <label
+              key={o.value}
+              className={`flex cursor-pointer items-center justify-between gap-3 rounded-2xl border p-4 text-sm transition-colors ${
+                selected ? "border-harbor bg-mint/50 ring-1 ring-harbor" : "border-line hover:border-line-strong"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <input type="radio" name="delivery" checked={selected} onChange={() => onChange(o.value)} className="h-4 w-4 shrink-0 accent-harbor" />
+                <span>
+                  <span className="block font-semibold text-ink">{o.label}</span>
+                  <span className="text-slate">Arrives by {estimatedDelivery(o.days)}</span>
+                </span>
               </span>
-            </span>
-            <span className="amount font-medium">{o.price === 0 ? "FREE" : formatPrice(o.price)}</span>
-          </label>
-        ))}
+              <span className={`amount shrink-0 font-bold ${o.price === 0 ? "text-moss" : "text-ink"}`}>{o.price === 0 ? "Free" : formatPrice(o.price)}</span>
+            </label>
+          );
+        })}
       </div>
       <button
         type="button"
         onClick={onContinue}
-        className="mt-5 rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark"
+        className="mt-5 h-11 rounded-full bg-harbor px-6 text-sm font-semibold text-white transition-colors hover:bg-harbor-dark sm:w-auto"
       >
         Continue to payment
       </button>

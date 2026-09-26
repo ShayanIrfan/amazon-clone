@@ -35,7 +35,7 @@ export default function ReviewStep({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">Review your order</h2>
+      <h2 className="text-lg font-bold text-ink">Review your order</h2>
 
       <div className="mt-3 space-y-3 text-sm">
         <SummaryRow title="Delivering to" onEdit={onEditAddress}>
@@ -56,7 +56,7 @@ export default function ReviewStep({
         type="button"
         disabled={busy}
         onClick={onPlaceOrder}
-        className="mt-5 rounded-md bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-60"
+        className="mt-5 h-11 rounded-full bg-harbor px-6 text-sm font-semibold text-white transition-colors hover:bg-harbor-dark disabled:opacity-60"
       >
         {busy ? "Placing your order…" : "Place your order"}
       </button>
@@ -66,10 +66,10 @@ export default function ReviewStep({
 
 function SummaryRow({ title, children, onEdit }: { title: string; children: ReactNode; onEdit: () => void }) {
   return (
-    <div className="surface rounded-md p-4">
+    <div className="rounded-2xl border border-line p-4">
       <div className="flex items-center justify-between">
-        <p className="font-medium text-neutral-800">{title}</p>
-        <button type="button" onClick={onEdit} className="text-xs text-link hover:underline">
+        <p className="text-sm font-semibold text-ink">{title}</p>
+        <button type="button" onClick={onEdit} className="text-xs text-harbor hover:underline">
           Change
         </button>
       </div>

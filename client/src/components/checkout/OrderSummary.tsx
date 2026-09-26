@@ -3,28 +3,30 @@ import { formatPrice } from "../../lib/format";
 
 export default function OrderSummary({ quote, isLoading }: { quote: OrderQuote | undefined; isLoading: boolean }) {
   return (
-    <div className="surface h-fit rounded-md p-5 lg:sticky lg:top-28">
-      <h2 className="text-lg font-semibold text-ink">Order Summary</h2>
+    <div className="surface h-fit rounded-2xl p-5 sm:p-6">
+      <h2 className="text-base font-bold text-ink">Order summary</h2>
       {isLoading || !quote ? (
-        <p className="mt-2 text-sm text-neutral-500">Calculating…</p>
+        <p className="mt-4 text-sm text-slate">Calculating…</p>
       ) : (
-        <dl className="amount mt-2 space-y-1 text-sm">
-          <Row label={`Items (${quote.itemCount}):`} value={formatPrice(quote.subtotal)} />
-          <Row label="Shipping:" value={quote.shipping === 0 ? "FREE" : formatPrice(quote.shipping)} />
-          <Row label="Estimated tax:" value={formatPrice(quote.tax)} />
-          <div className="my-2 border-t border-neutral-200" />
-          <Row label="Order total:" value={formatPrice(quote.total)} bold className="text-clay" />
+        <dl className="mt-4 space-y-2.5 text-sm">
+          <Row label={`Items (${quote.itemCount})`} value={formatPrice(quote.subtotal)} />
+          <Row label="Delivery" value={quote.shipping === 0 ? "Free" : formatPrice(quote.shipping)} accent={quote.shipping === 0} />
+          <Row label="Estimated tax" value={formatPrice(quote.tax)} />
+          <div className="flex items-baseline justify-between border-t border-line pt-3">
+            <dt className="font-bold text-ink">Order total</dt>
+            <dd className="amount text-lg font-extrabold text-ink">{formatPrice(quote.total)}</dd>
+          </div>
         </dl>
       )}
     </div>
   );
 }
 
-function Row({ label, value, bold, className }: { label: string; value: string; bold?: boolean; className?: string }) {
+function Row({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className={`flex justify-between ${bold ? "font-bold" : ""} ${className ?? ""}`}>
-      <dt>{label}</dt>
-      <dd>{value}</dd>
+    <div className="flex justify-between">
+      <dt className="text-slate">{label}</dt>
+      <dd className={`amount font-semibold ${accent ? "text-moss" : "text-ink"}`}>{value}</dd>
     </div>
   );
 }

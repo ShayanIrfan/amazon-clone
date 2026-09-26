@@ -22,8 +22,8 @@ const appearance: StripeElementsOptions["appearance"] = {
     colorText: "#14201f",
     colorDanger: "#b3261e",
     colorBackground: "#ffffff",
-    borderRadius: "6px",
-    fontFamily: "Figtree Variable, system-ui, -apple-system, Segoe UI, sans-serif",
+    borderRadius: "12px",
+    fontFamily: "Plus Jakarta Sans Variable, system-ui, -apple-system, Segoe UI, sans-serif",
   },
 };
 
@@ -39,12 +39,20 @@ export default function StripePaymentStep({ clientSecret, total, onConfirmed }: 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">Payment</h2>
+        <h2 className="text-lg font-bold text-ink">Payment</h2>
         {stripeTestMode && <Badge tone="warning">Test mode — no real charges</Badge>}
       </div>
-      <p className="mt-1 flex items-center gap-1.5 text-sm text-slate">
+      <p className="mt-1.5 flex items-center gap-1.5 text-sm text-slate">
         <Lock size={14} aria-hidden /> Your card details go straight to Stripe. This site never sees your card number.
       </p>
+      {stripeTestMode && (
+        <div className="mt-4 rounded-2xl bg-paper p-4 text-xs text-slate">
+          <p className="font-semibold text-ink">Test cards</p>
+          <p className="mt-1">
+            <code className="font-mono">4242 4242 4242 4242</code> approves · <code className="font-mono">4000 0000 0000 9995</code> declines. Any future expiry, any CVC and ZIP.
+          </p>
+        </div>
+      )}
       {/* key: a new PaymentIntent (e.g. after changing delivery speed) needs a fresh Elements instance. */}
       <Elements key={clientSecret} stripe={getStripe()} options={{ clientSecret, appearance }}>
         <PaymentForm total={total} onConfirmed={onConfirmed} />

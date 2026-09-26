@@ -10,8 +10,11 @@ import PaymentStep from "../components/checkout/PaymentStep";
 import ReviewStep from "../components/checkout/ReviewStep";
 import StripePaymentStep from "../components/checkout/StripePaymentStep";
 import OrderSummary from "../components/checkout/OrderSummary";
+import Stepper from "../components/checkout/Stepper";
 import ErrorState from "../components/ui/ErrorState";
 import PageLoader from "../components/ui/PageLoader";
+import PageHeader from "../components/ui/PageHeader";
+import Panel from "../components/ui/Panel";
 import Button from "../components/ui/Button";
 import type { CardInput, DeliverySpeed } from "../lib/types";
 
@@ -74,7 +77,7 @@ export default function CheckoutPage() {
         <p className="muted">Add something to your cart before checking out.</p>
         <button
           type="button"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/search")}
           className="mt-2 rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark"
         >
           Continue shopping
@@ -130,39 +133,24 @@ export default function CheckoutPage() {
   ];
   const activeStep = steps.findIndex((item) => item.key === step);
 
+  function goToStep(index: number) {
+    setOrderError(null);
+    setStep(steps[index].key);
+  }
+
   return (
-    <div className="page-shell py-6">
-      <p className="eyebrow">{stripeCheckout ? "Secure checkout" : "Secure demo checkout"}</p>
-      <h1 className="page-title mt-1 text-ink">Checkout</h1>
-      <nav className="mt-6" aria-label="Checkout progress">
-        <ol className={`grid gap-1 sm:flex sm:items-center ${steps.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
-          {steps.map((item, index) => (
-            <li
-              key={item.key}
-              aria-current={index === activeStep ? "step" : undefined}
-              className="flex min-w-0 flex-col items-center sm:flex-1 sm:flex-row"
-            >
-              <div className={`flex min-w-0 flex-col items-center gap-1 text-[0.7rem] sm:flex-row sm:gap-2 sm:text-sm ${index <= activeStep ? "font-semibold text-harbor" : "text-slate"}`}>
-                <span className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs ${index <= activeStep ? "border-harbor bg-harbor text-white" : "border-line-strong bg-white"}`}>
-                  {index + 1}
-                </span>
-                {item.label}
-              </div>
-              {index < steps.length - 1 && <span className={`mx-3 hidden h-px flex-1 sm:block ${index < activeStep ? "bg-harbor" : "bg-line"}`} />}
-            </li>
-          ))}
-        </ol>
-      </nav>
-      <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_300px]">
-        <div className="space-y-4">
+    <div className="page-shell py-8">
+      <PageHeader eyebrow={stripeCheckout ? "Secure checkout" : "Secure demo checkout"} title="Checkout" />
+      <div className="mt-6 rounded-2xl border border-line bg-white p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <Stepper steps={steps} active={activeStep} onGoTo={goToStep} />
+      </div>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <Panel className="p-5 sm:p-6">
           {activeStep > 0 && (
             <button
               type="button"
-              onClick={() => {
-                setOrderError(null);
-                setStep(steps[activeStep - 1].key);
-              }}
-              className="inline-flex items-center gap-1 text-sm font-semibold text-harbor hover:underline"
+              onClick={() => goToStep(activeStep - 1)}
+              className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-harbor hover:underline"
             >
               <ChevronLeft size={16} aria-hidden /> Back to {steps[activeStep - 1].label.toLowerCase()}
             </button>
@@ -180,7 +168,7 @@ export default function CheckoutPage() {
           {step === "payment" &&
             (stripeCheckout ? (
               orderError ? (
-                <div role="alert" className="rounded-md border border-clay/30 bg-clay/5 p-4 text-sm text-clay">
+                <div role="alert" className="rounded-2xl border border-clay/30 bg-clay/5 p-4 text-sm text-clay">
                   <p className="font-semibold">{orderError}</p>
                   <Button variant="secondary" size="sm" className="mt-3" onClick={startStripePayment}>
                     Try again
@@ -219,9 +207,11 @@ export default function CheckoutPage() {
               error={orderError}
             />
           )}
-        </div>
+        </Panel>
 
-        <OrderSummary quote={quote} isLoading={cartSyncing || quoteLoading} />
+        <div className="lg:sticky lg:top-36 lg:h-fit">
+          <OrderSummary quote={quote} isLoading={cartSyncing || quoteLoading} />
+        </div>
       </div>
     </div>
   );

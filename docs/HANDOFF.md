@@ -113,7 +113,7 @@ Header shows a "Deliver to <city>" chip from the shopper's default address (only
 - [x] Phase 1: Search results
 - [x] Phase 2: Product detail (checkpoint 2 deployed)
 - [x] Phase 3: Cart
-- [ ] Phase 4: Checkout (checkpoint 3)
+- [x] Phase 4: Checkout (checkpoint 3 deployed) — full Stripe flow tested at 390
 - [ ] Phase 5: Admin panel, desktop restyle + mobile (drawer nav, tables as cards) (checkpoint 4)
 - [ ] Phase 6: Orders + order detail
 - [ ] Phase 7: Sign in / sign up (checkpoint 5, final) ✂ cut line 22:15, freeze 22:30

@@ -30,65 +30,55 @@ export default function AddressStep({ selectedId, onSelect, onContinue }: Props)
     setShowForm(addresses.length === 0);
   }, [addresses.length]);
 
-  if (isLoading) return <div className="p-8 text-center text-neutral-500">Loading addresses…</div>;
+  if (isLoading) return <div className="py-8 text-center text-sm text-slate">Loading addresses…</div>;
 
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">Delivery address</h2>
+      <h2 className="text-lg font-bold text-ink">Delivery address</h2>
 
-      <div className="mt-3 space-y-2">
-        {addresses.map((a: Address) => (
-          <label
-            key={a._id}
-            className={`flex items-start gap-3 rounded-lg border p-3 ${
-              selectedId === a._id ? "border-harbor bg-mint/50 ring-1 ring-harbor" : "border-line"
-            }`}
-          >
-            <input
-              type="radio"
-              name="address"
-              checked={selectedId === a._id}
-              onChange={() => onSelect(a._id)}
-              className="mt-1 accent-harbor"
-            />
-            <div className="flex-1 text-sm">
-              <p className="font-medium">
-                {a.fullName} {a.isDefault && <span className="text-xs font-normal text-neutral-500">(Default)</span>}
-              </p>
-              <p className="text-neutral-600">
-                {a.street}
-                {a.unit ? `, ${a.unit}` : ""}, {a.city}, {a.state} {a.zip}, {a.country}
-              </p>
-              <p className="text-neutral-600">{a.phone}</p>
-              <div className="mt-1 flex gap-3 text-xs">
-                {!a.isDefault && (
-                  <button
-                    type="button"
-                    onClick={() => setDefaultAddress.mutate(a._id)}
-                    className="text-link hover:underline"
-                  >
-                    Set as default
+      <div className="mt-4 space-y-3">
+        {addresses.map((a: Address) => {
+          const selected = selectedId === a._id;
+          return (
+            <label
+              key={a._id}
+              className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors ${
+                selected ? "border-harbor bg-mint/50 ring-1 ring-harbor" : "border-line hover:border-line-strong"
+              }`}
+            >
+              <input type="radio" name="address" checked={selected} onChange={() => onSelect(a._id)} className="mt-1 h-4 w-4 shrink-0 accent-harbor" />
+              <div className="flex-1 text-sm">
+                <p className="flex items-center gap-2 font-semibold text-ink">
+                  {a.fullName}
+                  {a.isDefault && <span className="rounded-full bg-harbor/10 px-2 py-0.5 text-xs font-semibold text-harbor">Default</span>}
+                </p>
+                <p className="mt-1 text-slate">
+                  {a.street}
+                  {a.unit ? `, ${a.unit}` : ""}, {a.city}, {a.state} {a.zip}, {a.country}
+                </p>
+                <p className="text-slate">{a.phone}</p>
+                <div className="mt-2 flex gap-3 text-xs font-semibold">
+                  {!a.isDefault && (
+                    <button type="button" onClick={() => setDefaultAddress.mutate(a._id)} className="text-harbor hover:underline">
+                      Set as default
+                    </button>
+                  )}
+                  <button type="button" onClick={() => removeAddress.mutate(a._id)} className="text-slate hover:text-clay">
+                    Remove
                   </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removeAddress.mutate(a._id)}
-                  className="text-link hover:underline"
-                >
-                  Remove
-                </button>
+                </div>
               </div>
-            </div>
-          </label>
-        ))}
+            </label>
+          );
+        })}
       </div>
 
       {showForm ? (
-        <div className="mt-3">
+        <div className="mt-4">
           <AddressForm
             busy={addAddress.isPending}
             error={addAddress.error instanceof Error ? addAddress.error.message : null}
-            onCancel={() => setShowForm(false)}
+            onCancel={() => addresses.length > 0 && setShowForm(false)}
             onSubmit={(data) =>
               addAddress.mutate(data, {
                 onSuccess: (res) => {
@@ -101,23 +91,23 @@ export default function AddressStep({ selectedId, onSelect, onContinue }: Props)
           />
         </div>
       ) : (
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <>
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line-strong py-3.5 text-sm font-semibold text-harbor transition-colors hover:bg-paper"
+          >
+            + Add a new address
+          </button>
           <button
             type="button"
             disabled={!selectedId}
             onClick={onContinue}
-            className="order-1 w-full rounded-full bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark disabled:opacity-50 sm:order-2 sm:w-auto"
+            className="mt-5 h-11 w-full rounded-full bg-harbor px-6 text-sm font-semibold text-white transition-colors hover:bg-harbor-dark disabled:opacity-50 sm:w-auto"
           >
-            Use this address
+            Continue to delivery
           </button>
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="order-2 self-start text-sm font-semibold text-harbor hover:underline sm:order-1"
-          >
-            + Add a new address
-          </button>
-        </div>
+        </>
       )}
     </div>
   );
