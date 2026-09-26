@@ -45,10 +45,15 @@ npm run dev                             # API on :4000, client on :5173 (Vite pr
 Sign in as the seeded demo account (`demo@amazon-clone.test` / `DemoAccount123!`).
 
 ```bash
-npm test          # server integration tests (own MongoDB, doesn't touch dev data)
+npm test          # server integration tests (see below: they need a *-test database)
 npm run typecheck # both workspaces
 npm run build     # production client build
 ```
+
+Tests empty the database they run against, so they refuse to start unless its name ends in
+`-test` (`server/test/guard.ts`). Set `TEST_MONGODB_URI` in `server/.env` to a dedicated database,
+for example a sibling of your dev one on the same cluster; without it they use a local replica
+set at `mongodb://127.0.0.1:27017/amazon-clone-test`.
 
 ## What's built
 
@@ -70,6 +75,9 @@ specifically checked, and what bugs were caught and fixed along the way.
 - **Account** — address management, wish lists (add from the product page or the cart),
   recently viewed, and reviews gated to shoppers who've actually bought the item — writing
   one recalculates the product's real average rating.
+- **Admin panel** — dashboard, product management, order fulfilment and refunds, review
+  moderation and a customer directory behind an admin-only `/admin`, with an audit log of every
+  change. See [Admin panel](#admin-panel).
 - **Polish** — a mobile layout pass (see below), loading/error/empty states throughout,
   keyboard-accessible drawers/menus (Escape closes them), the automated test above, and
   this README.
@@ -94,11 +102,57 @@ Scope decisions made up front, revisited as each milestone landed:
 - **Sponsored listings, multi-seller marketplace, gift cards, currency/language switching,
   live customer-service chat** — real Amazon complexity that would cost more build time than
   it would add to a 24-hour demo's core loop.
-- **Order fulfillment simulation** (shipped/delivered transitions) — orders go straight to
-  `paid` and stay there unless cancelled; the status enum supports more, nothing drives it.
+- **Carrier and warehouse integration** — shipped and delivered are set by an admin in the
+  panel; nothing tracks a real parcel.
 - **Guest recently-viewed tracking** — recently viewed is server-side, tied to an account;
   a guest's browsing isn't recorded (the cart is the one thing that deliberately works
   signed-out, per the brief).
+
+## Admin panel
+
+`/admin` is a separate, lazy-loaded area for running the store: shoppers never download any
+of its code, and every admin API route (`/api/admin/*`) re-checks the caller's role in the
+database on each request, so the client-side guard is only a convenience.
+
+**Getting in.** The `admin` role can't be granted through the API or a signup; there is no
+endpoint that touches it. Create an admin from the command line (it works on whichever
+database `server/.env` points to, and leaves the catalog alone, unlike `npm run seed`):
+
+```bash
+npm run create-admin -w server -- --email you@example.com --password '<12+ characters>'
+```
+
+Or set `ADMIN_EMAILS` (comma-separated) in the host's environment to promote accounts whose
+email is already verified. The shared demo shopper is never an admin.
+
+| Screen | What it does |
+|---|---|
+| **Dashboard** | Revenue (net of refunds), orders, units and new customers for 7/30/90 days with the change against the previous period, orders per day, top products, low stock, and what's waiting to ship |
+| **Products** | Search, filter and sort the catalog; create and edit products (validation mirrors the server, live storefront preview); inline stock edits; archive and restore; delete |
+| **Orders** | Search by order number or customer; mark paid orders shipped, then delivered; cancel and refund; each order shows its customer, address, payment and history |
+| **Reviews** | Find and delete reviews; the product's average rating is recalculated |
+| **Customers** | Read-only directory with order counts and spend, and a profile per customer. No passwords, sessions, recovery codes or addresses are ever returned |
+
+Rules worth knowing, all enforced on the server and covered by tests:
+
+- **Archive vs delete.** Archiving hides a product from search, suggestions, related items,
+  the home page and its department, and makes it unbuyable even with stock left, while its
+  page still opens for order history. Only products an admin created and nobody has ordered
+  can be deleted; the seeded catalog can only be archived.
+- **Departments follow the products.** Counts are recomputed on every change; a department
+  is created with its first product and disappears when empty.
+- **No lost edits.** Saving a product sends the version it was loaded at; if someone else
+  saved first the write is refused (409) and the editor offers the latest version.
+- **Orders move forward only:** `paid → shipped → delivered`, each step conditional on the
+  current status. Payment is only ever confirmed by Stripe, never by an admin. Shipped
+  orders can no longer be cancelled by anyone.
+- **One way to cancel.** Customer cancellation, admin cancellation and Stripe refunds all go
+  through a single conditional function, so simultaneous cancels restock exactly once.
+- **Refunds made in the Stripe Dashboard stay in step.** A `charge.refunded` webhook cancels
+  and restocks a paid order; on an order that already shipped it records the refund and
+  flags it instead. The app's own refunds carry metadata so the webhook can tell them apart.
+- **Audit log.** Every admin change (and every Stripe-driven one) is recorded with who, when
+  and the before/after values, and shown on the dashboard and on each product and order.
 
 ## Payments
 
@@ -141,7 +195,8 @@ Production environment variables (set with `vercel env add … production`): `NO
 `STRIPE_WEBHOOK_SECRET`, `VITE_STRIPE_PUBLISHABLE_KEY`, plus the `EMAIL_DELIVERY_MODE` /
 `RESEND_*` email settings. The Stripe webhook endpoint is
 `https://harbor-market-demo.vercel.app/api/payments/webhook`, subscribed to
-`payment_intent.succeeded`.
+`payment_intent.succeeded` (settles orders) and `charge.refunded` (keeps orders in step with
+refunds made in the Stripe Dashboard). `ADMIN_EMAILS` is optional.
 
 ```bash
 npx vercel deploy --prod   # build on Vercel and promote to production
