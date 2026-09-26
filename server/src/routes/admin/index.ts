@@ -6,6 +6,8 @@ import { requireAdmin } from "../../middleware/admin.js";
 import { adminProductsRouter } from "./products.js";
 import { adminOrdersRouter } from "./orders.js";
 import { adminStatsRouter } from "./stats.js";
+import { adminReviewsRouter } from "./reviews.js";
+import { adminCustomersRouter } from "./customers.js";
 
 // Everything under /api/admin needs a signed-in admin; each sub-router can
 // assume req.admin is set.
@@ -14,6 +16,8 @@ adminRouter.use(requireAuth, requireAdmin);
 adminRouter.use("/products", adminProductsRouter);
 adminRouter.use("/orders", adminOrdersRouter);
 adminRouter.use("/stats", adminStatsRouter);
+adminRouter.use("/reviews", adminReviewsRouter);
+adminRouter.use("/customers", adminCustomersRouter);
 
 const activityQuerySchema = z.object({
   entityType: z.enum(AUDIT_ENTITY_TYPES).optional(),
