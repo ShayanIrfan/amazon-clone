@@ -10,3 +10,5 @@ export { SessionModel } from "./Session.js";
 export type { Session } from "./Session.js";
 export { ListModel } from "./List.js";
 export { OrderModel, ORDER_STATUSES } from "./Order.js";
+export { AuditLogModel, AUDIT_ENTITY_TYPES } from "./AuditLog.js";
+export type { AuditLog } from "./AuditLog.js";

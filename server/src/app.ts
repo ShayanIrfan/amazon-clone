@@ -15,6 +15,7 @@ import { ordersRouter } from "./routes/orders.js";
 import { usersRouter } from "./routes/users.js";
 import { listsRouter } from "./routes/lists.js";
 import { paymentsRouter, stripeWebhook } from "./routes/payments.js";
+import { adminRouter } from "./routes/admin/index.js";
 import { optionalAuth } from "./middleware/auth.js";
 import { csrfCookie, csrfProtection } from "./middleware/csrf.js";
 
@@ -52,6 +53,7 @@ export function createApp() {
   app.use("/api/users", usersRouter);
   app.use("/api/lists", listsRouter);
   app.use("/api/payments", paymentsRouter);
+  app.use("/api/admin", adminRouter);
 
   const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof ZodError) {

@@ -18,6 +18,9 @@ const envSchema = z.object({
   OTP_SECRET: z.string().min(16).default("local-otp-secret-replace-in-production"),
   // Comma-separated resolvers, local only — see db.ts.
   DNS_SERVERS: z.string().optional(),
+  // Comma-separated emails that get admin access once their email is verified.
+  // Lets an existing account be promoted from the host's env settings.
+  ADMIN_EMAILS: z.string().default(""),
 });
 
 const parsed = envSchema.safeParse(process.env);

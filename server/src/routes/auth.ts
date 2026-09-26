@@ -8,6 +8,7 @@ import { UserModel, type User } from "../models/index.js";
 import { clearSession, issueSession, revokeAllSessions, revokeSession, SESSION_COOKIE } from "../lib/auth.js";
 import { challengeMessage, consumeChallenge, ChallengeError, issueChallenge } from "../lib/challenges.js";
 import { env } from "../config.js";
+import { isAdminUser } from "../lib/admin.js";
 import { requireAuth } from "../middleware/auth.js";
 
 export const authRouter = Router();
@@ -43,6 +44,7 @@ function publicUser(user: HydratedDocument<User>) {
     name: user.name,
     email: user.email,
     isDemo: user.isDemo,
+    isAdmin: isAdminUser(user),
     emailVerified: Boolean(user.emailVerifiedAt || user.isDemo),
     twoFactorEnabled: Boolean(user.twoFactorEnabled),
   };

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router";
 import Layout from "./components/layout/Layout";
 import HomePage from "./pages/HomePage";
@@ -14,12 +15,26 @@ import ListsPage from "./pages/ListsPage";
 import SecurityPage from "./pages/SecurityPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import RequireAuth from "./components/auth/RequireAuth";
+import RequireAdmin from "./components/admin/RequireAdmin";
+import PageLoader from "./components/ui/PageLoader";
+
+const AdminRoutes = lazy(() => import("./pages/admin/AdminRoutes"));
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<AuthPage />} />
       <Route path="/signup" element={<AuthPage />} />
+      <Route
+        path="/admin/*"
+        element={
+          <RequireAdmin>
+            <Suspense fallback={<PageLoader label="Loading admin" />}>
+              <AdminRoutes />
+            </Suspense>
+          </RequireAdmin>
+        }
+      />
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />

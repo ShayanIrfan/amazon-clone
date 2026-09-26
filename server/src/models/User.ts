@@ -33,6 +33,9 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
     isDemo: { type: Boolean, default: false },
+    // Only ever set by `npm run create-admin` (or via ADMIN_EMAILS). No API
+    // endpoint accepts or changes it, so a signup can never grant itself admin.
+    role: { type: String, enum: ["customer", "admin"], default: "customer" },
     emailVerifiedAt: { type: Date },
     twoFactorEnabled: { type: Boolean, default: false },
     twoFactorRecoveryCodeHashes: { type: [String], default: [] },

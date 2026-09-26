@@ -51,6 +51,7 @@ export interface AuthUser {
   name: string;
   email: string;
   isDemo: boolean;
+  isAdmin: boolean;
   emailVerified: boolean;
   twoFactorEnabled: boolean;
 }
@@ -146,4 +147,17 @@ export interface WishList {
 export interface RecentlyViewedItem {
   productId: string;
   viewedAt: number;
+}
+
+export type AuditEntityType = "product" | "order" | "review" | "user" | "system";
+
+export interface AuditEntry {
+  id: string;
+  actorEmail: string;
+  action: string;
+  entityType: AuditEntityType;
+  entityId: string;
+  summary: string;
+  changes: Record<string, { from: unknown; to: unknown }> | null;
+  createdAt: string;
 }

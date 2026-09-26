@@ -67,6 +67,13 @@ export default function AccountMenu() {
                     Your Lists
                   </Link>
                 </li>
+                {user.isAdmin && (
+                  <li>
+                    <Link to="/admin" onClick={() => setOpen(false)} className="font-semibold text-harbor hover:underline">
+                      Admin panel
+                    </Link>
+                  </li>
+                )}
                 <li>
                   <Link to="/account/security" onClick={() => setOpen(false)} className="hover:underline">
                     Login &amp; security

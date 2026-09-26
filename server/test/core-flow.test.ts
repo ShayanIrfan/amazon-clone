@@ -8,13 +8,14 @@ import mongoose from "mongoose";
 import { createApp } from "../src/app.js";
 import { ProductModel } from "../src/models/index.js";
 import { testMailOutbox } from "../src/lib/mail.js";
+import { wipeDatabase } from "./helpers.js";
 
 const app = createApp();
 let productId: string;
 
 beforeAll(async () => {
   await mongoose.connect(process.env.MONGODB_URI!);
-  await mongoose.connection.db!.dropDatabase(); // start every run from a clean slate
+  await wipeDatabase(); // start every run from a clean slate
 
   const product = await ProductModel.create({
     sourceId: 999001,
@@ -37,7 +38,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.db!.dropDatabase();
+  await wipeDatabase();
   await mongoose.disconnect();
 });
 

@@ -1,9 +1,9 @@
 // A wordmark in the spirit of Amazon's (dark background, orange "smile"
 // swoosh from a to z) for this clone — not the trademarked artwork.
-export default function Logo({ tone = "dark" }: { tone?: "dark" | "light" }) {
+export default function Logo({ tone = "dark", compact = false }: { tone?: "dark" | "light"; compact?: boolean }) {
   return (
     <span className="flex flex-col leading-none">
-      <span className={`text-[1.35rem] font-bold tracking-[-0.04em] italic sm:text-2xl ${tone === "dark" ? "text-white" : "text-harbor-dark"}`}>
+      <span className={`font-bold tracking-[-0.04em] whitespace-nowrap italic ${compact ? "text-xl" : "text-[1.35rem] sm:text-2xl"} ${tone === "dark" ? "text-white" : "text-harbor-dark"}`}>
         amazon-clone
       </span>
       <svg viewBox="0 0 100 14" className="h-2.5 w-20 text-marigold sm:w-24" aria-hidden>

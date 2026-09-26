@@ -15,6 +15,8 @@ import type {
   RecentlyViewedItem,
   Review,
   PaymentProvider,
+  AuditEntry,
+  AuditEntityType,
 } from "./types";
 import type { CartItem } from "./cartStorage";
 
@@ -56,6 +58,8 @@ const get = <T>(path: string) => request<T>(path);
 const post = <T>(path: string, body?: unknown) =>
   request<T>(path, { method: "POST", body: body !== undefined ? JSON.stringify(body) : undefined });
 const put = <T>(path: string, body: unknown) => request<T>(path, { method: "PUT", body: JSON.stringify(body) });
+const patch = <T>(path: string, body: unknown) => request<T>(path, { method: "PATCH", body: JSON.stringify(body) });
+const del = <T>(path: string) => request<T>(path, { method: "DELETE" });
 
 export interface ProductQuery {
   q?: string;
@@ -130,6 +134,17 @@ export const api = {
       } catch {
         return null;
       }
+    },
+  },
+
+  // Admin-only endpoints; the server answers 401/403 for everyone else.
+  admin: {
+    activity: (params: { entityType?: AuditEntityType; entityId?: string; limit?: number } = {}) => {
+      const qs = new URLSearchParams();
+      if (params.entityType) qs.set("entityType", params.entityType);
+      if (params.entityId) qs.set("entityId", params.entityId);
+      if (params.limit) qs.set("limit", String(params.limit));
+      return get<{ items: AuditEntry[] }>(`/admin/activity${qs.size ? `?${qs}` : ""}`);
     },
   },
 
