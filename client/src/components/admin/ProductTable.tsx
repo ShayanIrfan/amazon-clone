@@ -46,7 +46,7 @@ export default function ProductTable({ items, busyId, onSetStock, onToggleArchiv
                       src={product.thumbnail}
                       alt=""
                       loading="lazy"
-                      className="h-10 w-10 shrink-0 rounded-md border border-line bg-white object-contain"
+                      className="h-10 w-10 shrink-0 rounded-xl border border-line bg-white object-contain"
                     />
                     <div className="min-w-0">
                       <Link to={`/admin/products/${product._id}`} className="line-clamp-1 font-medium text-ink hover:text-harbor hover:underline">
@@ -83,7 +83,7 @@ export default function ProductTable({ items, busyId, onSetStock, onToggleArchiv
                     <Link
                       to={`/admin/products/${product._id}`}
                       aria-label={`Edit ${product.title}`}
-                      className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-harbor hover:bg-paper"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium text-harbor hover:bg-paper"
                     >
                       <Pencil size={14} aria-hidden /> Edit
                     </Link>

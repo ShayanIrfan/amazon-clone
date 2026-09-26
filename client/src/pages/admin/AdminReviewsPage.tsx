@@ -83,7 +83,7 @@ export default function AdminReviewsPage() {
       <p className="muted mt-1">{data ? `${data.total.toLocaleString()} ${data.total === 1 ? "review" : "reviews"}${filtered ? " match" : ""}` : "Loading reviews…"}</p>
 
       {notice && (
-        <p role="status" className="mt-4 rounded-md border border-moss/20 bg-moss/10 px-4 py-2.5 text-sm font-medium text-moss">
+        <p role="status" className="mt-4 rounded-xl border border-moss/20 bg-moss/10 px-4 py-2.5 text-sm font-medium text-moss">
           {notice}
         </p>
       )}
@@ -102,7 +102,7 @@ export default function AdminReviewsPage() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Review text or reviewer name"
-                className="h-10 w-full rounded-md border border-line-strong bg-white pr-3 pl-9 text-sm outline-none focus:border-harbor"
+                className="h-10 w-full rounded-xl border border-line-strong bg-white pr-3 pl-9 text-sm outline-none focus:border-harbor"
               />
             </div>
           </div>
@@ -140,9 +140,9 @@ export default function AdminReviewsPage() {
               {data.items.map((review) => (
                 <li key={review._id} className="flex gap-3 px-4 py-4">
                   {review.product ? (
-                    <img src={review.product.thumbnail} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-md border border-line bg-white object-contain" />
+                    <img src={review.product.thumbnail} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-xl border border-line bg-white object-contain" />
                   ) : (
-                    <span className="h-12 w-12 shrink-0 rounded-md border border-line bg-paper" aria-hidden />
+                    <span className="h-12 w-12 shrink-0 rounded-xl border border-line bg-paper" aria-hidden />
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

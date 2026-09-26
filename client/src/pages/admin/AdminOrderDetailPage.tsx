@@ -97,17 +97,17 @@ export default function AdminOrderDetailPage() {
       </div>
 
       {notice && (
-        <p role="status" className="mt-4 rounded-md border border-moss/20 bg-moss/10 px-4 py-2.5 text-sm font-medium text-moss">
+        <p role="status" className="mt-4 rounded-xl border border-moss/20 bg-moss/10 px-4 py-2.5 text-sm font-medium text-moss">
           {notice}
         </p>
       )}
       {error && (
-        <p role="alert" className="mt-4 rounded-md border border-clay/30 bg-clay/5 px-4 py-2.5 text-sm font-medium text-clay">
+        <p role="alert" className="mt-4 rounded-xl border border-clay/30 bg-clay/5 px-4 py-2.5 text-sm font-medium text-clay">
           {error}
         </p>
       )}
       {order.refund && (
-        <p className="mt-4 rounded-md border border-line bg-white px-4 py-2.5 text-sm text-ink">
+        <p className="mt-4 rounded-xl border border-line bg-white px-4 py-2.5 text-sm text-ink">
           Stripe refunded <span className="amount font-semibold">{formatPrice(order.refund.amount)}</span> on {formatWhen(order.refund.at)}.
           {(order.status === "shipped" || order.status === "delivered") && " The order had already shipped, so its status was left as it is."}
         </p>
@@ -124,7 +124,7 @@ export default function AdminOrderDetailPage() {
             <ul className="divide-y divide-line">
               {order.items.map((item, index) => (
                 <li key={index} className="flex items-center gap-3 px-4 py-3">
-                  <img src={item.thumbnail} alt="" className="h-12 w-12 shrink-0 rounded-md border border-line bg-white object-contain" />
+                  <img src={item.thumbnail} alt="" className="h-12 w-12 shrink-0 rounded-xl border border-line bg-white object-contain" />
                   <div className="min-w-0 flex-1">
                     <Link to={`/admin/products/${item.product}`} className="line-clamp-2 text-sm font-medium text-ink hover:text-harbor hover:underline">
                       {item.title}

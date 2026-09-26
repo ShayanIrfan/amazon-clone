@@ -67,7 +67,7 @@ export default function InlineStockEditor({ productId, stock, productTitle, onSa
             setError(null);
           }
         }}
-        className={`amount h-9 w-20 rounded-md border bg-white px-2 text-right text-sm outline-none focus:border-harbor disabled:opacity-60 ${
+        className={`amount h-9 w-20 rounded-xl border bg-white px-2 text-right text-sm outline-none focus:border-harbor disabled:opacity-60 ${
           error ? "border-clay" : "border-line-strong"
         } ${low ? "font-semibold text-clay" : "text-ink"}`}
       />

@@ -36,14 +36,14 @@ export default function AdminDashboardPage() {
           <h1 className="page-title text-ink">Dashboard</h1>
           <p className="muted mt-1">Signed in as {user?.email}.</p>
         </div>
-        <div role="group" aria-label="Time range" className="flex gap-1 rounded-md border border-line bg-white p-1">
+        <div role="group" aria-label="Time range" className="flex gap-1 rounded-full border border-line bg-white p-1">
           {RANGES.map((r) => (
             <button
               key={r.value}
               type="button"
               aria-pressed={range === r.value}
               onClick={() => setParams(r.value === "30d" ? {} : { range: r.value }, { replace: true })}
-              className={`rounded px-3 py-1.5 text-sm font-medium ${range === r.value ? "bg-harbor text-white" : "text-slate hover:bg-paper hover:text-ink"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${range === r.value ? "bg-harbor text-white" : "text-slate hover:bg-paper hover:text-ink"}`}
             >
               {r.label}
             </button>
@@ -65,14 +65,14 @@ export default function AdminDashboardPage() {
                 <Skeleton className="h-16" />
               </>
             ) : data.awaitingShipment === 0 && data.lowStock.count === 0 ? (
-              <p className="flex items-center gap-2 rounded-md border border-moss/20 bg-moss/10 px-4 py-3 text-sm font-medium text-moss sm:col-span-2">
+              <p className="flex items-center gap-2 rounded-2xl border border-moss/20 bg-moss/10 px-4 py-3 text-sm font-medium text-moss sm:col-span-2">
                 <CircleCheck size={18} aria-hidden /> All caught up: nothing is waiting to ship and no product is running low.
               </p>
             ) : (
               <>
                 <Link
                   to="/admin/orders?status=paid"
-                  className={`flex items-center gap-3 rounded-md border px-4 py-3 text-sm ${data.awaitingShipment ? "border-marigold/40 bg-marigold/10 text-ink hover:bg-marigold/15" : "border-line bg-white text-slate"}`}
+                  className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm ${data.awaitingShipment ? "border-line bg-tint-butter text-ink hover:bg-tint-butter/70" : "border-line bg-white text-slate"}`}
                 >
                   <Truck size={20} aria-hidden />
                   <span>
@@ -81,7 +81,7 @@ export default function AdminDashboardPage() {
                 </Link>
                 <Link
                   to="/admin/products?sort=stock_low"
-                  className={`flex items-center gap-3 rounded-md border px-4 py-3 text-sm ${data.lowStock.count ? "border-clay/30 bg-clay/5 text-ink hover:bg-clay/10" : "border-line bg-white text-slate"}`}
+                  className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm ${data.lowStock.count ? "border-clay/30 bg-clay/5 text-ink hover:bg-clay/10" : "border-line bg-white text-slate"}`}
                 >
                   <AlertTriangle size={20} aria-hidden />
                   <span>
@@ -107,13 +107,13 @@ export default function AdminDashboardPage() {
           <p className="mt-2 text-xs text-slate">Revenue counts paid orders that weren't cancelled, minus refunds. Days are UTC.</p>
 
           <Panel className="mt-6 p-5">
-            <h2 className="text-lg font-semibold text-ink">Orders per day</h2>
+            <h2 className="text-base font-bold text-ink">Orders per day</h2>
             <div className="mt-4">{data ? <OrdersChart days={data.ordersPerDay} /> : <Skeleton className="h-52 w-full" />}</div>
           </Panel>
 
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <Panel className="overflow-hidden">
-              <h2 className="border-b border-line px-4 py-3 text-lg font-semibold text-ink">Top products</h2>
+              <h2 className="border-b border-line px-4 py-3 text-base font-bold text-ink">Top products</h2>
               {!data ? (
                 <div className="space-y-3 p-4">
                   {[0, 1, 2].map((i) => (
@@ -126,7 +126,7 @@ export default function AdminDashboardPage() {
                 <ol className="divide-y divide-line">
                   {data.topProducts.map((product) => (
                     <li key={product.productId} className="flex items-center gap-3 px-4 py-3">
-                      <img src={product.thumbnail} alt="" className="h-10 w-10 shrink-0 rounded-md border border-line bg-white object-contain" />
+                      <img src={product.thumbnail} alt="" className="h-10 w-10 shrink-0 rounded-lg border border-line bg-paper object-contain" />
                       <Link to={`/admin/products/${product.productId}`} className="min-w-0 flex-1 truncate text-sm font-medium text-ink hover:text-harbor hover:underline">
                         {product.title}
                       </Link>
@@ -141,7 +141,7 @@ export default function AdminDashboardPage() {
             </Panel>
 
             <Panel className="overflow-hidden">
-              <h2 className="border-b border-line px-4 py-3 text-lg font-semibold text-ink">Low stock</h2>
+              <h2 className="border-b border-line px-4 py-3 text-base font-bold text-ink">Low stock</h2>
               {!data ? (
                 <div className="space-y-3 p-4">
                   {[0, 1, 2].map((i) => (
@@ -155,7 +155,7 @@ export default function AdminDashboardPage() {
                   <ul className="divide-y divide-line">
                     {data.lowStock.items.map((product) => (
                       <li key={product.productId} className="flex items-center gap-3 px-4 py-3">
-                        <img src={product.thumbnail} alt="" className="h-10 w-10 shrink-0 rounded-md border border-line bg-white object-contain" />
+                        <img src={product.thumbnail} alt="" className="h-10 w-10 shrink-0 rounded-lg border border-line bg-paper object-contain" />
                         <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{product.title}</span>
                         <span className={`amount text-sm font-semibold ${product.stock === 0 ? "text-clay" : "text-ink"}`}>{product.stock === 0 ? "Out of stock" : `${product.stock} left`}</span>
                         <Link to={`/admin/products/${product.productId}`} className="text-sm font-medium text-harbor hover:underline" aria-label={`Restock ${product.title}`}>
@@ -175,7 +175,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <Panel className="mt-6 overflow-hidden">
-            <h2 className="border-b border-line px-4 py-3 text-lg font-semibold text-ink">Recent activity</h2>
+            <h2 className="border-b border-line px-4 py-3 text-base font-bold text-ink">Recent activity</h2>
             <ActivityList entries={activity.data?.items} isLoading={activity.isLoading} isError={activity.isError} onRetry={() => activity.refetch()} />
           </Panel>
         </>

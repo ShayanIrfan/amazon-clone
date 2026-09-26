@@ -228,7 +228,7 @@ export default function ProductForm({ product, departments, busy, error, submitL
               value={values.description}
               onChange={(e) => set("description", e.target.value)}
               aria-invalid={!!errors.description || undefined}
-              className={`w-full rounded-md border bg-white px-3 py-2 text-sm text-ink outline-none ${errors.description ? "border-clay" : "border-line-strong focus:border-harbor"}`}
+              className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-ink outline-none ${errors.description ? "border-clay" : "border-line-strong focus:border-harbor"}`}
             />
             {errors.description ? <p className="mt-1 text-sm text-clay">{errors.description}</p> : <p className="mt-1 text-sm text-slate">Each sentence becomes a bullet on the product page.</p>}
           </div>
@@ -256,7 +256,7 @@ export default function ProductForm({ product, departments, busy, error, submitL
               const valid = isHttpUrl(url.trim());
               return (
                 <li key={index} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-white" aria-hidden>
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white" aria-hidden>
                     {valid ? <img src={url.trim()} alt="" className="h-full w-full object-contain" onError={(e) => (e.currentTarget.style.visibility = "hidden")} /> : <ImageOff size={16} className="text-line-strong" />}
                   </span>
                   <TextField
@@ -305,7 +305,7 @@ export default function ProductForm({ product, departments, busy, error, submitL
             </p>
           )}
           {error && (
-            <p role="alert" className="rounded-md border border-clay/30 bg-clay/5 p-3 text-sm font-medium text-clay">
+            <p role="alert" className="rounded-xl border border-clay/30 bg-clay/5 p-3 text-sm font-medium text-clay">
               {error}
             </p>
           )}

@@ -67,7 +67,7 @@ export default function AdminCustomersPage() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Name or email"
-                className="h-10 w-full rounded-md border border-line-strong bg-white pr-3 pl-9 text-sm outline-none focus:border-harbor"
+                className="h-10 w-full rounded-xl border border-line-strong bg-white pr-3 pl-9 text-sm outline-none focus:border-harbor"
               />
             </div>
           </div>

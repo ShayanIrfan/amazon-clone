@@ -68,7 +68,7 @@ export default function AdminOrdersPage() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Order number, customer name or email"
-              className="h-10 w-full rounded-md border border-line-strong bg-white pr-3 pl-9 text-sm outline-none focus:border-harbor"
+              className="h-10 w-full rounded-xl border border-line-strong bg-white pr-3 pl-9 text-sm outline-none focus:border-harbor"
             />
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function AdminOrdersPage() {
                 type="button"
                 aria-pressed={status === value}
                 onClick={() => setParam("status", value, "all")}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                className={`rounded-xl px-3 py-1.5 text-sm font-medium ${
                   status === value ? "bg-harbor/10 text-harbor" : "text-slate hover:bg-paper hover:text-ink"
                 }`}
               >
@@ -141,7 +141,7 @@ export default function AdminOrdersPage() {
                         <div className="flex items-center gap-2">
                           <div className="flex -space-x-2" aria-hidden>
                             {order.thumbnails.map((src, i) => (
-                              <img key={i} src={src} alt="" loading="lazy" className="h-8 w-8 rounded-md border border-white bg-white object-contain ring-1 ring-line" />
+                              <img key={i} src={src} alt="" loading="lazy" className="h-8 w-8 rounded-xl border border-white bg-white object-contain ring-1 ring-line" />
                             ))}
                           </div>
                           <div className="min-w-0">

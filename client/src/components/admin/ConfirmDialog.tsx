@@ -30,7 +30,7 @@ export default function ConfirmDialog({ open, title, children, confirmLabel, bus
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="surface w-full max-w-md rounded-md bg-white p-5 shadow-lg"
+        className="surface w-full max-w-md rounded-xl bg-white p-5 shadow-lg"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <h2 id={titleId} className="text-lg font-semibold text-ink">

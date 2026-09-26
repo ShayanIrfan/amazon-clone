@@ -144,17 +144,17 @@ export default function AdminProductFormPage() {
       <h1 className="page-title mt-2 text-ink">{isNew ? "New product" : product?.title}</h1>
 
       {notice && (
-        <p role="status" className="mt-4 rounded-md border border-moss/20 bg-moss/10 px-4 py-2.5 text-sm font-medium text-moss">
+        <p role="status" className="mt-4 rounded-xl border border-moss/20 bg-moss/10 px-4 py-2.5 text-sm font-medium text-moss">
           {notice}
         </p>
       )}
       {archived && !notice && (
-        <p className="mt-4 rounded-md border border-line bg-white px-4 py-2.5 text-sm text-slate">
+        <p className="mt-4 rounded-xl border border-line bg-white px-4 py-2.5 text-sm text-slate">
           This product is archived, so shoppers can't see or buy it.
         </p>
       )}
       {conflict && (
-        <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-marigold/40 bg-marigold/10 px-4 py-3 text-sm text-ink">
+        <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-tint-butter px-4 py-3 text-sm text-ink">
           <span>Someone else saved this product first. Load their version, then re-apply your changes.</span>
           <button
             type="button"
