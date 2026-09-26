@@ -1,33 +1,47 @@
 import { useHome } from "../hooks/useProducts";
-import HeroCarousel from "../components/home/HeroCarousel";
-import CategoryGrid, { pickThumbnails } from "../components/home/CategoryGrid";
+import Hero from "../components/home/Hero";
+import DepartmentGrid from "../components/home/DepartmentGrid";
+import PromoPanels from "../components/home/PromoPanels";
 import ProductRow from "../components/product/ProductRow";
-import PageLoader from "../components/ui/PageLoader";
 import ErrorState from "../components/ui/ErrorState";
+import Skeleton from "../components/ui/Skeleton";
 
 export default function HomePage() {
-  const { data, isLoading, isError } = useHome();
+  const { data, isLoading, isError, refetch } = useHome();
 
-  if (isLoading) {
-    return <PageLoader label="Loading the marketplace" />;
+  if (isError) {
+    return <ErrorState message="Couldn't load the marketplace." detail="Check your connection and try again." onRetry={() => refetch()} />;
   }
 
-  if (isError || !data) {
-    return <ErrorState message="Couldn't load the marketplace." detail="Check your connection and try again." />;
-  }
-
-  const thumbnails = pickThumbnails([...data.bestSellers, ...data.newArrivals, ...data.topRated]);
+  // Hero collage: a phone in front, a fragrance behind it, a kitchen item beside. If a department is
+  // missing (say it was archived), the next departments' pictures fill in.
+  const pictureOf = (slug: string) => data?.categories.find((c) => c.slug === slug)?.thumbnail ?? null;
+  const spare = (data?.categories ?? []).map((c) => c.thumbnail).filter((t): t is string => !!t);
+  const collage = [pictureOf("fragrances"), pictureOf("smartphones"), pictureOf("kitchen-accessories")].map((p, i) => p ?? spare[i] ?? "").filter(Boolean);
 
   return (
-    <div className="flex flex-col gap-2 pb-8">
-      <HeroCarousel categories={data.categories} />
-      <CategoryGrid categories={data.categories} thumbnails={thumbnails} />
-      <div className="page-shell flex flex-col gap-5">
-        <ProductRow title="Today's Deals" products={data.dealsOfTheDay} />
-        <ProductRow title="Best Sellers" products={data.bestSellers} />
-        <ProductRow title="Top Rated" products={data.topRated} />
-        <ProductRow title="New Arrivals" products={data.newArrivals} />
-      </div>
+    <div className="page-shell flex flex-col gap-14 py-8" aria-busy={isLoading || undefined}>
+      {data ? (
+        <Hero totals={data.totals} pictures={collage} />
+      ) : (
+        <Skeleton className="h-[26rem] w-full rounded-2xl" />
+      )}
+
+      {data ? (
+        <DepartmentGrid categories={data.categories} total={data.totals.categories} />
+      ) : (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6" aria-hidden>
+          {Array.from({ length: 6 }, (_, i) => (
+            <Skeleton key={i} className="aspect-square rounded-2xl" />
+          ))}
+        </div>
+      )}
+
+      <ProductRow id="price-drops" title="Today's price drops" tag="Biggest discounts" tagTone="sale" products={data?.dealsOfTheDay} loading={isLoading} />
+      {data && <PromoPanels categories={data.categories} />}
+      <ProductRow id="top-rated" title="Top rated" tag="Customer favorites" products={data?.topRated} loading={isLoading} />
+      <ProductRow id="best-sellers" title="Best sellers" products={data?.bestSellers} loading={isLoading} />
+      <ProductRow id="new-arrivals" title="New arrivals" products={data?.newArrivals} loading={isLoading} />
     </div>
   );
 }

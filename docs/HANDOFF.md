@@ -102,8 +102,8 @@ Header shows a "Deliver to <city>" chip from the shopper's default address (only
 - [x] Logo, Header (search pill, nav, cart badge, account avatar), Footer, drawer, Layout
 - [x] ProductCard, ProductRow, StarRating, AddToListMenu (icon variant)
 - [x] Server: home API extras, `sort=discount`
-- [ ] **Home page** (hero, department tiles, price drops, promos, top rated) ← in progress
-- [ ] Search results page (filters sidebar, chips, grid, pagination, loading + empty states)
+- [x] Home page (hero, department tiles, price drops, promos, rails) — verified at 1280 and 390
+- [ ] **Search results page** ← in progress (filters sidebar, chips, grid, pagination, loading + empty states)
 - [ ] Product detail page
 - [ ] Cart, checkout (address/delivery/payment/confirmation), orders, account, lists, sign-in
 - [ ] Admin restyle (last)

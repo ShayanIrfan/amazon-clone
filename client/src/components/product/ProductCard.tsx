@@ -44,6 +44,11 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="absolute top-2.5 right-2.5">
           <AddToListMenu productId={product._id} variant="icon" />
         </div>
+        {(soldOut || product.stock < LOW_STOCK) && (
+          <span className="absolute bottom-2.5 left-2.5 rounded-full bg-clay/10 px-2.5 py-1 text-[0.6875rem] font-bold text-clay">
+            {product.archivedAt ? "No longer available" : soldOut ? "Out of stock" : `Only ${product.stock} left`}
+          </span>
+        )}
         {!soldOut && (
           <button
             type="button"
@@ -62,9 +67,8 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
 
       <div className="flex flex-1 flex-col px-1">
-        {product.brand && (
-          <span className="mb-1 truncate text-xs font-semibold tracking-wider text-slate uppercase">{product.brand}</span>
-        )}
+        {/* Always one line tall, so titles and prices line up across cards with and without a brand. */}
+        <span className="mb-1 block h-4 truncate text-xs font-semibold tracking-wider text-slate uppercase">{product.brand}</span>
         <h3 className="mb-2 line-clamp-2 text-sm leading-snug font-medium text-ink">
           <Link to={href} className="transition-colors group-hover:text-harbor">
             {product.title}
@@ -77,11 +81,6 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="amount text-xs text-slate line-through">{formatPrice(listPrice(product.price, product.discountPercentage))}</span>
           )}
         </div>
-        {soldOut ? (
-          <p className="mt-1 text-xs font-semibold text-clay">{product.archivedAt ? "No longer available" : "Out of stock"}</p>
-        ) : (
-          product.stock < LOW_STOCK && <p className="mt-1 text-xs font-semibold text-clay">Only {product.stock} left</p>
-        )}
       </div>
     </article>
   );
