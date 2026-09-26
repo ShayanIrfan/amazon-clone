@@ -1,6 +1,7 @@
 # Capture hook scratch state (the logs themselves, .agent-logs/, are committed)
 .claude/capture-state/
 .claude/settings.local.json
+.claude/skills/
 
 # Recon screenshots show a real Amazon account; kept local only (docs/recon.md is committed)
 docs/screenshots/
