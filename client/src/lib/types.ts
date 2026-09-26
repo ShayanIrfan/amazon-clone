@@ -21,6 +21,8 @@ export interface Product {
   minimumOrderQuantity?: number;
   images: string[];
   thumbnail: string;
+  /** Set once an admin archives the product: still viewable by link, but not for sale. */
+  archivedAt?: string;
   /** Only present when the request was authenticated (see GET /products/:id). */
   canReview?: { eligible: boolean; alreadyReviewed: boolean };
 }
@@ -160,4 +162,40 @@ export interface AuditEntry {
   summary: string;
   changes: Record<string, { from: unknown; to: unknown }> | null;
   createdAt: string;
+}
+
+export interface AdminProduct extends Product {
+  createdAt: string;
+  updatedAt: string;
+  createdVia?: "seed" | "admin";
+}
+
+export type AdminProductStatus = "active" | "archived" | "all";
+export type AdminProductSort = "updated" | "title" | "price_low" | "price_high" | "stock_low" | "stock_high";
+
+export interface AdminProductList {
+  items: AdminProduct[];
+  total: number;
+  page: number;
+  limit: number;
+  totals: { active: number; archived: number };
+  categories: { slug: string; name: string }[];
+}
+
+/** The editable fields, exactly what POST/PATCH /admin/products accept. */
+export interface AdminProductInput {
+  title: string;
+  description: string;
+  category: string;
+  brand?: string;
+  price: number;
+  discountPercentage?: number;
+  stock: number;
+  sku?: string;
+  tags?: string[];
+  minimumOrderQuantity?: number;
+  warrantyInformation?: string;
+  shippingInformation?: string;
+  returnPolicy?: string;
+  images: string[];
 }

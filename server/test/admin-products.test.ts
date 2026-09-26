@@ -152,6 +152,23 @@ describe("admin products", () => {
       expect((await ProductModel.findById(created._id))!.price).toBe(44);
     });
 
+    it("doesn't log a change when an unset field is saved back as empty", async () => {
+      // The edit form always sends every field; a seeded product without warranty text
+      // comes back from it as "", which shoppers can't tell apart from "not set".
+      const seeded = await ProductModel.create({
+        sourceId: 999200, title: "Old Catalog Kettle", description: "From the seed.", category: "kitchen", price: 30, stock: 8,
+        images: [IMG], thumbnail: IMG,
+      });
+      const res = await admin.agent
+        .patch(`/api/admin/products/${seeded._id}`)
+        .send({ price: 32, warrantyInformation: "", shippingInformation: "", returnPolicy: "", expectedUpdatedAt: seeded.updatedAt.toISOString() })
+        .expect(200);
+      expect(res.body.product.price).toBe(32);
+      const [entry] = (await admin.agent.get(`/api/admin/activity?entityId=${seeded._id}`).expect(200)).body.items;
+      expect(entry.changes).toEqual({ price: { from: 30, to: 32 } });
+      await ProductModel.deleteOne({ _id: seeded._id });
+    });
+
     it("needs a change and a version to edit", async () => {
       await admin.agent.patch(`/api/admin/products/${created._id}`).send({ expectedUpdatedAt: created.updatedAt }).expect(400);
       await admin.agent.patch(`/api/admin/products/${created._id}`).send({ rating: 5, expectedUpdatedAt: created.updatedAt }).expect(400);

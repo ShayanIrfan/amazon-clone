@@ -46,13 +46,16 @@ export async function recordAudit(entry: {
   });
 }
 
+/** A missing field and an empty string mean the same to shoppers, so they don't count as a change. */
+const normalise = (value: unknown) => (value === undefined || value === "" ? null : value);
+
 /** Compares two plain objects and returns only the fields that differ. */
 export function diffFields(before: Record<string, unknown>, after: Record<string, unknown>, fields: string[]) {
   const changes: Record<string, { from: unknown; to: unknown }> = {};
   for (const field of fields) {
-    if (JSON.stringify(before[field] ?? null) !== JSON.stringify(after[field] ?? null)) {
-      changes[field] = { from: before[field] ?? null, to: after[field] ?? null };
-    }
+    const from = normalise(before[field]);
+    const to = normalise(after[field]);
+    if (JSON.stringify(from) !== JSON.stringify(to)) changes[field] = { from, to };
   }
   return changes;
 }

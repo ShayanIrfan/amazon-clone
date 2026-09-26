@@ -17,6 +17,11 @@ import type {
   PaymentProvider,
   AuditEntry,
   AuditEntityType,
+  AdminProduct,
+  AdminProductInput,
+  AdminProductList,
+  AdminProductSort,
+  AdminProductStatus,
 } from "./types";
 import type { CartItem } from "./cartStorage";
 
@@ -145,6 +150,21 @@ export const api = {
       if (params.entityId) qs.set("entityId", params.entityId);
       if (params.limit) qs.set("limit", String(params.limit));
       return get<{ items: AuditEntry[] }>(`/admin/activity${qs.size ? `?${qs}` : ""}`);
+    },
+    products: {
+      list: (params: { q?: string; category?: string; status?: AdminProductStatus; sort?: AdminProductSort; page?: number }) => {
+        const qs = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) if (value !== undefined && value !== "") qs.set(key, String(value));
+        return get<AdminProductList>(`/admin/products${qs.size ? `?${qs}` : ""}`);
+      },
+      get: (id: string) => get<{ product: AdminProduct; deleteBlockedReason: string | null }>(`/admin/products/${id}`),
+      create: (input: AdminProductInput) => post<{ product: AdminProduct }>("/admin/products", input),
+      update: (id: string, input: Partial<AdminProductInput> & { expectedUpdatedAt: string }) =>
+        patch<{ product: AdminProduct }>(`/admin/products/${id}`, input),
+      setStock: (id: string, stock: number) => patch<{ product: AdminProduct }>(`/admin/products/${id}/stock`, { stock }),
+      archive: (id: string) => post<{ product: AdminProduct }>(`/admin/products/${id}/archive`),
+      restore: (id: string) => post<{ product: AdminProduct }>(`/admin/products/${id}/restore`),
+      remove: (id: string) => del<void>(`/admin/products/${id}`),
     },
   },
 

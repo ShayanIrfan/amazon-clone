@@ -5,10 +5,12 @@ export type ButtonVariant = "primary" | "secondary" | "quiet" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: "bg-harbor text-white border border-harbor hover:bg-harbor-dark",
-  secondary: "bg-white text-harbor border border-line-strong hover:bg-paper",
-  quiet: "bg-transparent text-harbor border border-transparent hover:bg-paper",
-  danger: "bg-white text-clay border border-line-strong hover:border-clay",
+  // Text colours are !important because index.css sets an unlayered `a { color: inherit }`,
+  // which would otherwise beat these utilities whenever a <Link> is styled as a button.
+  primary: "bg-harbor text-white! border border-harbor hover:bg-harbor-dark",
+  secondary: "bg-white text-harbor! border border-line-strong hover:bg-paper",
+  quiet: "bg-transparent text-harbor! border border-transparent hover:bg-paper",
+  danger: "bg-white text-clay! border border-line-strong hover:border-clay",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {

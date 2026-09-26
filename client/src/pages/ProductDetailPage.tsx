@@ -43,6 +43,10 @@ export default function ProductDetailPage() {
     return <ErrorState message="Product not found." detail="This product may have been removed from the catalog." />;
   }
 
+  // Archived products stay reachable (e.g. from order history) but can't be bought.
+  const archived = !!product.archivedAt;
+  const canBuy = product.stock > 0 && !archived;
+
   const bullets = product.description
     .split(/(?<=[.!?])\s+/)
     .map((s) => s.trim())
@@ -109,7 +113,7 @@ export default function ProductDetailPage() {
         <div className="md:col-span-2 lg:col-span-1">
           <div className="surface rounded-md p-4 lg:sticky lg:top-28">
             <PriceTag price={product.price} discountPercentage={product.discountPercentage} size="lg" />
-            {product.stock > 0 ? (
+            {canBuy ? (
               <>
                 <p className="mt-2 text-sm text-neutral-700">
                   FREE delivery <span className="font-medium text-neutral-900">{estimatedDelivery(4)}</span>
@@ -120,10 +124,12 @@ export default function ProductDetailPage() {
                 )}
               </>
             ) : (
-              <p className="mt-2 text-lg font-medium text-amazon-red">Out of Stock</p>
+              <p className="mt-2 text-lg font-medium text-amazon-red">
+                {archived ? "No longer available" : "Out of Stock"}
+              </p>
             )}
 
-            {product.stock > 0 && (
+            {canBuy && (
               <div className="mt-3">
                 <QuantitySelector quantity={quantity} max={product.stock} onChange={setQuantity} />
               </div>
@@ -131,7 +137,7 @@ export default function ProductDetailPage() {
 
             <button
               type="button"
-              disabled={product.stock === 0}
+              disabled={!canBuy}
               onClick={() => {
                 addItem(product._id, quantity);
                 setJustAdded(true);
@@ -148,7 +154,7 @@ export default function ProductDetailPage() {
             )}
             <button
               type="button"
-              disabled={product.stock === 0}
+              disabled={!canBuy}
               onClick={() => {
                 addItem(product._id, quantity);
                 navigate("/checkout");

@@ -15,7 +15,9 @@ interface Props {
 }
 
 export default function CartLineItem({ item, product, onSetQuantity, onRemove, onSaveForLater, onMoveToCart }: Props) {
-  const outOfStock = product.stock <= 0;
+  // An archived product can't be bought even if units remain, so it reads as gone.
+  const archived = !!product.archivedAt;
+  const outOfStock = product.stock <= 0 || archived;
   const quantityExceedsStock = !outOfStock && item.quantity > product.stock;
 
   return (
@@ -31,7 +33,7 @@ export default function CartLineItem({ item, product, onSetQuantity, onRemove, o
           </Link>
           <p className="amount mt-1 text-base font-medium sm:text-lg">{formatPrice(product.price)}</p>
           {outOfStock ? (
-            <p className="text-sm font-medium text-clay">No longer in stock</p>
+            <p className="text-sm font-medium text-clay">{archived ? "No longer available" : "No longer in stock"}</p>
           ) : quantityExceedsStock ? (
             <p className="text-sm font-medium text-clay">Only {product.stock} left — quantity reduced at checkout</p>
           ) : (

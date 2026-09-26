@@ -6,7 +6,7 @@ export default function NotFoundPage() {
       <p className="eyebrow">404 error</p>
       <h1 className="page-title text-ink">That page wandered off</h1>
       <p className="muted max-w-md">The page may have moved or the address may be incomplete. Let’s get you back to the marketplace.</p>
-      <Link to="/" className="mt-2 rounded-md bg-harbor px-6 py-2.5 text-sm font-semibold text-white hover:bg-harbor-dark">
+      <Link to="/" className="mt-2 rounded-md bg-harbor px-6 py-2.5 text-sm font-semibold text-white! hover:bg-harbor-dark">
         Return home
       </Link>
     </main>

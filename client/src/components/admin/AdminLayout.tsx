@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
-import { LayoutDashboard, LogOut, Store, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, Package, Store, type LucideIcon } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Logo from "../layout/Logo";
 import Badge from "../ui/Badge";
@@ -13,7 +13,10 @@ interface NavItem {
 
 // One list drives both the desktop sidebar and the mobile tab row; each admin
 // phase adds its entry here when its pages exist.
-const NAV_ITEMS: NavItem[] = [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true }];
+const NAV_ITEMS: NavItem[] = [
+  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/admin/products", label: "Products", icon: Package },
+];
 
 const linkClasses = ({ isActive }: { isActive: boolean }) =>
   `flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
