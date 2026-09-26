@@ -50,12 +50,14 @@ export function findStockShortfalls(
   const shortfalls: StockShortfall[] = [];
   for (const item of activeItems) {
     const product = productById.get(item.product.toString());
-    if (!product || product.stock < item.quantity) {
+    // An archived product is unavailable even if units remain, so it can never be bought.
+    const unavailable = !product || !!product.archivedAt;
+    if (unavailable || product.stock < item.quantity) {
       shortfalls.push({
         productId: item.product.toString(),
         title: product?.title ?? "This item",
         requested: item.quantity,
-        available: product?.stock ?? 0,
+        available: unavailable ? 0 : product.stock,
       });
     }
   }

@@ -5,6 +5,7 @@ import { ProductModel, ReviewModel, UserModel } from "../models/index.js";
 import { parsePagination } from "../lib/pagination.js";
 import { recordView } from "../lib/recentlyViewed.js";
 import { hasPurchased, recalcProductRating } from "../lib/reviews.js";
+import { ACTIVE_PRODUCT } from "../lib/catalog.js";
 
 export const productsRouter = Router();
 
@@ -57,7 +58,7 @@ function sortStage(sort: Sort | undefined): Record<string, 1 | -1> {
 // Filters shared by the results query and the facet counts, minus whichever
 // facet is being counted (so picking a brand doesn't hide the other brands).
 function baseMatch(parsed: z.infer<typeof listQuerySchema>) {
-  const match: Record<string, unknown> = {};
+  const match: Record<string, unknown> = { ...ACTIVE_PRODUCT };
   if (parsed.q) Object.assign(match, searchMatch(parsed.q));
   if (parsed.category) match.category = parsed.category;
   return match;
@@ -91,8 +92,8 @@ productsRouter.get("/suggestions", async (req, res, next) => {
     const startsWith = new RegExp(`^${escapeRegex(q)}`, "i");
 
     const [titleMatches, brandMatches] = await Promise.all([
-      ProductModel.find({ title: anywhere }).select("title").limit(20).lean(),
-      ProductModel.find({ brand: anywhere }).select("brand").limit(10).lean(),
+      ProductModel.find({ ...ACTIVE_PRODUCT, title: anywhere }).select("title").limit(20).lean(),
+      ProductModel.find({ ...ACTIVE_PRODUCT, brand: anywhere }).select("brand").limit(10).lean(),
     ]);
 
     // Prefix matches first (closer to what the shopper is typing), then
@@ -166,7 +167,7 @@ productsRouter.get("/:id/related", async (req, res, next) => {
     const product = await ProductModel.findById(req.params.id).select("category").lean();
     if (!product) return res.status(404).json({ error: "Product not found" });
 
-    const items = await ProductModel.find({ category: product.category, _id: { $ne: product._id } })
+    const items = await ProductModel.find({ ...ACTIVE_PRODUCT, category: product.category, _id: { $ne: product._id } })
       .sort({ rating: -1, ratingCount: -1 })
       .limit(10)
       .lean();

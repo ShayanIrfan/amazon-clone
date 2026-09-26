@@ -30,6 +30,12 @@ const productSchema = new Schema(
     minimumOrderQuantity: { type: Number, default: 1 },
     images: { type: [String], default: [] },
     thumbnail: String,
+    // Soft delete: archived products vanish from the storefront but stay in
+    // order history and can be restored. Absent means active.
+    archivedAt: { type: Date },
+    // Seeded products can only be archived; only admin-created ones (that were
+    // never ordered) can be deleted for good. Absent means seeded.
+    createdVia: { type: String, enum: ["seed", "admin"], default: "seed" },
   },
   { timestamps: true },
 );

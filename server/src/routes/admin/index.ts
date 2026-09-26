@@ -3,11 +3,13 @@ import { z } from "zod";
 import { AuditLogModel, AUDIT_ENTITY_TYPES } from "../../models/index.js";
 import { requireAuth } from "../../middleware/auth.js";
 import { requireAdmin } from "../../middleware/admin.js";
+import { adminProductsRouter } from "./products.js";
 
 // Everything under /api/admin needs a signed-in admin; each sub-router can
 // assume req.admin is set.
 export const adminRouter = Router();
 adminRouter.use(requireAuth, requireAdmin);
+adminRouter.use("/products", adminProductsRouter);
 
 const activityQuerySchema = z.object({
   entityType: z.enum(AUDIT_ENTITY_TYPES).optional(),

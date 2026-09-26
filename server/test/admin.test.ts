@@ -2,34 +2,17 @@
 // guarded "*-test" database as core-flow.test.ts (see test/guard.ts).
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import request from "supertest";
-import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import { createApp } from "../src/app.js";
 import { UserModel, AuditLogModel } from "../src/models/index.js";
 import { isAdminUser, recordAudit } from "../src/lib/admin.js";
-import { wipeDatabase } from "./helpers.js";
+import { makeUser, signIn as signInAs, wipeDatabase, type Session } from "./helpers.js";
 
 const app = createApp();
-const PASSWORD = "Password123!";
+const signIn = (email: string) => signInAs(app, email);
 
-async function makeUser(email: string, extra: Record<string, unknown> = {}) {
-  return UserModel.create({
-    name: "Test Person",
-    email,
-    passwordHash: await bcrypt.hash(PASSWORD, 4),
-    emailVerifiedAt: new Date(),
-    ...extra,
-  });
-}
-
-async function signIn(email: string) {
-  const agent = request.agent(app);
-  const res = await agent.post("/api/auth/login").send({ email, password: PASSWORD }).expect(200);
-  return { agent, user: res.body.user as { id: string; isAdmin: boolean } };
-}
-
-let admin: Awaited<ReturnType<typeof signIn>>;
-let customer: Awaited<ReturnType<typeof signIn>>;
+let admin: Session;
+let customer: Session;
 
 beforeAll(async () => {
   await mongoose.connect(process.env.MONGODB_URI!);
